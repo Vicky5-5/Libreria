@@ -1,0 +1,6 @@
+@BackEnd_Libreria_HostAddress = http://localhost:5152
+
+GET {{BackEnd_Libreria_HostAddress}}/libreria/
+Accept: application/json
+
+###
