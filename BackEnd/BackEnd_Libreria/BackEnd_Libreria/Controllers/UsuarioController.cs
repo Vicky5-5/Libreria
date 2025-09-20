@@ -35,17 +35,32 @@ namespace BackEnd_Libreria.Controllers
         }
 
         [HttpPut("{id}")]
-        public IActionResult Update(int id, Usuario usuario)
+        public IActionResult Actualizar(int id, Usuario usuario)
         {
-            if (!_service.Update(id, usuario)) return NotFound();
+            if (!_service.Actualizar(id, usuario)) return NotFound();
             return NoContent();
+        }
+        // Para dar de baja
+        [HttpDelete("{id}")]
+        public IActionResult DarBaja(int id)
+        {
+            if (!_service.DarBaja(id)) return NotFound();
+            return NoContent(); // 204
+        }
+        [HttpPut("{id}/DarAltaDeNuevo")]
+        public IActionResult Reactivar(int id)
+        {
+            var resultado = _service.DarAltaDeNuevo(id);
+            if (!resultado) return NotFound();
+            return NoContent();
+        }
+        // Para obtener solo los usuarios activos
+        [HttpGet("Activos")]
+        public ActionResult<IEnumerable<Usuario>> GetAllActivos()
+        {
+            var usuariosActivos = _service.GetAll().Where(u => u.Estado);
+            return Ok(usuariosActivos);
         }
 
-        [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
-        {
-            if (!_service.Delete(id)) return NotFound();
-            return NoContent();
-        }
     }
 }

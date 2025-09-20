@@ -5,7 +5,8 @@
         IEnumerable<Usuario> GetAll();
         Usuario? GetById(int id);
         Usuario Add(Usuario usuario);
-        bool Update(int id, Usuario usuario);
-        bool Delete(int id);
+        bool Actualizar(int id, Usuario usuario);
+        bool DarBaja(int id);
+        bool DarAltaDeNuevo(int id);
     }
 }

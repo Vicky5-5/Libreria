@@ -6,6 +6,8 @@
         public string Nombre { get; set; }
         public  string Email { get; set; }
         public string Password { get; set; }
+        public DateTime FechaRegistro { get; set; }
+        public DateTime? FechaBaja { get; set; }
         public bool Estado { get; set; }
         public bool Admin { get; set; }
 

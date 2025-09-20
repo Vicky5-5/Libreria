@@ -10,9 +10,16 @@ namespace BackEnd_Libreria.Models.Libros
         public int idLibro { get; set; }
         [NotMapped]
         public IFormFile Portada { get; set; }
+        [Required]
         public string RutaArchivoPortada { get; set; }
+        [Required]
         public string Titulo { get; set; }
+        [Required]
         public string Autor { get; set; }
+        [NotMapped]
+        public IFormFile ArchivoPDF { get; set; }
+
+        public string RutaArchivoPDF { get; set; }
         public int yearPublicacion { get; set; }
         public Genero Genero { get; set; }
         public bool Favorito { get; set; }

@@ -44,9 +44,5 @@ namespace BackEnd_Libreria.Services
             return true;
         }
     }
-
-    public interface ILibrosService
-    {
-    }
 }
 

@@ -14,11 +14,15 @@ namespace BackEnd_Libreria.Services
         public Usuario Add(Usuario usuario)
         {
             usuario.idUsuario = _usuarios.Count > 0 ? _usuarios.Max(u => u.idUsuario) + 1 : 1;
+            usuario.FechaRegistro = DateTime.Now;
+            usuario.Estado = true;
+            usuario.FechaBaja = null;
             _usuarios.Add(usuario);
             return usuario;
         }
 
-        public bool Update(int id, Usuario usuario)
+
+        public bool Actualizar(int id, Usuario usuario)
         {
             var existing = _usuarios.FirstOrDefault(u => u.idUsuario == id);
             if (existing == null) return false;
@@ -32,13 +36,27 @@ namespace BackEnd_Libreria.Services
             return true;
         }
 
-        public bool Delete(int id)
+        public bool DarBaja(int id)
         {
             var usuario = _usuarios.FirstOrDefault(u => u.idUsuario == id);
             if (usuario == null) return false;
 
-            _usuarios.Remove(usuario);
+            usuario.Estado = false;
+            usuario.FechaBaja = DateTime.Now;
             return true;
         }
+        public bool DarAltaDeNuevo(int id)
+        {
+            var usuario = _usuarios.FirstOrDefault(u => u.idUsuario == id);
+            if (usuario == null || usuario.Estado) return false;
+
+            usuario.Estado = true;
+            usuario.FechaBaja = null;
+            return true;
+        }
+        // Para obtener solo los usuarios activos
+        public IEnumerable<Usuario> GetAllActivos() => _usuarios.Where(u => u.Estado);
+
+
     }
 }
