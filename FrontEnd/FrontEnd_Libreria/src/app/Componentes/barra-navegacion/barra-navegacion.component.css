@@ -1,0 +1,25 @@
+.example-spacer {
+  flex: 1 1 auto;
+}
+.mobile-only {
+  display: none;
+}
+.nav-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* Espacio entre logo y texto */
+}
+
+/* IMAGEN DEL LOGO */
+.nav-brand img {
+    height: 60px;
+    width: auto;
+}
+mat-toolbar{
+  background-color: #212121;
+}
+@media (max-width: 768px) {
+  .mobile-only {
+    display: inline-flex;
+  }
+}
