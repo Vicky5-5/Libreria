@@ -5,10 +5,17 @@
   display: none;
 }
 .nav-brand {
-    display: flex;
-    align-items: center;
-    gap: 10px; /* Espacio entre logo y texto */
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  color: white;
 }
+
+.nav-brand img {
+  height: 40px;
+}
+
 
 /* IMAGEN DEL LOGO */
 .nav-brand img {

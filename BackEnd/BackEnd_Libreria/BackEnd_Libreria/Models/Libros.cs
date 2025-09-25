@@ -23,7 +23,9 @@ namespace BackEnd_Libreria.Models.Libros
         public int yearPublicacion { get; set; }
         public Genero Genero { get; set; }
         public bool Favorito { get; set; }
-        public bool Estado { get; set; }
+        public string Idioma { get; set; }
+        public string Sinopsis { get; set; }
+        public bool Disponibilidad { get; set; }
         
     }
     public enum Genero

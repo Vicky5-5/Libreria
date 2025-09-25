@@ -28,10 +28,12 @@ namespace BackEnd_Libreria.Services
             existing.yearPublicacion = libros.yearPublicacion;
             existing.Genero = libros.Genero;
             existing.Favorito = libros.Favorito;
-            existing.Estado = libros.Estado;
+            existing.RutaArchivoPDF = libros.RutaArchivoPDF;
             existing.RutaArchivoPortada = libros.RutaArchivoPortada;
-
-
+            existing.Idioma = libros.Idioma;
+            existing.Sinopsis = libros.Sinopsis;
+            existing.Disponibilidad = libros.Disponibilidad;
+            existing.Favorito = libros.Favorito;
             return true;
         }
 

@@ -7,7 +7,9 @@ export interface Libros {
   yearPublicacion: number;
   genero: Genero;
   favorito: boolean;
-  estado: boolean;
+  sinopsis: string;
+  idioma: string;
+  disponibilidad: boolean;
 }
 export enum Genero {
   Terror = 0,
