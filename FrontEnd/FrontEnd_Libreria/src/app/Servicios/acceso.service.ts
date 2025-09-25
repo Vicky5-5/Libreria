@@ -17,10 +17,11 @@ export class AccesoService {
   constructor() { }
 
   registrarse(objeto: Usuario): Observable<ResponseAcceso> {
-    return this.http.post<ResponseAcceso>('${this.apiUrl}/Registrarse', objeto);
-  }
+  return this.http.post<ResponseAcceso>(`${this.apiUrl}/Registrarse`, objeto);
+}
 
-  login(objeto: Login): Observable<ResponseAcceso> {
-    return this.http.post<ResponseAcceso>('${this.apiUrl}/Login', objeto);
-  }
+login(objeto: Login): Observable<ResponseAcceso> {
+  return this.http.post<ResponseAcceso>(`${this.apiUrl}/Login`, objeto);
+}
+
 }
