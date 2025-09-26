@@ -25,7 +25,7 @@
           </mat-error>
         </mat-form-field>
     <div class="flex">
-        <button mat-raised-button color="primary" type="submit" [disabled]="formLogin.invalid">
+        <button mat-raised-button color="primary" (click)="iniciarSesion()" type="submit" [disabled]="formLogin.invalid">
             Iniciar Sesión
         </button>
 

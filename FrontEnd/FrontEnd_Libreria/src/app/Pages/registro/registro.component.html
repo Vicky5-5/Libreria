@@ -1,1 +1,54 @@
-<p>registro works!</p>
+<div class="card-container">
+  <mat-card class="login-card">
+    <mat-card-title>Registro</mat-card-title>
+    <mat-card-content>
+      <form [formGroup]="formRegistro" (ngSubmit)="registrase()">
+        <!-- Nombre -->
+        <mat-form-field appearance="fill" class="full-width">
+          <mat-label>Nombre</mat-label>
+          <input matInput formControlName="nombre" type="text" required>
+          <mat-error *ngIf="formRegistro.get('nombre')?.hasError('required')">
+            El nombre es obligatorio
+          </mat-error>
+          <mat-error *ngIf="formRegistro.get('nombre')?.hasError('minlength')">
+            Mínimo 3 caracteres
+          </mat-error>
+        </mat-form-field>
+
+        <!-- Correo -->
+        <mat-form-field appearance="fill" class="full-width">
+          <mat-label>Correo Electrónico</mat-label>
+          <input matInput formControlName="correo" type="email" required>
+          <mat-error *ngIf="formRegistro.get('correo')?.hasError('required')">
+            El correo es obligatorio
+          </mat-error>
+          <mat-error *ngIf="formRegistro.get('correo')?.hasError('email')">
+            Formato de correo inválido
+          </mat-error>
+        </mat-form-field>
+
+        <!-- Contraseña -->
+        <mat-form-field appearance="fill" class="full-width">
+          <mat-label>Contraseña</mat-label>
+          <input matInput formControlName="password" type="password" required>
+          <mat-error *ngIf="formRegistro.get('password')?.hasError('required')">
+            La contraseña es obligatoria
+          </mat-error>
+          <mat-error *ngIf="formRegistro.get('password')?.hasError('minlength')">
+            Mínimo 6 caracteres
+          </mat-error>
+        </mat-form-field>
+
+        <!-- Botones -->
+        <div class="flex">
+          <button mat-raised-button color="primary" type="submit" [disabled]="formRegistro.invalid">
+            Registrarse
+          </button>
+          <button mat-raised-button color="warn" type="button" (click)="volver()">
+            Volver
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

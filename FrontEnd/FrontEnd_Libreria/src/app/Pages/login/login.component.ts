@@ -5,17 +5,18 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Login } from '../../interface/Login';
 
 import { MatCardModule } from "@angular/material/card";
-import { MatFormField, MatLabel, MatError } from "@angular/material/form-field";
+import { MatLabel, MatError, MatFormFieldModule } from "@angular/material/form-field";
 import { MatInputModule } from "@angular/material/input";
 import { MatButtonModule } from "@angular/material/button";
 import { CommonModule } from '@angular/common';
+import { HttpClientModule } from '@angular/common/http';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [MatCardModule, MatFormField, MatLabel, MatError, ReactiveFormsModule, CommonModule, MatInputModule, MatButtonModule],
+  imports: [MatCardModule, MatLabel, MatError, ReactiveFormsModule, CommonModule, MatInputModule,MatFormFieldModule, MatButtonModule],
   templateUrl: './login.component.html',
-  styleUrl: './login.component.css'
+  styleUrls: ['./login.component.css'] 
 })
 export class LoginComponent {
 
@@ -24,15 +25,16 @@ export class LoginComponent {
   public formBuild = inject(FormBuilder);
 
   public formLogin = this.formBuild.group({
-    correo: ['', [Validators.required, Validators.email]],
+    email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(6)]]
   });
 
   iniciarSesion() {
     if(this.formLogin.invalid) return;
 
+    // Definimos el objeto de tipo Login con los valores del formulario
     const objeto:Login = {
-      correo: this.formLogin.value.correo!,
+      email: this.formLogin.value.email!,
       password: this.formLogin.value.password!
     }
     this.accesoService.login(objeto).subscribe({
