@@ -1,8 +1,11 @@
-﻿using BackEnd_Libreria.Models.Usuario;
+﻿using BackEnd_Libreria.Contexto;
+using BackEnd_Libreria.Models;
+using BackEnd_Libreria.Models.Usuario;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -15,54 +18,94 @@ namespace BackEnd_Libreria.Controllers
     [Route("api/[controller]")]
     public class LoginController : Controller
     {
+        private readonly Conexion _conexion;
         private readonly IConfiguration _config;
 
-        public LoginController(IConfiguration config)
+        public LoginController(Conexion conexion, IConfiguration configuration)
         {
-            _config = config;
+            _config = configuration;
+            _conexion = conexion;
         }
         // Método para hashear la contraseña (usado en el registro) y tener más seguridad
-        public string HashPassword(string password)
+        private (string hash, string salt) HashPassword(string password) //Tiene una tupla que hace que se devuelvan los valores
         {
-            byte[] salt = new byte[128 / 8];
+            //Generamos un valor aleatorio para evitar ataques por diccionario y rainbow tables
+            byte[] saltBytes = new byte[16];
             using (var rng = RandomNumberGenerator.Create())
             {
-                rng.GetBytes(salt);
+                rng.GetBytes(saltBytes);
             }
+            //Convertimos el salt a base64 para almacenarlo como string en la base de datos
+            string salt = Convert.ToBase64String(saltBytes);
 
-            return Convert.ToBase64String(KeyDerivation.Pbkdf2(
+            // Derivamos una subclave (hash) del password usando PBKDF2 que es un algoritmo seguro para contraseñas con HMACSHA256
+            string hash = Convert.ToBase64String(KeyDerivation.Pbkdf2(
+            password: password,
+            salt: saltBytes,
+            prf: KeyDerivationPrf.HMACSHA256,
+            iterationCount: 10000, //Número de iteraciones para hacer el hash más seguro
+            numBytesRequested: 32)); //Se genera 32 bytes para el hash que es 256 bits
+
+            return (hash, salt);
+        }
+        public bool VerificarPassword(string password, string storedHash, string storedSalt)
+        {
+            // Convertimos el salt guardado de texto a bytes
+            byte[] saltBytes = Convert.FromBase64String(storedSalt);
+            // Se aplica el mimso proceso de hash que en el método HashPassword
+            string hash = Convert.ToBase64String(KeyDerivation.Pbkdf2(
                 password: password,
-                salt: salt,
+                salt: saltBytes,
                 prf: KeyDerivationPrf.HMACSHA256,
                 iterationCount: 10000,
-                numBytesRequested: 256 / 8));
+                numBytesRequested: 32));
+            // Comparamos el hash generado con el hash almacenado
+            return hash == storedHash;
         }
 
         [HttpPost("Login")]
-        public IActionResult Login([FromBody] LoginRequest request)
+        public IActionResult Login([FromBody] Login request)
         {
 
-            if (request.Email == "admin@admin.com" && request.Password == "1234567890")
+            var usuario = _conexion.Usuarios.FirstOrDefault(u => u.Email == request.Email);
+            if (usuario == null)
             {
-                var token = GenerarToken(request.Email);
-                return Ok(new { isSuccess = true, token });
+                return BadRequest(new { isSuccess = false, message = "Usuario no encontrado." });
             }
 
-            return BadRequest(new { isSuccess = false, message = "Credenciales inválidas" });
-        }
-        [HttpPost("Registrarse")]
-        public IActionResult Registrarse([FromBody] Usuario usuario)
-
-        {
-            // Validación básica
-            if (string.IsNullOrEmpty(usuario.Email) || string.IsNullOrEmpty(usuario.Password))
+            bool valido = VerificarPassword(request.Password, usuario.Password, usuario.Salt);
+            if (!valido)
             {
-                return BadRequest(new { isSuccess = false, message = "Email y contraseña son obligatorios." });
-            }            
+                return BadRequest(new { isSuccess = false, message = "Contraseña incorrecta." });
+            }
 
             var token = GenerarToken(usuario.Email);
             return Ok(new { isSuccess = true, token });
         }
+        [HttpPost("Registrarse")]
+        public IActionResult Registrarse([FromBody] Usuario usuario)
+        {
+            if (string.IsNullOrEmpty(usuario.Email) || string.IsNullOrEmpty(usuario.Password))
+            {
+                return BadRequest(new { isSuccess = false, message = "Email y contraseña son obligatorios." });
+            }
+
+            if (_conexion.Usuarios.Any(u => u.Email == usuario.Email))
+            {
+                return BadRequest(new { isSuccess = false, message = "El email ya está registrado." });
+            }
+
+            var (hash, salt) = HashPassword(usuario.Password);
+            usuario.Password = hash;
+            usuario.Salt = salt;
+
+            _conexion.Usuarios.Add(usuario);
+            _conexion.SaveChanges();
+
+            var token = GenerarToken(usuario.Email);
+            return Ok(new { isSuccess = true, token });
+        }
+
         private string GenerarToken(string usuario)
         {
             var claims = new[]

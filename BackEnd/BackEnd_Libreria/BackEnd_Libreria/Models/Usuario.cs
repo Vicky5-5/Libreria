@@ -18,6 +18,7 @@ namespace BackEnd_Libreria.Models.Usuario
         public bool Estado { get; set; } = true;
         [Required]
         public bool Admin { get; set; }
+        public string Salt { get; set; } //Salt para el hash de la contraseña y que sea más seguro y para cada usuario sea diferente
 
     }
 }

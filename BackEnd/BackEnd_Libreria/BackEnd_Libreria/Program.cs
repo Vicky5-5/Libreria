@@ -1,8 +1,10 @@
+using BackEnd_Libreria.Contexto;
 using BackEnd_Libreria.Models.Libros;
 using BackEnd_Libreria.Models.Usuario;
 using BackEnd_Libreria.Services;
-using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http.Features;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
@@ -21,6 +23,10 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddSingleton<IUsuarioService, UsuarioService>();
 builder.Services.AddSingleton<ILibrosService, LibrosService>();
+
+builder.Services.AddDbContext<Conexion>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("Libreria")));
+
 
 builder.Services.AddCors(options =>
 {
