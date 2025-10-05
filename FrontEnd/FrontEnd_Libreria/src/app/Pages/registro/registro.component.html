@@ -18,11 +18,11 @@
         <!-- Correo -->
         <mat-form-field appearance="fill" class="full-width">
           <mat-label>Correo Electrónico</mat-label>
-          <input matInput formControlName="correo" type="email" required>
-          <mat-error *ngIf="formRegistro.get('correo')?.hasError('required')">
+          <input matInput formControlName="email" type="email" required>
+          <mat-error *ngIf="formRegistro.get('email')?.hasError('required')">
             El correo es obligatorio
           </mat-error>
-          <mat-error *ngIf="formRegistro.get('correo')?.hasError('email')">
+          <mat-error *ngIf="formRegistro.get('email')?.hasError('email')">
             Formato de correo inválido
           </mat-error>
         </mat-form-field>

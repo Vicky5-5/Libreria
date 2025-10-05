@@ -1,5 +1,6 @@
 ﻿using BackEnd_Libreria.Contexto;
 using BackEnd_Libreria.Models;
+using BackEnd_Libreria.Models.DTO;
 using BackEnd_Libreria.Models.Usuario;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Microsoft.AspNetCore.Http;
@@ -48,7 +49,7 @@ namespace BackEnd_Libreria.Controllers
 
             return (hash, salt);
         }
-        public bool VerificarPassword(string password, string storedHash, string storedSalt)
+        private bool VerificarPassword(string password, string storedHash, string storedSalt)
         {
             // Convertimos el salt guardado de texto a bytes
             byte[] saltBytes = Convert.FromBase64String(storedSalt);
@@ -83,26 +84,34 @@ namespace BackEnd_Libreria.Controllers
             return Ok(new { isSuccess = true, token });
         }
         [HttpPost("Registrarse")]
-        public IActionResult Registrarse([FromBody] Usuario usuario)
+        public IActionResult Registrarse([FromBody] RegistroDTO modelo)
         {
-            if (string.IsNullOrEmpty(usuario.Email) || string.IsNullOrEmpty(usuario.Password))
+            if (string.IsNullOrEmpty(modelo.Email) || string.IsNullOrEmpty(modelo.Password))
             {
                 return BadRequest(new { isSuccess = false, message = "Email y contraseña son obligatorios." });
             }
 
-            if (_conexion.Usuarios.Any(u => u.Email == usuario.Email))
+            if (_conexion.Usuarios.Any(u => u.Email == modelo.Email))
             {
                 return BadRequest(new { isSuccess = false, message = "El email ya está registrado." });
             }
+            var nuevoUsuario = new Usuario
+            {
+                Nombre = modelo.Nombre,
+                Email = modelo.Email,
+                FechaRegistro = DateTime.Now,
+                Estado = true,
+                Admin = false,
+            };
 
-            var (hash, salt) = HashPassword(usuario.Password);
-            usuario.Password = hash;
-            usuario.Salt = salt;
+            var (hash, salt) = HashPassword(modelo.Password);
+            nuevoUsuario.Password = hash;
+            nuevoUsuario.Salt = salt;
 
-            _conexion.Usuarios.Add(usuario);
+            _conexion.Usuarios.Add(nuevoUsuario);
             _conexion.SaveChanges();
 
-            var token = GenerarToken(usuario.Email);
+            var token = GenerarToken(nuevoUsuario.Email);
             return Ok(new { isSuccess = true, token });
         }
 
@@ -114,6 +123,7 @@ namespace BackEnd_Libreria.Controllers
         };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
+       
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var token = new JwtSecurityToken(

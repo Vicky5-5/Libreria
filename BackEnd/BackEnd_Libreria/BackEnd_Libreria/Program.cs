@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System.Security.Cryptography;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -21,8 +22,9 @@ var origenesPermitidos = builder.Configuration
 // Servicios
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddSingleton<IUsuarioService, UsuarioService>();
-builder.Services.AddSingleton<ILibrosService, LibrosService>();
+builder.Services.AddScoped<IUsuarioService, UsuarioService>();
+builder.Services.AddScoped<ILibrosService, LibrosService>();
+
 
 builder.Services.AddDbContext<Conexion>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("Libreria")));

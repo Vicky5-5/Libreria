@@ -6,7 +6,7 @@ import { RegistroComponent } from './Pages/registro/registro.component';
 
 export const routes: Routes = [
   { path: '', component: InicioComponent },
-  {path: 'login', component: LoginComponent},
+  {path: 'Login', component: LoginComponent},
   {path: 'registro', component: RegistroComponent },
   { path: 'administracion', component: AdministracionComponent }
 ];

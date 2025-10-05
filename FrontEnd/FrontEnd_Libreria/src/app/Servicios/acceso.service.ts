@@ -12,16 +12,16 @@ import { Login } from '../interface/Login';
 export class AccesoService {
 
   private http = inject(HttpClient); // Inyección de HttpClient
-  private apiUrl: string = appsettings.apiUrl + "/acceso"; // URL base de la API
+  private apiUrl: string = appsettings.apiUrl + "/Login"; // URL base de la API
 
   constructor() { }
 
-  registrarse(objeto: Usuario): Observable<ResponseAcceso> { 
-  return this.http.post<ResponseAcceso>(`${this.apiUrl}/Registrarse`, objeto);
+   registrarse(objeto: Usuario): Observable<ResponseAcceso<Usuario>> { 
+    return this.http.post<ResponseAcceso<Usuario>>(`${this.apiUrl}/Registrarse`, objeto);
 }
 
-login(objeto: Login): Observable<ResponseAcceso> {
-  return this.http.post<ResponseAcceso>(`${this.apiUrl}/Login`, objeto);
+login(objeto: Login): Observable<ResponseAcceso<Login>> {
+  return this.http.post<ResponseAcceso<Login>>(`${this.apiUrl}/Login`, objeto);
 }
 
 }

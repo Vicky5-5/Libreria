@@ -41,7 +41,7 @@ export class LoginComponent {
       next: (data) => {
         if(data.isSuccess){
           localStorage.setItem('token', data.token);
-          this.router.navigate(['/inicio']);
+          this.router.navigate(['/administracion']);
         } else {
           alert('Error al iniciar sesión. Por favor, verifica tus credenciales.');
         }

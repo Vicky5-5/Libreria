@@ -26,7 +26,7 @@ export class RegistroComponent {
     
       public formRegistro = this.formBuild.group({
         nombre: ['', [Validators.required, Validators.minLength(3)]],
-        correo: ['', [Validators.required, Validators.email]],
+        email: ['', [Validators.required, Validators.email]],
         password: ['', [Validators.required, Validators.minLength(6)]]
       });
 
@@ -34,7 +34,7 @@ export class RegistroComponent {
         if(this.formRegistro.invalid) return;
         const objeto: Usuario = {
           nombre: this.formRegistro.value.nombre!,
-          correo: this.formRegistro.value.correo!,
+          email: this.formRegistro.value.email!,
           password: this.formRegistro.value.password!,
           Admin: false,
           fechaRegistro: new Date(),
@@ -42,9 +42,10 @@ export class RegistroComponent {
         }
       this.accesoService.registrarse(objeto).subscribe({
         next: (data) => {
+            console.log('Respuesta del backend:', data);  console.log('Respuesta del backend:', data);
           if(data.isSuccess){
             alert('Registro exitoso. Ahora puedes iniciar sesión.');
-            this.router.navigate(['/login']);
+            this.router.navigate(['/Login']);
           } else {
             alert('Error al registrarse. Por favor, intenta de nuevo.');
           }
