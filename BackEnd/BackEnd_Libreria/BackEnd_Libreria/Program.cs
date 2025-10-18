@@ -4,6 +4,7 @@ using BackEnd_Libreria.Models.Usuario;
 using BackEnd_Libreria.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Cryptography;
@@ -29,6 +30,11 @@ builder.Services.AddScoped<ILibrosService, LibrosService>();
 builder.Services.AddDbContext<Conexion>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("Libreria")));
 
+// Configuración de Identity
+builder.Services.AddIdentity<Usuario, IdentityRole>()
+    .AddEntityFrameworkStores<Conexion>()
+    .AddDefaultTokenProviders();
+
 
 builder.Services.AddCors(options =>
 {
@@ -39,6 +45,10 @@ builder.Services.AddCors(options =>
               .AllowAnyMethod();
     });
 });
+
+var adminSection = builder.Configuration.GetSection("DefaultAdmin");
+var adminEmail = adminSection["Email"];
+var adminPassword = adminSection["Password"];
 
 // Para subir archivos. Si son grandes, aumenta el límite aumenta el límite:
 builder.Services.Configure<FormOptions>(options =>
@@ -85,3 +95,11 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+// Crear el usuario administrador por defecto si no existe
+
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    await Conexion.SeedAdminAsync(services);
+}

@@ -1,16 +1,11 @@
-﻿using BackEnd_Libreria.Contexto;
-using BackEnd_Libreria.Models;
+﻿using BackEnd_Libreria.Models;
 using BackEnd_Libreria.Models.DTO;
 using BackEnd_Libreria.Models.Usuario;
-using Microsoft.AspNetCore.Cryptography.KeyDerivation;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Security.Cryptography;
 using System.Text;
 
 namespace BackEnd_Libreria.Controllers
@@ -19,111 +14,72 @@ namespace BackEnd_Libreria.Controllers
     [Route("api/[controller]")]
     public class LoginController : Controller
     {
-        private readonly Conexion _conexion;
+        private readonly UserManager<Usuario> _userManager;
+        private readonly SignInManager<Usuario> _signInManager;
         private readonly IConfiguration _config;
 
-        public LoginController(Conexion conexion, IConfiguration configuration)
+        public LoginController(
+            UserManager<Usuario> userManager,
+            SignInManager<Usuario> signInManager,
+            IConfiguration config)
         {
-            _config = configuration;
-            _conexion = conexion;
-        }
-        // Método para hashear la contraseña (usado en el registro) y tener más seguridad
-        private (string hash, string salt) HashPassword(string password) //Tiene una tupla que hace que se devuelvan los valores
-        {
-            //Generamos un valor aleatorio para evitar ataques por diccionario y rainbow tables
-            byte[] saltBytes = new byte[16];
-            using (var rng = RandomNumberGenerator.Create())
-            {
-                rng.GetBytes(saltBytes);
-            }
-            //Convertimos el salt a base64 para almacenarlo como string en la base de datos
-            string salt = Convert.ToBase64String(saltBytes);
-
-            // Derivamos una subclave (hash) del password usando PBKDF2 que es un algoritmo seguro para contraseñas con HMACSHA256
-            string hash = Convert.ToBase64String(KeyDerivation.Pbkdf2(
-            password: password,
-            salt: saltBytes,
-            prf: KeyDerivationPrf.HMACSHA256,
-            iterationCount: 10000, //Número de iteraciones para hacer el hash más seguro
-            numBytesRequested: 32)); //Se genera 32 bytes para el hash que es 256 bits
-
-            return (hash, salt);
-        }
-        private bool VerificarPassword(string password, string storedHash, string storedSalt)
-        {
-            // Convertimos el salt guardado de texto a bytes
-            byte[] saltBytes = Convert.FromBase64String(storedSalt);
-            // Se aplica el mimso proceso de hash que en el método HashPassword
-            string hash = Convert.ToBase64String(KeyDerivation.Pbkdf2(
-                password: password,
-                salt: saltBytes,
-                prf: KeyDerivationPrf.HMACSHA256,
-                iterationCount: 10000,
-                numBytesRequested: 32));
-            // Comparamos el hash generado con el hash almacenado
-            return hash == storedHash;
+            _userManager = userManager;
+            _signInManager = signInManager;
+            _config = config;
         }
 
         [HttpPost("Login")]
-        public IActionResult Login([FromBody] Login request)
+        public async Task<IActionResult> Login([FromBody] Login request)
         {
-
-            var usuario = _conexion.Usuarios.FirstOrDefault(u => u.Email == request.Email);
+            var usuario = await _userManager.FindByEmailAsync(request.Email);
             if (usuario == null)
-            {
                 return BadRequest(new { isSuccess = false, message = "Usuario no encontrado." });
-            }
 
-            bool valido = VerificarPassword(request.Password, usuario.Password, usuario.Salt);
-            if (!valido)
-            {
+            var result = await _signInManager.CheckPasswordSignInAsync(usuario, request.Password, false);
+            if (!result.Succeeded)
                 return BadRequest(new { isSuccess = false, message = "Contraseña incorrecta." });
-            }
 
-            var token = GenerarToken(usuario.Email);
+            var token = GenerarToken(usuario);
             return Ok(new { isSuccess = true, token });
         }
+
         [HttpPost("Registrarse")]
-        public IActionResult Registrarse([FromBody] RegistroDTO modelo)
+        public async Task<IActionResult> Registrarse([FromBody] RegistroDTO modelo)
         {
             if (string.IsNullOrEmpty(modelo.Email) || string.IsNullOrEmpty(modelo.Password))
-            {
                 return BadRequest(new { isSuccess = false, message = "Email y contraseña son obligatorios." });
-            }
 
-            if (_conexion.Usuarios.Any(u => u.Email == modelo.Email))
-            {
+            var existe = await _userManager.FindByEmailAsync(modelo.Email);
+            if (existe != null)
                 return BadRequest(new { isSuccess = false, message = "El email ya está registrado." });
-            }
+
             var nuevoUsuario = new Usuario
             {
-                Nombre = modelo.Nombre,
+                UserName = modelo.Email,
                 Email = modelo.Email,
+                Nombre = modelo.Nombre,
                 FechaRegistro = DateTime.Now,
                 Estado = true,
-                Admin = false,
+                Admin = false
             };
 
-            var (hash, salt) = HashPassword(modelo.Password);
-            nuevoUsuario.Password = hash;
-            nuevoUsuario.Salt = salt;
+            var result = await _userManager.CreateAsync(nuevoUsuario, modelo.Password);
+            if (!result.Succeeded)
+                return BadRequest(new { isSuccess = false, message = "Error al registrar usuario.", errors = result.Errors });
 
-            _conexion.Usuarios.Add(nuevoUsuario);
-            _conexion.SaveChanges();
-
-            var token = GenerarToken(nuevoUsuario.Email);
+            var token = GenerarToken(nuevoUsuario);
             return Ok(new { isSuccess = true, token });
         }
 
-        private string GenerarToken(string usuario)
+        private string GenerarToken(Usuario usuario)
         {
             var claims = new[]
             {
-            new Claim(ClaimTypes.Name, usuario)
-        };
+                new Claim(ClaimTypes.Name, usuario.Email),
+                new Claim(ClaimTypes.Role, usuario.Admin ? "Admin" : "Usuario")
+            };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
-       
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var token = new JwtSecurityToken(

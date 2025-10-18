@@ -41,7 +41,7 @@ export class LoginComponent {
       next: (data) => {
         if(data.isSuccess){
           localStorage.setItem('token', data.token);
-          this.router.navigate(['/administracion']);
+          this.router.navigate(['/administracionLibros']);
         } else {
           alert('Error al iniciar sesión. Por favor, verifica tus credenciales.');
         }
@@ -54,4 +54,7 @@ export class LoginComponent {
   registrarse() {
     this.router.navigate(['/registro']);
   }
+  isAdmin(): boolean {
+  return this.accesoService.getRol() === 'Admin';
+}
 }

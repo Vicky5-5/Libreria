@@ -11,13 +11,13 @@ import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatCardModule } from '@angular/material/card';
 
 @Component({
-  selector: 'app-administracion',
+  selector: 'app-administracionLibros',
   standalone: true,
   imports: [CommonModule, MatIcon, MatPaginatorModule, MatSortModule,MatTableModule,MatCardModule],
-  templateUrl: './administracion.component.html',
-  styleUrls: ['./administracion.component.css']
+  templateUrl: './administracionLibros.component.html',
+  styleUrls: ['./administracionLibros.component.css']
 })
-export class AdministracionComponent {
+export class AdministracionLibrosComponent {
   private librosService = inject(LibrosService);
   private router = inject(Router);
 

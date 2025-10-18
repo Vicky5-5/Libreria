@@ -6,6 +6,7 @@ import { Observable } from 'rxjs';
 import { ResponseAcceso } from '../interface/ResponseAcceso';
 import { Login } from '../interface/Login';
 
+import {jwtDecode} from 'jwt-decode';
 @Injectable({
   providedIn: 'root'
 })
@@ -23,5 +24,12 @@ export class AccesoService {
 login(objeto: Login): Observable<ResponseAcceso<Login>> {
   return this.http.post<ResponseAcceso<Login>>(`${this.apiUrl}/Login`, objeto);
 }
+getRol(): string {
+  const token = localStorage.getItem('token');
+  if (!token) return '';
+  const decoded: any = jwtDecode(token);
+  return decoded['role']; // "Admin" o "Usuario"
+}
+
 
 }

@@ -1,13 +1,18 @@
 import { Routes } from '@angular/router';
-import { AdministracionComponent } from './Pages/administracion/administracion.component';
+import { AdministracionLibrosComponent } from './Pages/administracionLibros/administracionLibros.component';
 import { InicioComponent } from './Pages/inicio/inicio.component';
 import { LoginComponent } from './Pages/login/login.component';
 import { RegistroComponent } from './Pages/registro/registro.component';
+import { AdministracionUsuariosComponent } from './Pages/administracion_usuarios/administracion_usuarios.component';
+import { IndexAdminComponent } from './Pages/indexAdmin/indexAdmin.component';
+import { adminGuard } from './Servicios/Guard/admin.guard';
 
 export const routes: Routes = [
   { path: '', component: InicioComponent },
   {path: 'Login', component: LoginComponent},
   {path: 'registro', component: RegistroComponent },
-  { path: 'administracion', component: AdministracionComponent }
+  {path: 'indexAdmin', component: IndexAdminComponent, canActivate:[adminGuard] }, // Donde va el administrador. Ahi puede elegir entre editar usuarios o libros
+  { path: 'administracionLibros', component: AdministracionLibrosComponent }, // Es es el de los libros
+  { path: 'administracionUsuarios', component: AdministracionUsuariosComponent }, // Es el de los usuarios
 ];
 
