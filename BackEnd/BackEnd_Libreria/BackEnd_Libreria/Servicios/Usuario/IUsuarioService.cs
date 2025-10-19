@@ -1,12 +1,16 @@
-﻿namespace BackEnd_Libreria.Models.Usuario
+﻿using System.Threading.Tasks;
+using System.Collections.Generic;
+
+namespace BackEnd_Libreria.Models.Usuario
 {
     public interface IUsuarioService
     {
-        IEnumerable<Usuario> GetAll();
-        Usuario? GetById(int id);
-        Usuario Add(Usuario usuario);
-        bool Actualizar(int id, Usuario usuario);
-        bool DarBaja(int id);
-        bool DarAltaDeNuevo(int id);
+        Task<IEnumerable<Usuario>> GetAllAsync();
+        Task<IEnumerable<Usuario>> GetAllActivosAsync();
+        Task<Usuario?> GetByIdAsync(string id);
+        Task<Usuario> AddAsync(Usuario usuario, string password);
+        Task<bool> ActualizarAsync(string id, Usuario usuario);
+        Task<bool> DarBajaAsync(string id);
+        Task<bool> DarAltaDeNuevoAsync(string id);
     }
 }

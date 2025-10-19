@@ -47,8 +47,11 @@ export class LoginComponent {
         }
       },
       error: (err) => {
-        console.error('Error al iniciar sesión:', err);
+      const mensaje = err.error?.message || 'Error desconocido';
+      alert('Error al iniciar sesión: ' + mensaje);
+      console.error('Detalles del error:', err);
       }
+
     })
   }
   registrarse() {

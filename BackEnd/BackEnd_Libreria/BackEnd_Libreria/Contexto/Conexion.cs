@@ -37,37 +37,55 @@ namespace BackEnd_Libreria.Contexto
             });
         }
 
-
+        // Método para crear el usuario administrador por defecto que se encuentra en appsettings.json
         public static async Task SeedAdminAsync(IServiceProvider services)
         {
-            var userManager = services.GetRequiredService<UserManager<Usuario>>();
-            var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
-            var config = services.GetRequiredService<IConfiguration>();
+            // Obtenemos los servicios necesarios
+            var config = services.GetRequiredService<IConfiguration>(); // Configuración para leer appsettings.json
+            var userManager = services.GetRequiredService<UserManager<Usuario>>(); // Gestión y creación de usuarios
+            var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>(); // Gestión y creación de roles
 
-            var email = config["DefaultAdmin:Email"];
-            var password = config["DefaultAdmin:Password"];
-            var nombre = config["DefaultAdmin:Nombre"];
+            // Leemos los datos del administrador por defecto desde la configuración
+            var adminNombre = config["DefaultAdmin:Nombre"];
+            var adminEmail = config["DefaultAdmin:Email"];
+            var adminPassword = config["DefaultAdmin:Password"];
 
-            if (await userManager.FindByEmailAsync(email) == null)
+            // Verificamos si el rol "Admin" existe, si no, lo creamos
+            if (!await roleManager.RoleExistsAsync("Admin"))
             {
-                var admin = new Usuario
+                await roleManager.CreateAsync(new IdentityRole("Admin"));
+            }
+
+            var adminUser = await userManager.FindByEmailAsync(adminEmail);
+            if (adminUser == null)
+            {
+                var nuevoAdmin = new Usuario
                 {
-                    UserName = email,
-                    Email = email,
+                    UserName = adminEmail,
+                    Email = adminEmail,
+                    Nombre = adminNombre,
                     EmailConfirmed = true,
-                    Nombre = nombre,
-                    Admin = true
+                    Admin = true,
+                    Estado = true,
+                    FechaRegistro = DateTime.Now
                 };
 
-                var result = await userManager.CreateAsync(admin, password);
-
+                // Creamos el usuario administrador
+                var result = await userManager.CreateAsync(nuevoAdmin, adminPassword);
                 if (result.Succeeded)
                 {
-                    if (!await roleManager.RoleExistsAsync("Admin"))
-                        await roleManager.CreateAsync(new IdentityRole("Admin"));
-
-                    await userManager.AddToRoleAsync(admin, "Admin");
+                    await userManager.AddToRoleAsync(nuevoAdmin, "Admin");
+                    Console.WriteLine("Administrador por defecto creado.");
                 }
+                else
+                {
+                    Console.WriteLine("Error al crear el administrador por defecto.");
+                    foreach (var error in result.Errors)
+                    {
+                        Console.WriteLine($"Código: {error.Code} - Descripción: {error.Description}");
+                    }
+                }
+
             }
         }
     }

@@ -1,4 +1,4 @@
-using BackEnd_Libreria.Models;
+using BackEnd_Libreria.Models.DTO;
 using BackEnd_Libreria.Models.Usuario;
 using BackEnd_Libreria.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -16,51 +16,70 @@ namespace BackEnd_Libreria.Controllers
             _service = service;
         }
 
+        // Obtenemos todos los usuarios
         [HttpGet]
-        public ActionResult<IEnumerable<Usuario>> GetAll() => Ok(_service.GetAll());
-
-        [HttpGet("{id}")]
-        public ActionResult<Usuario> Get(int id)
+        public async Task<ActionResult<IEnumerable<Usuario>>> GetAll()
         {
-            var usuario = _service.GetById(id);
+            var usuarios = await _service.GetAllAsync();
+            return Ok(usuarios);
+        }
+        // Obtenemos todos los usuarios activos
+        [HttpGet("Activos")]
+        public async Task<ActionResult<IEnumerable<Usuario>>> GetAllActivos()
+        {
+            var activos = await _service.GetAllActivosAsync();
+            return Ok(activos);
+        }
+        // Obtenemos un usuario por su ID
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Usuario>> Get(string id)
+        {
+            var usuario = await _service.GetByIdAsync(id);
             if (usuario == null) return NotFound();
             return Ok(usuario);
         }
 
-        [HttpPost]
-        public ActionResult<Usuario> Create(Usuario usuario)
+        [HttpPost("Registrar")]
+        public async Task<ActionResult<Usuario>> Registrar([FromBody] RegistroDTO dto)
         {
-            var nuevo = _service.Add(usuario);
-            return CreatedAtAction(nameof(Get), new { id = nuevo.idUsuario }, nuevo);
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            var nuevoUsuario = new Usuario
+            {
+                UserName = dto.Email,
+                Email = dto.Email,
+                Nombre = dto.Nombre,
+                EmailConfirmed = true,
+                Estado = true,
+                Admin = false
+            };
+
+            var creado = await _service.AddAsync(nuevoUsuario, dto.Password);
+            return CreatedAtAction(nameof(Get), new { id = creado.Id }, creado);
         }
 
         [HttpPut("{id}")]
-        public IActionResult Actualizar(int id, Usuario usuario)
+        public async Task<IActionResult> Actualizar(string id, [FromBody] Usuario usuario)
         {
-            if (!_service.Actualizar(id, usuario)) return NotFound();
+            var actualizado = await _service.ActualizarAsync(id, usuario);
+            if (!actualizado) return NotFound();
             return NoContent();
         }
-        // Para dar de baja
+
         [HttpDelete("{id}")]
-        public IActionResult DarBaja(int id)
+        public async Task<IActionResult> DarBaja(string id)
         {
-            if (!_service.DarBaja(id)) return NotFound();
-            return NoContent(); // 204
-        }
-        [HttpPut("{id}/DarAltaDeNuevo")]
-        public IActionResult Reactivar(int id)
-        {
-            var resultado = _service.DarAltaDeNuevo(id);
+            var resultado = await _service.DarBajaAsync(id);
             if (!resultado) return NotFound();
             return NoContent();
         }
-        // Para obtener solo los usuarios activos
-        [HttpGet("Activos")]
-        public ActionResult<IEnumerable<Usuario>> GetAllActivos()
-        {
-            var usuariosActivos = _service.GetAll().Where(u => u.Estado);
-            return Ok(usuariosActivos);
-        }
 
+        [HttpPut("{id}/DarAltaDeNuevo")]
+        public async Task<IActionResult> Reactivar(string id)
+        {
+            var resultado = await _service.DarAltaDeNuevoAsync(id);
+            if (!resultado) return NotFound();
+            return NoContent();
+        }
     }
 }

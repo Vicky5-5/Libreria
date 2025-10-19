@@ -38,13 +38,14 @@ builder.Services.AddIdentity<Usuario, IdentityRole>()
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAngularDevClient",policy =>
+    options.AddPolicy("AllowAngularDevClient", policy =>
     {
-        policy.WithOrigins(origenesPermitidos)
+        policy.WithOrigins(builder.Configuration.GetSection("OrigenesPermitidos").Get<string[]>())
               .AllowAnyHeader()
               .AllowAnyMethod();
     });
 });
+
 
 var adminSection = builder.Configuration.GetSection("DefaultAdmin");
 var adminEmail = adminSection["Email"];
@@ -71,10 +72,14 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
-
-
-
 var app = builder.Build();
+
+// Crear el usuario administrador por defecto si no existe
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    await Conexion.SeedAdminAsync(services);
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -84,10 +89,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors("AllowAngularDevClient");
-
-
-// Permite servir archivos desde wwwroot:
-app.UseStaticFiles(); 
+app.UseStaticFiles();
 app.UseRouting();
 app.UseHttpsRedirection();
 app.UseAuthentication();
@@ -96,10 +98,3 @@ app.MapControllers();
 
 app.Run();
 
-// Crear el usuario administrador por defecto si no existe
-
-using (var scope = app.Services.CreateScope())
-{
-    var services = scope.ServiceProvider;
-    await Conexion.SeedAdminAsync(services);
-}

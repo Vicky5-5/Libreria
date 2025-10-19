@@ -1,62 +1,83 @@
-﻿using BackEnd_Libreria.Models;
-using BackEnd_Libreria.Models.Usuario;
+﻿using BackEnd_Libreria.Models.Usuario;
+using Microsoft.AspNetCore.Identity;
 
 namespace BackEnd_Libreria.Services
 {
     public class UsuarioService : IUsuarioService
     {
-        private static List<Usuario> _usuarios = new List<Usuario>();
+        private readonly UserManager<Usuario> _userManager;
 
-        public IEnumerable<Usuario> GetAll() => _usuarios;
-
-        public Usuario? GetById(int id) => _usuarios.FirstOrDefault(u => u.idUsuario == id);
-
-        public Usuario Add(Usuario usuario)
+        public UsuarioService(UserManager<Usuario> userManager)
         {
-            usuario.idUsuario = _usuarios.Count > 0 ? _usuarios.Max(u => u.idUsuario) + 1 : 1;
+            _userManager = userManager;
+        }
+
+        public async Task<IEnumerable<Usuario>> GetAllAsync()
+        {
+            return await Task.FromResult(_userManager.Users.ToList());
+        }
+
+        public async Task<IEnumerable<Usuario>> GetAllActivosAsync()
+        {
+            return await Task.FromResult(_userManager.Users.Where(u => u.Estado).ToList());
+        }
+
+        public async Task<Usuario?> GetByIdAsync(string id)
+        {
+            return await _userManager.FindByIdAsync(id);
+        }
+
+        public async Task<Usuario> AddAsync(Usuario usuario, string password)
+        {
             usuario.FechaRegistro = DateTime.Now;
             usuario.Estado = true;
             usuario.FechaBaja = null;
-            _usuarios.Add(usuario);
+
+            var result = await _userManager.CreateAsync(usuario, password);
+            if (!result.Succeeded)
+            {
+                var errores = string.Join("; ", result.Errors.Select(e => e.Description));
+                throw new Exception($"Error al crear usuario: {errores}");
+            }
+
             return usuario;
         }
 
-
-        public bool Actualizar(int id, Usuario usuario)
+        public async Task<bool> ActualizarAsync(string id, Usuario datos)
         {
-            var existing = _usuarios.FirstOrDefault(u => u.idUsuario == id);
-            if (existing == null) return false;
+            var usuario = await _userManager.FindByIdAsync(id);
+            if (usuario == null) return false;
 
-            existing.Nombre = usuario.Nombre;
-            existing.Email = usuario.Email;
-            existing.Password = usuario.Password;
-            existing.Estado = usuario.Estado;
-            existing.Admin = usuario.Admin;
+            usuario.Nombre = datos.Nombre;
+            usuario.Admin = datos.Admin;
+            usuario.Estado = datos.Estado;
 
-            return true;
+            var result = await _userManager.UpdateAsync(usuario);
+            return result.Succeeded;
         }
 
-        public bool DarBaja(int id)
+        public async Task<bool> DarBajaAsync(string id)
         {
-            var usuario = _usuarios.FirstOrDefault(u => u.idUsuario == id);
+            var usuario = await _userManager.FindByIdAsync(id);
             if (usuario == null) return false;
 
             usuario.Estado = false;
             usuario.FechaBaja = DateTime.Now;
-            return true;
+
+            var result = await _userManager.UpdateAsync(usuario);
+            return result.Succeeded;
         }
-        public bool DarAltaDeNuevo(int id)
+
+        public async Task<bool> DarAltaDeNuevoAsync(string id)
         {
-            var usuario = _usuarios.FirstOrDefault(u => u.idUsuario == id);
+            var usuario = await _userManager.FindByIdAsync(id);
             if (usuario == null || usuario.Estado) return false;
 
             usuario.Estado = true;
             usuario.FechaBaja = null;
-            return true;
+
+            var result = await _userManager.UpdateAsync(usuario);
+            return result.Succeeded;
         }
-        // Para obtener solo los usuarios activos
-        public IEnumerable<Usuario> GetAllActivos() => _usuarios.Where(u => u.Estado);
-
-
     }
 }
