@@ -1,0 +1,77 @@
+<div class="form-container">
+  <form class="libro-form">
+
+    <!-- 📘 Información básica -->
+    <div class="form-row">
+      <mat-form-field appearance="fill" class="form-field">
+        <mat-label>Título del libro</mat-label>
+        <input matInput placeholder="Título del libro" [(ngModel)]="libro.titulo" name="titulo">
+      </mat-form-field>
+
+      <mat-form-field appearance="fill" class="form-field">
+        <mat-label>Autor</mat-label>
+        <input matInput placeholder="Autor del libro" [(ngModel)]="libro.autor" name="autor">
+      </mat-form-field>
+    </div>
+
+    <div class="form-row">
+      <mat-form-field appearance="fill" class="form-field">
+        <mat-label>Año de Publicación</mat-label>
+        <input matInput type="number" placeholder="Año de publicación" [(ngModel)]="libro.yearPublicacion" name="yearPublicacion">
+      </mat-form-field>
+
+      <mat-form-field appearance="fill" class="form-field">
+        <mat-label>Idioma</mat-label>
+        <input matInput placeholder="Idioma del libro" [(ngModel)]="libro.idioma" name="idioma">
+      </mat-form-field>
+    </div>
+
+    <!-- 🎭 Género -->
+    <mat-form-field appearance="fill" class="form-field full-width">
+      <mat-label>Género</mat-label>
+      <mat-select [(ngModel)]="libro.genero" name="genero">
+        <mat-option *ngFor="let g of generos" [value]="g.value">{{ g.label }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <!-- 📝 Detalles -->
+    <mat-form-field appearance="fill" class="form-field full-width">
+      <mat-label>Sinopsis</mat-label>
+      <textarea matInput placeholder="Sinopsis del libro" [(ngModel)]="libro.sinopsis" name="sinopsis"></textarea>
+    </mat-form-field>
+
+    <div class="form-row">
+      <mat-form-field appearance="fill" class="form-field">
+        <mat-label>Disponibilidad</mat-label>
+        <mat-select [(ngModel)]="libro.disponibilidad" name="disponibilidad">
+          <mat-option [value]="true">Disponible</mat-option>
+          <mat-option [value]="false">No disponible</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="fill" class="form-field">
+        <mat-label>¿Es favorito?</mat-label>
+        <mat-select [(ngModel)]="libro.favorito" name="favorito">
+          <mat-option [value]="true">Sí</mat-option>
+          <mat-option [value]="false">No</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <!-- 📎 Archivo PDF -->
+    <div class="form-row full-width archivo-pdf">
+      <label for="archivoPDF">Archivo PDF</label>
+      <input id="archivoPDF" type="file" (change)="onArchivoSeleccionado($event)" accept=".pdf" />
+    </div>
+<div class="form-row full-width archivo-pdf">
+  <label for="portada">Portada del libro</label>
+  <input id="portada" type="file" (change)="onPortadaSeleccionada($event)" accept="image/*" />
+</div>
+
+    <!-- ✅ Botón de acción -->
+    <div class="form-row full-width">
+      <button mat-raised-button color="primary" (click)="guardarLibro()">Guardar Libro</button>
+    </div>
+
+  </form>
+</div>

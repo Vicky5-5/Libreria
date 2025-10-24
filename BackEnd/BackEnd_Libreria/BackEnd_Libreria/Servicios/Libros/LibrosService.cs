@@ -1,22 +1,31 @@
-﻿using BackEnd_Libreria.Models;
+﻿using BackEnd_Libreria.Contexto;
+using BackEnd_Libreria.Models;
 using BackEnd_Libreria.Models.Libros;
+using Microsoft.EntityFrameworkCore;
 
 namespace BackEnd_Libreria.Services
 {
     public class LibrosService : ILibrosService
     {
         private static List<Libros> _libros = new List<Libros>();
+        private readonly Conexion _context;
+        public LibrosService(Conexion context)
+        {
+            _context = context ?? throw new ArgumentNullException(nameof(context));
+        }
 
-        public IEnumerable<Libros> GetAll() => _libros;
+        public IEnumerable<Libros> GetAll() => _context.Libros.ToList();
 
-        public Libros? GetById(int id) => _libros.FirstOrDefault(l => l.idLibro == id);
+        public Libros? GetById(int id) => _context.Libros.FirstOrDefault(l => l.idLibro == id);
+
 
         public Libros Add(Libros libro)
         {
-            libro.idLibro = _libros.Count > 0 ? _libros.Max(l => l.idLibro) + 1 : 1;
-            _libros.Add(libro);
+            _context.Libros.Add(libro);
+            _context.SaveChanges();     
             return libro;
         }
+
 
         public bool Update(int id, Libros libros)
         {

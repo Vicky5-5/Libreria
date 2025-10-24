@@ -1,0 +1,33 @@
+.form-container {
+  padding: 1rem;
+  max-width: 900px;
+  margin: auto;
+}
+
+.libro-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.form-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.form-field {
+  flex: 1 1 300px;
+  min-width: 250px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.archivo-pdf {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  font-family: Arial, sans-serif;
+}

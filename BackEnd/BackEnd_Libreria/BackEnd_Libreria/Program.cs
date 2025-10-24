@@ -51,11 +51,8 @@ var adminSection = builder.Configuration.GetSection("DefaultAdmin");
 var adminEmail = adminSection["Email"];
 var adminPassword = adminSection["Password"];
 
-// Para subir archivos. Si son grandes, aumenta el límite aumenta el límite:
-builder.Services.Configure<FormOptions>(options =>
-{
-    options.MultipartBodyLengthLimit = 20 * 1024 * 1024; // 20 MB
-});
+
+
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -71,6 +68,19 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             )
         };
     });
+// Para subir archivos. Si son grandes, aumenta el límite aumenta el límite:
+builder.Services.Configure<FormOptions>(options =>
+{
+    options.MultipartBodyLengthLimit = 100_000_000; // 100 MB
+});
+// Configurar Kestrel para aceptar grandes cargas de archivos
+builder.WebHost.ConfigureKestrel(serverOptions =>
+{
+    serverOptions.Limits.MaxRequestBodySize = 100_000_000; // 100 MB
+});
+builder.Services.AddScoped<ILibrosService, LibrosService>();
+builder.Services.AddDbContext<Conexion>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("Libreria")));
 
 var app = builder.Build();
 

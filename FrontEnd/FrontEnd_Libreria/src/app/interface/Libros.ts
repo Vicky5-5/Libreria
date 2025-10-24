@@ -1,20 +1,21 @@
 export interface Libros {
   idLibro: number;
   rutaArchivoPortada: string;
-  rutaArchivoPDF: string;     
+  rutaArchivoPDF: string;
   titulo: string;
   autor: string;
   yearPublicacion: number;
-  genero: Genero;
+  genero: number;
   favorito: boolean;
-  sinopsis: string;
   idioma: string;
+  sinopsis: string;
   disponibilidad: boolean;
+  archivoPDF?: File;
+  portada?: File;
 }
 export enum Genero {
   Terror = 0,
   Comedia = 1,
   Romance = 2,
-  Accion = 3
+  Acción = 3
 }
-
