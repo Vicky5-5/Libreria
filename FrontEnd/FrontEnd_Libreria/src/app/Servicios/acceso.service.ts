@@ -11,6 +11,9 @@ import {jwtDecode} from 'jwt-decode';
   providedIn: 'root'
 })
 export class AccesoService {
+  obtenerUsuarios() {
+    throw new Error('Method not implemented.');
+  }
 
   private http = inject(HttpClient); // Inyección de HttpClient
   private apiUrl: string = appsettings.apiUrl + "/Login"; // URL base de la API
@@ -24,12 +27,20 @@ export class AccesoService {
 login(objeto: Login): Observable<ResponseAcceso<Login>> {
   return this.http.post<ResponseAcceso<Login>>(`${this.apiUrl}/Login`, objeto);
 }
+
 getRol(): string {
   const token = localStorage.getItem('token');
   if (!token) return '';
-  const decoded: any = jwtDecode(token);
-  return decoded['role']; // "Admin" o "Usuario"
+
+  try {
+    const decoded: any = jwtDecode(token);
+    // Verifica si el rol está en "role" o en el claim estándar de Microsoft
+    return decoded.role || decoded['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] || '';
+  } catch {
+    return '';
+  }
 }
+
 
 
 }

@@ -1,3 +1,25 @@
-:host {
-  display: block;
+.usuarios-header {
+  display: flex;
+  justify-content: flex-end;
+  padding: 8px 0;
+}
+
+.form-usuario {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 500px;
+  margin: auto;
+  padding: 16px 0;
+}
+
+.botones-form {
+  display: flex;
+  justify-content: center;
+  margin-top: 16px;
+}
+
+.full-width-table {
+  width: 100%;
+  margin-top: 24px;
 }

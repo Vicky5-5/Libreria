@@ -10,6 +10,7 @@ import { MatInputModule } from "@angular/material/input";
 import { MatButtonModule } from "@angular/material/button";
 import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
+import { jwtDecode } from 'jwt-decode';
 
 @Component({
   selector: 'app-login',
@@ -28,36 +29,57 @@ export class LoginComponent {
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(6)]]
   });
+ isAdmin(): boolean {
+  return this.accesoService.getRol() === 'Admin';
+}
+
+getRol(): string {
+  const token = localStorage.getItem('token');
+  if (!token) return '';
+
+  try {
+    const decoded: any = jwtDecode(token);
+    return decoded.role || ''; // Asegúrate de que el backend incluya "role"
+  } catch (e) {
+    console.error('Error al decodificar el token:', e);
+    return '';
+  }
+}
 
   iniciarSesion() {
-    if(this.formLogin.invalid) return;
+  if (this.formLogin.invalid) return;
 
-    // Definimos el objeto de tipo Login con los valores del formulario
-    const objeto:Login = {
-      email: this.formLogin.value.email!,
-      password: this.formLogin.value.password!
-    }
-    this.accesoService.login(objeto).subscribe({
-      next: (data) => {
-        if(data.isSuccess){
-          localStorage.setItem('token', data.token);
-          this.router.navigate(['/administracionLibros']);
+  const objeto: Login = {
+    email: this.formLogin.value.email!,
+    password: this.formLogin.value.password!
+  };
+
+  this.accesoService.login(objeto).subscribe({
+    next: (data) => {
+      if (data.isSuccess) {
+        localStorage.setItem('token', data.token);
+
+        const rol = this.accesoService.getRol();
+        if (rol === 'Admin') {
+          this.router.navigate(['/indexAdmin']);
         } else {
-          alert('Error al iniciar sesión. Por favor, verifica tus credenciales.');
+          this.router.navigate(['/indexUsuario']);
         }
-      },
-      error: (err) => {
+      } else {
+        alert('Error al iniciar sesión. Por favor, verifica tus credenciales.');
+      }
+    },
+    error: (err) => {
       const mensaje = err.error?.message || 'Error desconocido';
       alert('Error al iniciar sesión: ' + mensaje);
       console.error('Detalles del error:', err);
-      }
+    }
+  });
+}
 
-    })
-  }
   registrarse() {
     this.router.navigate(['/registro']);
   }
-  isAdmin(): boolean {
-  return this.accesoService.getRol() === 'Admin';
-}
+ 
+
 }

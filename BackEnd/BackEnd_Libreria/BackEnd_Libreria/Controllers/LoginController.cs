@@ -73,11 +73,13 @@ namespace BackEnd_Libreria.Controllers
 
         private string GenerarToken(Usuario usuario)
         {
-            var claims = new[]
-            {
-                new Claim(ClaimTypes.Name, usuario.Email),
-                new Claim(ClaimTypes.Role, usuario.Admin ? "Admin" : "Usuario")
-            };
+            var roles = _userManager.GetRolesAsync(usuario).Result;
+
+            var claims = new List<Claim>
+    {
+        new Claim(JwtRegisteredClaimNames.Sub, usuario.Email),
+        new Claim("role", roles.FirstOrDefault() ?? "Usuario") // ✅ Aquí se incluye el rol
+    };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
@@ -86,11 +88,12 @@ namespace BackEnd_Libreria.Controllers
                 issuer: _config["Jwt:Issuer"],
                 audience: _config["Jwt:Audience"],
                 claims: claims,
-                expires: DateTime.Now.AddHours(1),
+                expires: DateTime.Now.AddHours(2),
                 signingCredentials: creds
             );
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
+
     }
 }

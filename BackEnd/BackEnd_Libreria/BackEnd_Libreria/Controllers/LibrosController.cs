@@ -28,7 +28,9 @@ namespace BackEnd_Libreria.Controllers
                 Sinopsis = libro.Sinopsis,
                 Disponibilidad = libro.Disponibilidad,
                 Favorito = libro.Favorito,
+                RutaArchivoPortada = libro.RutaArchivoPortada
             });
+
             return Ok(new
             {
                 isSuccess = true,

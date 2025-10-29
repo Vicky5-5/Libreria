@@ -9,11 +9,12 @@ import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatSortModule } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatCardModule } from '@angular/material/card';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-administracionLibros',
   standalone: true,
-  imports: [CommonModule, MatIcon, MatPaginatorModule, MatSortModule,MatTableModule,MatCardModule],
+  imports: [CommonModule, MatIcon, MatPaginatorModule, MatSortModule,MatTableModule,MatCardModule, MatButtonModule],
   templateUrl: './administracionLibros.component.html',
   styleUrls: ['./administracionLibros.component.css']
 })
@@ -22,13 +23,40 @@ export class AdministracionLibrosComponent {
   private router = inject(Router);
 
   public listaLibros = new MatTableDataSource<Libros>();
-  public displayedColumns: string[] = [
-    'titulo', 'autor', 'genero', 'yearPublicacion', 'favorito', 'idioma', 'sinopsis', 'accion'
-  ];
+ displayedColumns: string[] = [
+  'portada',
+  'titulo',
+  'autor',
+  'yearPublicacion',
+  'genero',
+  'favorito',
+  'idioma',
+  'sinopsis',
+  'pdf',
+  'accion'
+];
 
   constructor() {
     this.obtenerLibros(); // Carga inicial
   }
+getGeneroTexto(id: number): string {
+  const generos: { [key: number]: string } = {
+    1: 'Ficción',
+    2: 'No ficción',
+    3: 'Ciencia',
+    4: 'Historia',
+    5: 'Fantasía'
+  };
+  return generos[id] || 'Desconocido';
+}
+getPortadaUrl(nombre: string): string {
+  return nombre ? `https://localhost:7105/Portadas/${nombre}` : '';
+}
+
+ocultarImagen(event: Event): void {
+  const img = event.target as HTMLImageElement;
+  img.style.display = 'none'; // Oculta la imagen si no se carga
+}
 
   obtenerLibros() {
     this.librosService.listar().subscribe({

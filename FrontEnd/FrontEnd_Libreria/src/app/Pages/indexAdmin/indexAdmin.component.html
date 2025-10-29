@@ -1,9 +1,15 @@
+<div class="admin-panel">
+  <h2>Panel de Administración</h2>
 
-
-<button mat-icon-button class="example-icon favorite-icon" style="color: white;" aria-label="Ir al login" routerLink="/adminizacionUsuarios">
+  <div class="admin-actions">
+    <button mat-raised-button color="primary" routerLink="/administracionUsuarios">
       <mat-icon>person</mat-icon>
+      <span>Administrar Usuarios</span>
     </button>
-    <button mat-icon-button class="example-icon favorite-icon" style="color: white;" aria-label="Ir al login" routerLink="/adminizacionLibros">
+
+    <button mat-raised-button color="accent" routerLink="/administracionLibros">
       <mat-icon>book</mat-icon>
+      <span>Administrar Libros</span>
     </button>
-    
+  </div>
+</div>

@@ -1,39 +1,42 @@
-﻿using BackEnd_Libreria.Models.Usuario;
+﻿using BackEnd_Libreria.Contexto;
+using BackEnd_Libreria.Models.Usuario;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace BackEnd_Libreria.Services
 {
     public class UsuarioService : IUsuarioService
     {
         private readonly UserManager<Usuario> _userManager;
+        private readonly Conexion _context;
 
-        public UsuarioService(UserManager<Usuario> userManager)
+        public UsuarioService(Conexion context)
         {
-            _userManager = userManager;
+            _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
-        public async Task<IEnumerable<Usuario>> GetAllAsync()
+        public IEnumerable<Usuario> GetAll()
         {
-            return await Task.FromResult(_userManager.Users.ToList());
+            return _context.Users.ToList();
         }
 
-        public async Task<IEnumerable<Usuario>> GetAllActivosAsync()
+        public IEnumerable<Usuario> GetAllActivos()
         {
-            return await Task.FromResult(_userManager.Users.Where(u => u.Estado).ToList());
+            return _context.Users.Where(u => u.Estado).ToList();
         }
 
-        public async Task<Usuario?> GetByIdAsync(string id)
+        public Usuario? GetById(string id)
         {
-            return await _userManager.FindByIdAsync(id);
+            return _context.Users.FirstOrDefault(u => u.Id == id);
         }
 
-        public async Task<Usuario> AddAsync(Usuario usuario, string password)
+        public Usuario Add(Usuario usuario, string password)
         {
             usuario.FechaRegistro = DateTime.Now;
             usuario.Estado = true;
             usuario.FechaBaja = null;
 
-            var result = await _userManager.CreateAsync(usuario, password);
+            var result = _userManager.CreateAsync(usuario, password).Result;
             if (!result.Succeeded)
             {
                 var errores = string.Join("; ", result.Errors.Select(e => e.Description));
@@ -43,40 +46,40 @@ namespace BackEnd_Libreria.Services
             return usuario;
         }
 
-        public async Task<bool> ActualizarAsync(string id, Usuario datos)
+        public bool Actualizar(string id, Usuario datos)
         {
-            var usuario = await _userManager.FindByIdAsync(id);
+            var usuario = _context.Users.FirstOrDefault(u => u.Id == id);
             if (usuario == null) return false;
 
             usuario.Nombre = datos.Nombre;
             usuario.Admin = datos.Admin;
             usuario.Estado = datos.Estado;
 
-            var result = await _userManager.UpdateAsync(usuario);
+            var result = _userManager.UpdateAsync(usuario).Result;
             return result.Succeeded;
         }
 
-        public async Task<bool> DarBajaAsync(string id)
+        public bool DarBaja(string id)
         {
-            var usuario = await _userManager.FindByIdAsync(id);
+            var usuario = _userManager.Users.FirstOrDefault(u => u.Id == id);
             if (usuario == null) return false;
 
             usuario.Estado = false;
             usuario.FechaBaja = DateTime.Now;
 
-            var result = await _userManager.UpdateAsync(usuario);
+            var result = _userManager.UpdateAsync(usuario).Result;
             return result.Succeeded;
         }
 
-        public async Task<bool> DarAltaDeNuevoAsync(string id)
+        public bool DarAltaDeNuevo(string id)
         {
-            var usuario = await _userManager.FindByIdAsync(id);
+            var usuario = _userManager.Users.FirstOrDefault(u => u.Id == id);
             if (usuario == null || usuario.Estado) return false;
 
             usuario.Estado = true;
             usuario.FechaBaja = null;
 
-            var result = await _userManager.UpdateAsync(usuario);
+            var result = _userManager.UpdateAsync(usuario).Result;
             return result.Succeeded;
         }
     }
