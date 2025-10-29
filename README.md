@@ -39,6 +39,7 @@ Consumo de API mediante HttpClient
 Guards, Interceptors y Routing avanzado
 
 ✨ Funcionalidades principales
+
 👤 Usuarios y Autenticación
 
 Registro, login y logout mediante Identity
