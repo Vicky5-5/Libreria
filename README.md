@@ -83,4 +83,30 @@ Historial de lecturas
 
 Listas de favoritos
 
-Descargas protegidas
+🔐 Autenticación
+
+Identity maneja:
+
+Usuarios
+
+Roles
+
+Claims
+
+Tokens JWT (si lo utilizas)
+
+Angular gestiona el acceso mediante:
+
+LocalStorage
+
+Interceptor para añadir token
+
+Guards para rutas protegidas
+
+
+📌 Licencia / Uso del proyecto
+
+Este es un proyecto personal.
+No está permitido su uso, copia, modificación, distribución ni explotación comercial sin autorización expresa del autor.
+
+Todos los derechos reservados.
