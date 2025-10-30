@@ -12,7 +12,8 @@ import { MatInputModule } from '@angular/material/input';
 import { MatCardModule } from "@angular/material/card";
 import { CommonModule } from '@angular/common';
 import { MatHeaderCellDef, MatCellDef, MatHeaderCell, MatTableDataSource, MatTableModule } from "@angular/material/table";
-import { Libros } from '../../interface/Libros';
+import { MatDialog } from '@angular/material/dialog';
+import { CrearUsuarioComponent } from './crearUsuarios/crearUsuario.component/crearUsuario.component';
 import { responseAPIUsuario } from '../../Models/responseAPIUsuario';
 import { UsuariosService } from '../../Servicios/usuarios.service';
 
@@ -44,10 +45,12 @@ private usuarioService = inject(UsuariosService);
 public mostrarFormulario = false;
 public displayedColumns: string[] = ['nombre', 'email', 'admin', 'estado', 'fechaRegistro', 'accion'];
 public listaUsuarios = new MatTableDataSource<Usuario>();
+private dialog = inject(MatDialog);
 
 constructor() {
     this.obtenerUsuarios(); // Carga inicial
   }
+  
  obtenerUsuarios() {
     this.usuarioService.listar().subscribe({
       next: (response: responseAPIUsuario<Usuario[]>) => {
@@ -62,9 +65,19 @@ constructor() {
       }
     });
   }
-     addUser(){
-      this.router.navigate(['/administracion_usuarios/crearUsuario']);
-     }
+     addUser() {
+  const dialogRef = this.dialog.open(CrearUsuarioComponent, {
+    width: '500px',
+    disableClose: true
+  });
+
+  dialogRef.afterClosed().subscribe(resultado => {
+    if (resultado) {
+      this.obtenerUsuarios();
+    }
+  });
+}
+
   editar(usuario: Usuario) {
       // this.router.navigate(['/libros', usuario.idUsuario]);
     }

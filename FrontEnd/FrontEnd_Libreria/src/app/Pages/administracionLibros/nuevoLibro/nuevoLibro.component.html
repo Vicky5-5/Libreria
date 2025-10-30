@@ -1,8 +1,7 @@
-<div class="form-container">
-  <form class="libro-form">
-
+<h1>Nuevo Libro</h1>
+<br>
     <!-- 📘 Información básica -->
-    <div class="form-row">
+    <mat-dialog-content>
       <mat-form-field appearance="fill" class="form-field">
         <mat-label>Título del libro</mat-label>
         <input matInput placeholder="Título del libro" [(ngModel)]="libro.titulo" name="titulo">
@@ -12,9 +11,9 @@
         <mat-label>Autor</mat-label>
         <input matInput placeholder="Autor del libro" [(ngModel)]="libro.autor" name="autor">
       </mat-form-field>
-    </div>
+   
 
-    <div class="form-row">
+  
       <mat-form-field appearance="fill" class="form-field">
         <mat-label>Año de Publicación</mat-label>
         <input matInput type="number" placeholder="Año de publicación" [(ngModel)]="libro.yearPublicacion" name="yearPublicacion">
@@ -24,7 +23,7 @@
         <mat-label>Idioma</mat-label>
         <input matInput placeholder="Idioma del libro" [(ngModel)]="libro.idioma" name="idioma">
       </mat-form-field>
-    </div>
+
 
     <!-- 🎭 Género -->
     <mat-form-field appearance="fill" class="form-field full-width">
@@ -40,7 +39,7 @@
       <textarea matInput placeholder="Sinopsis del libro" [(ngModel)]="libro.sinopsis" name="sinopsis"></textarea>
     </mat-form-field>
 
-    <div class="form-row">
+
       <mat-form-field appearance="fill" class="form-field">
         <mat-label>Disponibilidad</mat-label>
         <mat-select [(ngModel)]="libro.disponibilidad" name="disponibilidad">
@@ -56,8 +55,7 @@
           <mat-option [value]="false">No</mat-option>
         </mat-select>
       </mat-form-field>
-    </div>
-
+ 
     <!-- 📎 Archivo PDF -->
     <div class="form-row full-width archivo-pdf">
       <label for="archivoPDF">Archivo PDF</label>
@@ -67,11 +65,9 @@
   <label for="portada">Portada del libro</label>
   <input id="portada" type="file" (change)="onPortadaSeleccionada($event)" accept="image/*" />
 </div>
-
+    </mat-dialog-content>
     <!-- ✅ Botón de acción -->
-    <div class="form-row full-width">
-      <button mat-raised-button color="primary" (click)="guardarLibro()">Guardar Libro</button>
-    </div>
-
-  </form>
-</div>
+    <mat-dialog-actions align="end">
+  <button mat-button (click)="cancelar()">Cancelar</button>
+  <button mat-raised-button color="primary" (click)="guardarLibro()">Guardar Libro</button>
+</mat-dialog-actions>

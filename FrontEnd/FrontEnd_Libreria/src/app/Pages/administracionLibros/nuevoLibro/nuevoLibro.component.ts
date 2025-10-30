@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -7,8 +7,10 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 
 import { Libros, Genero } from '../../../interface/Libros';
+import { MatDialogContent } from "@angular/material/dialog";
 
 @Component({
   selector: 'app-nuevo-libro',
@@ -19,8 +21,10 @@ import { Libros, Genero } from '../../../interface/Libros';
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
-    MatButtonModule
-  ],
+    MatButtonModule,
+    MatDialogContent, FormsModule,
+    MatDialogModule
+],
   templateUrl: './nuevoLibro.component.html',
   styleUrls: ['./nuevoLibro.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -52,6 +56,7 @@ export class NuevoLibroComponent implements OnInit {
 
 
   constructor(private http: HttpClient, private route: ActivatedRoute) {}
+private dialogRef = inject(MatDialogRef<NuevoLibroComponent>);
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
@@ -123,11 +128,7 @@ if (this.libro.portada) {
     });
   }
 
-  eliminarLibro(): void {
-    if (!this.libro.idLibro) return;
-    this.http.delete(`https://localhost:7105/api/libros/${this.libro.idLibro}`).subscribe({
-      next: () => alert('Libro eliminado'),
-      error: err => console.error('Error al eliminar libro:', err)
-    });
+  cancelar(){
+    this.dialogRef.close(false);
   }
 }

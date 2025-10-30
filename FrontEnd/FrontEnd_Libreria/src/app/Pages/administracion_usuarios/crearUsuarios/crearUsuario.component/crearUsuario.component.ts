@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -12,6 +12,8 @@ import { RouterModule } from '@angular/router';
 import { Router } from '@angular/router';
 import { Usuario } from '../../../../interface/Usuario';
 import { UsuariosService } from '../../../../Servicios/usuarios.service';
+import { MatDialogRef } from '@angular/material/dialog';
+import { MatDialogModule } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-crear-usuario.component',
@@ -21,7 +23,7 @@ import { UsuariosService } from '../../../../Servicios/usuarios.service';
       MatInputModule,
       MatSelectModule,
       MatButtonModule,
-      MatIconModule, MatCardModule, MatHeaderCellDef, MatCellDef, MatHeaderCell, MatTableModule],
+      MatIconModule, MatCardModule, MatTableModule, MatDialogModule,FormsModule],
   templateUrl: `./crearUsuario.component.html`,
   styleUrl: './crearUsuario.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -30,13 +32,14 @@ export class CrearUsuarioComponent {
     private router = inject(Router);
       public formBuild = inject(FormBuilder);
 private usuarioService = inject(UsuariosService);
+private dialogRef = inject(MatDialogRef<CrearUsuarioComponent>);
 
       public formRegistro = this.formBuild.group({
   nombre: ['', [Validators.required, Validators.minLength(3)]],
   email: ['', [Validators.required, Validators.email]],
   password: ['', [Validators.required, Validators.minLength(6)]],
   confirmPassword: ['', [Validators.required]],
-  admin: [false],
+  Admin: [false],
   estado: [true]
 }, {
   validators: (group) => {
@@ -52,7 +55,7 @@ private usuarioService = inject(UsuariosService);
             nombre: this.formRegistro.value.nombre!,
             email: this.formRegistro.value.email!,
             password: this.formRegistro.value.password!,
-            Admin: false,
+            Admin: this.formRegistro.value.Admin!,
             fechaRegistro: new Date(),
             estado: true
           }
@@ -71,7 +74,8 @@ private usuarioService = inject(UsuariosService);
           }
         })
     }
-    volver(){
-      this.router.navigate(['/administracion_usuarios']);
-    }
+    volver() {
+  this.dialogRef.close(false);
+}
+
 }
