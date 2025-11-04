@@ -11,6 +11,7 @@ import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 
 import { Libros, Genero } from '../../../interface/Libros';
 import { MatDialogContent } from "@angular/material/dialog";
+import { Observable } from 'rxjs/internal/Observable';
 
 @Component({
   selector: 'app-nuevo-libro',
@@ -116,10 +117,8 @@ if (this.libro.portada) {
       alert('Error inesperado al guardar el libro.');
     }
   }
-});
-
-    
-  }
+}); 
+}
 
   cargarLibro(id: number): void {
     this.http.get<Libros>(`https://localhost:7105/api/libros/${id}`).subscribe({

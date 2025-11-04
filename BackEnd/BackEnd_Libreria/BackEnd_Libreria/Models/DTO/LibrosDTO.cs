@@ -11,6 +11,10 @@
         public bool Disponibilidad { get; set; }
         public bool Favorito { get; set; }
         public IFormFile ArchivoPDF { get; set; }
+        public string RutaArchivoPDF { get; set; }
+
         public IFormFile Portada { get; set; }
+        public string RutaArchivoPortada { get; set; }
+
     }
 }

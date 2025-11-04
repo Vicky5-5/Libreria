@@ -13,11 +13,12 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule, MatDialogTitle } from '@angular/material/dialog';
 import { NuevoLibroComponent } from './nuevoLibro/nuevoLibro.component';
 import { MatDialogRef } from '@angular/material/dialog';
+import { PortadasComponent } from './portadas/portadas.component/portadas.component';
 
 @Component({
   selector: 'app-administracionLibros',
   standalone: true,
-  imports: [CommonModule, MatIcon, MatPaginatorModule, MatSortModule,MatTableModule,MatCardModule, MatButtonModule,MatDialogModule],
+  imports: [CommonModule, MatIcon, MatPaginatorModule, MatSortModule,MatTableModule,MatCardModule, MatButtonModule,MatDialogModule, PortadasComponent],
   templateUrl: './administracionLibros.component.html',
   styleUrls: ['./administracionLibros.component.css']
 })
@@ -33,7 +34,6 @@ private dialog = inject(MatDialog);
   'autor',
   'yearPublicacion',
   'genero',
-  'favorito',
   'idioma',
   'sinopsis',
   'pdf',
@@ -52,14 +52,6 @@ getGeneroTexto(id: number): string {
     5: 'Fantasía'
   };
   return generos[id] || 'Desconocido';
-}
-getPortadaUrl(nombre: string): string {
-  return nombre ? `https://localhost:7105/Portadas/${nombre}` : '';
-}
-
-ocultarImagen(event: Event): void {
-  const img = event.target as HTMLImageElement;
-  img.style.display = 'none'; // Oculta la imagen si no se carga
 }
 
   obtenerLibros() {
@@ -85,6 +77,22 @@ const dialogRef = this.dialog.open(NuevoLibroComponent, {
   dialogRef.afterClosed().subscribe(resultado => {
     if (resultado) {
       this.obtenerLibros();
+    }
+  });
+}
+// administracion-libros.component.ts
+descargar(libro: Libros) {
+  this.librosService.descargarLibro(libro.rutaArchivoPDF).subscribe({
+    next: (blob) => {
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = libro.titulo + '.pdf'; // nombre amigable
+      a.click();
+      window.URL.revokeObjectURL(url);
+    },
+    error: () => {
+      alert('No se pudo descargar el archivo.');
     }
   });
 }

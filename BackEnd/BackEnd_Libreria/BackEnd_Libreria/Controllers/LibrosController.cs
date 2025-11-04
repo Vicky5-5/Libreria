@@ -28,7 +28,8 @@ namespace BackEnd_Libreria.Controllers
                 Sinopsis = libro.Sinopsis,
                 Disponibilidad = libro.Disponibilidad,
                 Favorito = libro.Favorito,
-                RutaArchivoPortada = libro.RutaArchivoPortada
+                RutaArchivoPortada = libro.RutaArchivoPortada,
+                RutaArchivoPDF = libro.RutaArchivoPDF
             });
 
             return Ok(new
@@ -112,6 +113,22 @@ namespace BackEnd_Libreria.Controllers
             return CreatedAtAction(nameof(Get), new { id = nuevo.idLibro }, nuevo);
         }
 
+        [HttpGet("descargar/{nombreArchivo}")]
+        public IActionResult DescargarLibro(string nombreArchivo)
+        {
+            // Ruta física del archivo PDF
+            var ruta = Path.Combine(Directory.GetCurrentDirectory(), "pdfs", nombreArchivo);
+
+            if (!System.IO.File.Exists(ruta))
+            {
+                return NotFound("El archivo no existe.");
+            }
+
+            var tipoContenido = "application/pdf";
+            var bytes = System.IO.File.ReadAllBytes(ruta);
+
+            return File(bytes, tipoContenido, nombreArchivo);
+        }
 
 
         [HttpPut("{id}")]

@@ -22,6 +22,17 @@ export class LibrosService {
     return this.http.get<responseAPILibro<Libros>>(`${this.apiUrl}/${id}`);
   }
 
+ getImageUrl(nombreArchivo: string): string {
+  return `https://localhost:7105/Portadas/${nombreArchivo}`;
+}
+
+// Método para descargar el archivo PDF
+ descargarLibro(nombreArchivo: string) : Observable<Blob> {
+    return this.http.get(`${this.apiUrl}/descargar/${nombreArchivo}`, {
+      responseType: 'blob' // Especifica que la respuesta es un Blob (archivo binario)
+    });
+  }
+
   crear(objeto: Libros): Observable<responseAPILibro<Libros>> {
     return this.http.post<responseAPILibro<Libros>>(this.apiUrl, objeto);
   }
