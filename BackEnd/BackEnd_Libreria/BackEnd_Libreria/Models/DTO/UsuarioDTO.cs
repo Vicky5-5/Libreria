@@ -4,10 +4,10 @@ namespace BackEnd_Libreria.Models.DTO
 {
     public class UsuarioDTO
     {
-        public int Id { get; set; }
+        public string Id { get; set; }
         public string Nombre { get; set; }
         public string Email { get; set; }
-        public DateTime FechaRegistro { get; set; } = DateTime.Now;
+        public DateTime FechaRegistro { get; set; }
 
         public DateTime? FechaBaja { get; set; }
 

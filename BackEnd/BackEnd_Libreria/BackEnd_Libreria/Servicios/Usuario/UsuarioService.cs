@@ -10,10 +10,12 @@ namespace BackEnd_Libreria.Services
         private readonly UserManager<Usuario> _userManager;
         private readonly Conexion _context;
 
-        public UsuarioService(Conexion context)
+        public UsuarioService(Conexion context, UserManager<Usuario> userManager)
         {
-            _context = context ?? throw new ArgumentNullException(nameof(context));
+            _context = context;
+            _userManager = userManager;
         }
+
 
         public IEnumerable<Usuario> GetAll()
         {
@@ -30,13 +32,14 @@ namespace BackEnd_Libreria.Services
             return _context.Users.FirstOrDefault(u => u.Id == id);
         }
 
-        public Usuario Add(Usuario usuario, string password)
+        public async Task<Usuario> Add(Usuario usuario, string password)
         {
             usuario.FechaRegistro = DateTime.Now;
             usuario.Estado = true;
             usuario.FechaBaja = null;
-
-            var result = _userManager.CreateAsync(usuario, password).Result;
+            // Usamos Indentity para crear el usuario con la contraseña hasheada
+            var result = await _userManager.CreateAsync(usuario, password);
+            // Verificamos si la creación fue exitosa
             if (!result.Succeeded)
             {
                 var errores = string.Join("; ", result.Errors.Select(e => e.Description));
@@ -45,6 +48,7 @@ namespace BackEnd_Libreria.Services
 
             return usuario;
         }
+
 
         public bool Actualizar(string id, Usuario datos)
         {

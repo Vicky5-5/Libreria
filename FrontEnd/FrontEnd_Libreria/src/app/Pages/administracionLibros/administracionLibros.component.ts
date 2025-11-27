@@ -98,8 +98,16 @@ descargar(libro: Libros) {
 }
 
   editar(libro: Libros) {
-    this.router.navigate(['/libros', libro.idLibro]);
-  }
+const dialogRef = this.dialog.open(NuevoLibroComponent, {
+    width: '500px',
+    disableClose: true,
+    data: libro
+  });
+  dialogRef.afterClosed().subscribe(resultado => {
+    if (resultado) {
+      this.obtenerLibros();
+    }
+  });  }
 
   eliminar(libro: Libros) {
     if (confirm(`¿Desea eliminar el libro "${libro.titulo}"?`)) {

@@ -3,6 +3,34 @@
   max-width: 900px;
   margin: auto;
 }
+h1{
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #2c3e50;
+  text-align: center;
+}
+.contenedor {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px;
+}
+
+mat-dialog-content {
+  width: 100%;
+  max-width: 600px; /* Ajusta el ancho del contenido */
+}
+
+.form-field {
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+.archivo-pdf {
+  margin-top: 16px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
 
 .libro-form {
   display: flex;

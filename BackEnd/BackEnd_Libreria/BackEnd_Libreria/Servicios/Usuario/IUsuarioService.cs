@@ -8,7 +8,7 @@ namespace BackEnd_Libreria.Models.Usuario
         IEnumerable<Usuario> GetAll();
         IEnumerable<Usuario> GetAllActivos();
         Usuario? GetById(string id);
-        Usuario Add(Usuario usuario, string password);
+        Task<Usuario> Add(Usuario usuario, string password); // Así hacemos que el método sea asíncrono y coincida con el controlador
         bool Actualizar(string id, Usuario usuario);
         bool DarBaja(string id);
         bool DarAltaDeNuevo(string id);

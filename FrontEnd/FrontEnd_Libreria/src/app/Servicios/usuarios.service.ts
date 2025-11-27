@@ -4,6 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { responseAPIUsuario } from '../Models/responseAPIUsuario';
 import { appsettings } from '../Settings/appsettings/appsettings';
+import { CrearUsuariosAdminDTO } from '../interface/CrearUsuariosAdminDTO';
 
 @Injectable({
   providedIn: 'root'
@@ -11,7 +12,7 @@ import { appsettings } from '../Settings/appsettings/appsettings';
 export class UsuariosService {
 
   private http = inject(HttpClient);
-  private apiUrl: string = appsettings.apiUrl + "/usuarios";
+  private apiUrl: string = appsettings.apiUrl + "/Usuario";
 
   listar(): Observable<responseAPIUsuario<Usuario[]>> {
     return this.http.get<responseAPIUsuario<Usuario[]>>(this.apiUrl);
@@ -21,9 +22,13 @@ export class UsuariosService {
     return this.http.get<responseAPIUsuario<Usuario>>(`${this.apiUrl}/${id}`);
   }
 
-  crear(objeto: Usuario): Observable<responseAPIUsuario<Usuario>> {
-    return this.http.post<responseAPIUsuario<Usuario>>(this.apiUrl, objeto);
+  crear(objeto: CrearUsuariosAdminDTO): Observable<responseAPIUsuario<Usuario>> {
+    return this.http.post<responseAPIUsuario<Usuario>>(`${this.apiUrl}/Registrar`, objeto);
   }
+  darDeBaja(id: string) {
+    return this.http.post(`${this.apiUrl}/${id}/baja`, {});
+  }
+
 
   editar(objeto: Usuario): Observable<responseAPIUsuario<Usuario>> {
     return this.http.put<responseAPIUsuario<Usuario>>(`${this.apiUrl}/${objeto.id}`, objeto);

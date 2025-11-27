@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace BackEnd_Libreria.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     public class UsuarioController : ControllerBase
     {
         private readonly IUsuarioService _service;
@@ -26,7 +26,7 @@ namespace BackEnd_Libreria.Controllers
 
             var usuariosDTO = usuarios.Select(usuario => new UsuarioDTO
             {
-                Id = (int.Parse(usuario.Id)),
+                Id = usuario.Id,
                 Nombre = usuario.Nombre,
                 Email = usuario.Email,
                 Admin = usuario.Admin,
@@ -60,24 +60,72 @@ namespace BackEnd_Libreria.Controllers
             return Ok(usuario);
         }
 
-
+        //Este metodo registra un nuevo usuario (EL ADMINISTRADOR)
+        // Usa el DTO CrearUsuarioDTO para recibir los datos necesarios y no usar el modelo completo de Usuario
         [HttpPost("Registrar")]
-        public async Task<ActionResult<Usuario>> Registrar([FromBody] RegistroDTO dto)
+        public async Task<ActionResult<UsuarioDTO>> Registrar([FromBody] CrearUsuarioDTO dto)
         {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
             var nuevoUsuario = new Usuario
             {
                 UserName = dto.Email,
                 Email = dto.Email,
                 Nombre = dto.Nombre,
-                EmailConfirmed = true,
-                Estado = true,
-                Admin = false
+                Estado = dto.Estado,
+                Admin = dto.Admin,
+                EmailConfirmed = true
             };
 
-            var creado = _service.Add(nuevoUsuario, dto.Password);
-            return CreatedAtAction(nameof(Get), new { id = creado.Id }, creado);
+            var creado = await _service.Add(nuevoUsuario, dto.Password);
+
+            if (creado == null)
+                return BadRequest("No se pudo crear el usuario.");
+
+            
+            var usuarioDTO = new UsuarioDTO
+            {
+                Id = creado.Id,
+                Nombre = creado.Nombre,
+                Email = creado.Email,
+                Estado = creado.Estado,
+                Admin = creado.Admin,
+                FechaRegistro = creado.FechaRegistro,
+                FechaBaja = creado.FechaBaja
+            };
+
+            return CreatedAtAction(nameof(Get), new { id = creado.Id }, usuarioDTO);
+        }
+
+        [HttpPost("{id}/baja")]
+
+        public ActionResult<UsuarioDTO> DarBajaUsuario(string id)
+        {
+            //Buscar el usuario por id  
+            var usuario = _service.GetById(id);
+            //Si no existe, devolver NotFound
+            if (usuario == null) return NotFound();
+            //Si existe, cambiar su estado a false y la fecha de baja al dia de hoy
+            usuario.Estado = false;
+            usuario.FechaBaja = DateTime.Now;
+            _service.Actualizar(id, usuario);
+            var usuarioDTO = new UsuarioDTO
+            {
+                Id = usuario.Id,
+                Nombre = usuario.Nombre,
+                Email = usuario.Email,
+                Admin = usuario.Admin,
+                Estado = usuario.Estado,
+                FechaBaja = usuario.FechaBaja,
+                FechaRegistro = usuario.FechaRegistro
+            };
+            return Ok(new
+            {
+                isSuccess = true,
+                message = "Usuario dado de baja correctamente",
+                data = usuarioDTO
+            });
         }
 
         [HttpPut("{id}")]

@@ -82,23 +82,17 @@ constructor() {
       // this.router.navigate(['/libros', usuario.idUsuario]);
     }
   
-    darDeBaja(libro: Usuario) {
-      // if (confirm(`¿Desea eliminar el libro "${libro.titulo}"?`)) {
-      //   this.librosService.borrar(libro.idLibro).subscribe({
-      //     next: (data: any) => {
-      //       if (data.isSuccess) {
-      //         this.obtenerLibros();
-      //       } else {
-      //         alert('No se pudo eliminar el libro');
-      //       }
-      //     },
-      //     error: (err: any) => {
-      //       console.error('Error al eliminar libro:', err.message);
-      //       alert('No se pudo eliminar el libro');
-      //     }
-      //   });
-      // }
+    darDeBaja(id: string) {
+  if (!confirm("¿Seguro que deseas dar de baja este usuario?")) return;
+
+  this.usuarioService.darDeBaja(id).subscribe({
+    next: () => {
+      alert("Usuario dado de baja correctamente");
+      this.obtenerUsuarios();
     }
+  });
+}
+
   volver() {
     this.router.navigate([""]);
   }
