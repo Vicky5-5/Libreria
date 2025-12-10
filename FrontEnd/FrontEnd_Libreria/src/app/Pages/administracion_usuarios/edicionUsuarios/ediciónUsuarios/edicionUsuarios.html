@@ -1,0 +1,42 @@
+<h2>Editar Usuario</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="formRegistro">
+
+    <mat-form-field appearance="fill" class="full-width">
+      <mat-label>Nombre</mat-label>
+      <input matInput formControlName="nombre">
+    </mat-form-field>
+
+    <mat-form-field appearance="fill" class="full-width">
+      <mat-label>Email</mat-label>
+      <input matInput formControlName="email" type="email">
+    </mat-form-field>
+
+    <mat-form-field appearance="fill" class="full-width">
+      <mat-label>Nueva contraseña</mat-label>
+      <input matInput formControlName="password" type="password">
+    </mat-form-field>
+
+    <mat-form-field appearance="fill" class="full-width">
+      <mat-label>Confirmar contraseña</mat-label>
+      <input matInput formControlName="confirmPassword" type="password">
+    </mat-form-field>
+
+    <mat-form-field appearance="fill" class="full-width">
+      <mat-label>¿Administrador?</mat-label>
+      <mat-select formControlName="Admin">
+        <mat-option [value]="true">Sí</mat-option>
+        <mat-option [value]="false">No</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="volver()">Cancelar</button>
+  <button mat-raised-button color="primary" (click)="guardar()" [disabled]="formRegistro.invalid">
+    Guardar
+  </button>
+</mat-dialog-actions>

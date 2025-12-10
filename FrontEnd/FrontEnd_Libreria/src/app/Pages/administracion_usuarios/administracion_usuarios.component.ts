@@ -16,6 +16,8 @@ import { MatDialog } from '@angular/material/dialog';
 import { CrearUsuarioComponent } from './crearUsuarios/crearUsuario.component/crearUsuario.component';
 import { responseAPIUsuario } from '../../Models/responseAPIUsuario';
 import { UsuariosService } from '../../Servicios/usuarios.service';
+import { EdicionLibro } from '../administracionLibros/editarLibro/edicionLibro/edicionLibro';
+import { EdicionUsuarios } from './edicionUsuarios/ediciónUsuarios/edicionUsuarios';
 
 @Component({
   selector: 'app-administracion-usuarios',
@@ -78,10 +80,14 @@ constructor() {
   });
 }
 
-  editar(usuario: Usuario) {
-      // this.router.navigate(['/libros', usuario.idUsuario]);
-    }
-  
+editar(usuario: Usuario) {
+  this.dialog.open(EdicionUsuarios, {
+    width: '450px',
+    data: { id: usuario } 
+  }).afterClosed().subscribe(result => {
+    if (result) this.obtenerUsuarios(); 
+  });
+}  
     darDeBaja(id: string) {
   if (!confirm("¿Seguro que deseas dar de baja este usuario?")) return;
 

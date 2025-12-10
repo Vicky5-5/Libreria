@@ -99,27 +99,25 @@ namespace BackEnd_Libreria.Controllers
         }
 
         [HttpPost("{id}/baja")]
-
-        public ActionResult<UsuarioDTO> DarBajaUsuario(string id)
+        public ActionResult<UsuarioDTO> DarBajaUsuario(string Id)
         {
-            //Buscar el usuario por id  
-            var usuario = _service.GetById(id);
-            //Si no existe, devolver NotFound
+            var usuario = _service.GetById(Id);
             if (usuario == null) return NotFound();
-            //Si existe, cambiar su estado a false y la fecha de baja al dia de hoy
-            usuario.Estado = false;
-            usuario.FechaBaja = DateTime.Now;
-            _service.Actualizar(id, usuario);
+
+            var resultado = _service.DarBaja(Id);
+            if (!resultado) return BadRequest("No se pudo dar de baja al usuario");
+
             var usuarioDTO = new UsuarioDTO
             {
                 Id = usuario.Id,
                 Nombre = usuario.Nombre,
                 Email = usuario.Email,
                 Admin = usuario.Admin,
-                Estado = usuario.Estado,
-                FechaBaja = usuario.FechaBaja,
+                Estado = false,
+                FechaBaja = DateTime.Now,
                 FechaRegistro = usuario.FechaRegistro
             };
+
             return Ok(new
             {
                 isSuccess = true,
@@ -128,13 +126,37 @@ namespace BackEnd_Libreria.Controllers
             });
         }
 
-        [HttpPut("{id}")]
-        public ActionResult Actualizar(string id, [FromBody] Usuario usuario)
+
+        [HttpPut("{Id}")]
+        public async Task<ActionResult> Editar(string Id, [FromBody] EditarUsuarioDTO dto)
         {
-            var actualizado = _service.Actualizar(id, usuario); 
-            if (!actualizado) return NotFound();
-            return NoContent();
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            var usuarioActualizado = await _service.Actualizar(Id, dto);
+            if (usuarioActualizado == null) return NotFound();
+
+            var usuarioDTO = new UsuarioDTO
+            {
+                Id = usuarioActualizado.Id,
+                Nombre = usuarioActualizado.Nombre,
+                Email = usuarioActualizado.Email,
+                Admin = usuarioActualizado.Admin,
+                Estado = usuarioActualizado.Estado,
+                FechaRegistro = usuarioActualizado.FechaRegistro,
+                FechaBaja = usuarioActualizado.FechaBaja
+            };
+
+            return Ok(new
+            {
+                isSuccess = true,
+                message = "Usuario actualizado correctamente",
+                data = usuarioDTO
+            });
         }
+
+
+
+
 
         [HttpDelete("{id}")]
         public ActionResult DarBaja(string id)

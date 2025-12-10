@@ -8,6 +8,7 @@ import { IndexAdminComponent } from './Pages/indexAdmin/indexAdmin.component';
 import { adminGuard } from './Servicios/Guard/admin.guard';
 import { NuevoLibroComponent } from './Pages/administracionLibros/nuevoLibro/nuevoLibro.component';
 import { IndexUsuarioComponent } from './Pages/indexUsuario/indexUsuario/indexUsuario.component';
+import { EdicionLibro } from './Pages/administracionLibros/editarLibro/edicionLibro/edicionLibro';
 
 export const routes: Routes = [
   { path: '', component: InicioComponent },
@@ -18,6 +19,6 @@ export const routes: Routes = [
   { path: 'administracionLibros', component: AdministracionLibrosComponent }, // Es es el de los libros
   { path: 'administracionUsuarios', component: AdministracionUsuariosComponent }, // Es el de los usuarios
   { path: 'libros/nuevo', component: NuevoLibroComponent }, //Creacion de nuevo libro
-  { path: 'libros/:id', component: NuevoLibroComponent } //Edicion de libro existente
+  { path: 'libros/:id', component: EdicionLibro } //Edicion de libro existente
 ];
 

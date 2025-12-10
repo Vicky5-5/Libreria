@@ -1,4 +1,5 @@
 ﻿using BackEnd_Libreria.Contexto;
+using BackEnd_Libreria.Models.DTO;
 using BackEnd_Libreria.Models.Usuario;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -50,18 +51,40 @@ namespace BackEnd_Libreria.Services
         }
 
 
-        public bool Actualizar(string id, Usuario datos)
+        public async Task<Usuario?> Actualizar(string id, EditarUsuarioDTO dto)
         {
-            var usuario = _context.Users.FirstOrDefault(u => u.Id == id);
-            if (usuario == null) return false;
+            var usuario = await _userManager.FindByIdAsync(id);
+            if (usuario == null) return null;
 
-            usuario.Nombre = datos.Nombre;
-            usuario.Admin = datos.Admin;
-            usuario.Estado = datos.Estado;
+            usuario.Nombre = dto.Nombre;
+            usuario.Email = dto.Email;
+            usuario.UserName = dto.Email; 
+            usuario.Admin = dto.Admin;
+            usuario.Estado = dto.Estado;
 
-            var result = _userManager.UpdateAsync(usuario).Result;
-            return result.Succeeded;
+            var result = await _userManager.UpdateAsync(usuario);
+            if (!result.Succeeded)
+            {
+                var errores = string.Join("; ", result.Errors.Select(e => e.Description));
+                throw new Exception($"Error al actualizar usuario: {errores}");
+            }
+
+            // Si se envió una nueva contraseña, la cambiamos
+            if (!string.IsNullOrEmpty(dto.Password))
+            {
+                var token = await _userManager.GeneratePasswordResetTokenAsync(usuario);
+                var passResult = await _userManager.ResetPasswordAsync(usuario, token, dto.Password);
+                if (!passResult.Succeeded)
+                {
+                    var errores = string.Join("; ", passResult.Errors.Select(e => e.Description));
+                    throw new Exception($"Error al actualizar contraseña: {errores}");
+                }
+            }
+
+            return usuario;
         }
+
+
 
         public bool DarBaja(string id)
         {

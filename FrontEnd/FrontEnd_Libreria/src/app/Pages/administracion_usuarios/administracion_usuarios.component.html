@@ -50,9 +50,10 @@
       <ng-container matColumnDef="accion">
         <th mat-header-cell *matHeaderCellDef> </th>
         <td mat-cell *matCellDef="let usuario">
-          <button mat-icon-button color="primary" (click)="editar(usuario)">
+          <button mat-icon-button color="primary" (click)="editar(usuario.id)">
             <mat-icon>edit</mat-icon>
           </button>
+         
           <button mat-button color="warn" (click)="darDeBaja(usuario.id)">
             <mat-icon>block</mat-icon>
           </button>

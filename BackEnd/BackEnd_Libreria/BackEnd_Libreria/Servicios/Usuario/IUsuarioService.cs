@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using System.Collections.Generic;
+using BackEnd_Libreria.Models.DTO;
 
 namespace BackEnd_Libreria.Models.Usuario
 {
@@ -9,7 +10,7 @@ namespace BackEnd_Libreria.Models.Usuario
         IEnumerable<Usuario> GetAllActivos();
         Usuario? GetById(string id);
         Task<Usuario> Add(Usuario usuario, string password); // Así hacemos que el método sea asíncrono y coincida con el controlador
-        bool Actualizar(string id, Usuario usuario);
+        Task <Usuario> Actualizar(string Id, EditarUsuarioDTO usuario);
         bool DarBaja(string id);
         bool DarAltaDeNuevo(string id);
     }

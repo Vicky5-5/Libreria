@@ -5,6 +5,7 @@ import { Observable } from 'rxjs';
 import { responseAPIUsuario } from '../Models/responseAPIUsuario';
 import { appsettings } from '../Settings/appsettings/appsettings';
 import { CrearUsuariosAdminDTO } from '../interface/CrearUsuariosAdminDTO';
+import { EdicionUsuariosAdminDTO } from '../interface/EdicionUsuarioAdminDTO';
 
 @Injectable({
   providedIn: 'root'
@@ -22,17 +23,19 @@ export class UsuariosService {
     return this.http.get<responseAPIUsuario<Usuario>>(`${this.apiUrl}/${id}`);
   }
 
-  crear(objeto: CrearUsuariosAdminDTO): Observable<responseAPIUsuario<Usuario>> {
-    return this.http.post<responseAPIUsuario<Usuario>>(`${this.apiUrl}/Registrar`, objeto);
-  }
+  crear(objeto: CrearUsuariosAdminDTO): Observable<Usuario> {
+  return this.http.post<Usuario>(`${this.apiUrl}/Registrar`, objeto);
+}
+
   darDeBaja(id: string) {
     return this.http.post(`${this.apiUrl}/${id}/baja`, {});
   }
 
 
-  editar(objeto: Usuario): Observable<responseAPIUsuario<Usuario>> {
-    return this.http.put<responseAPIUsuario<Usuario>>(`${this.apiUrl}/${objeto.id}`, objeto);
+  editar(Id: string, objeto: EdicionUsuariosAdminDTO): Observable<Usuario> {
+    return this.http.put<Usuario>(`${this.apiUrl}/${Id}`, objeto);
   }
+
 
   borrar(id: string): Observable<any> {
     return this.http.delete<responseAPIUsuario<any>>(`${this.apiUrl}/${id}`);
