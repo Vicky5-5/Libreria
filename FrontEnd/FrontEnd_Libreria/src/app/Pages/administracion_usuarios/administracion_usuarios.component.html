@@ -50,14 +50,36 @@
       <ng-container matColumnDef="accion">
         <th mat-header-cell *matHeaderCellDef> </th>
         <td mat-cell *matCellDef="let usuario">
-          <button mat-icon-button color="primary" (click)="editar(usuario.id)">
-            <mat-icon>edit</mat-icon>
-          </button>
-         
-          <button mat-button color="warn" (click)="darDeBaja(usuario.id)">
-            <mat-icon>block</mat-icon>
-          </button>
-        </td>
+
+  <!-- Editar (siempre visible) -->
+  <button mat-icon-button color="primary" (click)="editar(usuario.id)">
+    <mat-icon>edit</mat-icon>
+  </button>
+
+  <!-- Dar de BAJA -->
+  <button
+    mat-icon-button
+    color="warn"
+    *ngIf="usuario.estado"
+    (click)="darDeBaja(usuario.id)"
+    matTooltip="Dar de baja"
+  >
+    <mat-icon>block</mat-icon>
+  </button>
+
+  <!-- Dar de ALTA -->
+  <button
+    mat-icon-button
+    color="accent"
+    *ngIf="!usuario.estado"
+    (click)="darDeAlta(usuario.id)"
+    matTooltip="Reactivar usuario"
+  >
+    <mat-icon>restore</mat-icon>
+  </button>
+
+</td>
+
       </ng-container>
 
       <!-- Filas -->

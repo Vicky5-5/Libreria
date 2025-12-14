@@ -30,7 +30,9 @@ export class UsuariosService {
   darDeBaja(id: string) {
     return this.http.post(`${this.apiUrl}/${id}/baja`, {});
   }
-
+ darDeAltaAdmin(id: string) {
+    return this.http.post(`${this.apiUrl}/${id}/alta`, {});
+  }
 
   editar(Id: string, objeto: EdicionUsuariosAdminDTO): Observable<Usuario> {
     return this.http.put<Usuario>(`${this.apiUrl}/${Id}`, objeto);

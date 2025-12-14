@@ -18,6 +18,8 @@ import { responseAPIUsuario } from '../../Models/responseAPIUsuario';
 import { UsuariosService } from '../../Servicios/usuarios.service';
 import { EdicionLibro } from '../administracionLibros/editarLibro/edicionLibro/edicionLibro';
 import { EdicionUsuarios } from './edicionUsuarios/ediciónUsuarios/edicionUsuarios';
+import { DarBaja } from './darBaja/darBaja';
+import { DarAlta } from './darAlta/darAlta';
 
 @Component({
   selector: 'app-administracion-usuarios',
@@ -88,17 +90,24 @@ editar(usuario: Usuario) {
     if (result) this.obtenerUsuarios(); 
   });
 }  
-    darDeBaja(id: string) {
-  if (!confirm("¿Seguro que deseas dar de baja este usuario?")) return;
+darDeBaja(usuario: Usuario) {
+   this.dialog.open(DarBaja, {
+    width: '450px',
+    data: { id: usuario } 
+  }).afterClosed().subscribe(result => {
+    if (result) this.obtenerUsuarios(); 
+  });
 
-  this.usuarioService.darDeBaja(id).subscribe({
-    next: () => {
-      alert("Usuario dado de baja correctamente");
-      this.obtenerUsuarios();
-    }
+  
+}
+darDeAlta(usuario: Usuario) {
+  this.dialog.open(DarAlta, {
+    width: '450px',
+    data: { id: usuario }
+  }).afterClosed().subscribe(result => {
+    if (result) this.obtenerUsuarios();
   });
 }
-
   volver() {
     this.router.navigate([""]);
   }

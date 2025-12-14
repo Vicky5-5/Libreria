@@ -51,7 +51,6 @@ passwordMatchValidator(group: any) {
 }
 
 ngOnInit() {
-    console.log("ID recibido en modal:", this.data.id);
 
   this.obtenerUsuarios();
 

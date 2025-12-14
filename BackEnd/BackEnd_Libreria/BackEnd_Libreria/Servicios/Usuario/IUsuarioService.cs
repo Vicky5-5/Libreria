@@ -11,8 +11,8 @@ namespace BackEnd_Libreria.Models.Usuario
         Usuario? GetById(string id);
         Task<Usuario> Add(Usuario usuario, string password); // Así hacemos que el método sea asíncrono y coincida con el controlador
         Task <Usuario> Actualizar(string Id, EditarUsuarioDTO usuario);
-        bool DarBaja(string id);
-        bool DarAltaDeNuevo(string id);
+        Task <bool> DarBajaUsuario(string id);
+        Task <bool> DarAltaUsuario(string id);
     }
 
 }

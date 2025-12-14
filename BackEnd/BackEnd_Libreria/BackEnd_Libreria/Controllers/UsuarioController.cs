@@ -12,10 +12,11 @@ namespace BackEnd_Libreria.Controllers
     public class UsuarioController : ControllerBase
     {
         private readonly IUsuarioService _service;
-
-        public UsuarioController(IUsuarioService service)
+        private readonly ILogger<UsuarioController> _logger;
+        public UsuarioController(IUsuarioService service, ILogger <UsuarioController>logger)
         {
             _service = service;
+            _logger =logger;
         }
 
         // Obtenemos todos los usuarios
@@ -99,32 +100,36 @@ namespace BackEnd_Libreria.Controllers
         }
 
         [HttpPost("{id}/baja")]
-        public ActionResult<UsuarioDTO> DarBajaUsuario(string Id)
+        public async Task<ActionResult> DarBajaUsuario(string id)
         {
-            var usuario = _service.GetById(Id);
+            var usuario = _service.GetById(id);
             if (usuario == null) return NotFound();
 
-            var resultado = _service.DarBaja(Id);
-            if (!resultado) return BadRequest("No se pudo dar de baja al usuario");
-
-            var usuarioDTO = new UsuarioDTO
-            {
-                Id = usuario.Id,
-                Nombre = usuario.Nombre,
-                Email = usuario.Email,
-                Admin = usuario.Admin,
-                Estado = false,
-                FechaBaja = DateTime.Now,
-                FechaRegistro = usuario.FechaRegistro
-            };
+            var ok = await _service.DarBajaUsuario(id);
+            if (!ok) return BadRequest();
 
             return Ok(new
             {
                 isSuccess = true,
-                message = "Usuario dado de baja correctamente",
-                data = usuarioDTO
+                message = "Usuario dado de baja correctamente"
             });
         }
+        [HttpPost("{id}/alta")]
+        public async Task<ActionResult> DarAltaUsuario(string id)
+        {
+            var usuario = _service.GetById(id);
+            if (usuario == null) return NotFound();
+
+            var ok = await _service.DarAltaUsuario(id);
+            if (!ok) return BadRequest();
+
+            return Ok(new
+            {
+                isSuccess = true,
+                message = "Usuario dado de alta correctamente"
+            });
+        }
+
 
 
         [HttpPut("{Id}")]
@@ -158,20 +163,20 @@ namespace BackEnd_Libreria.Controllers
 
 
 
-        [HttpDelete("{id}")]
-        public ActionResult DarBaja(string id)
-        {
-            var resultado = _service.DarBaja(id);
-            if (!resultado) return NotFound();
-            return NoContent();
-        }
+        //[HttpDelete("{id}")]
+        //public ActionResult DarBaja(string id)
+        //{
+        //    var resultado = _service.DarBaja(id);
+        //    if (!resultado) return NotFound();
+        //    return NoContent();
+        //}
 
-        [HttpPut("{id}/DarAltaDeNuevo")]
-        public ActionResult Reactivar(string id)
-        {
-            var resultado = _service.DarAltaDeNuevo(id);
-            if (!resultado) return NotFound();
-            return NoContent();
-        }
+        //[HttpPut("{id}/DarAltaDeNuevo")]
+        //public ActionResult Reactivar(string id)
+        //{
+        //    var resultado = _service.DarAltaDeNuevo(id);
+        //    if (!resultado) return NotFound();
+        //    return NoContent();
+        //}
     }
 }

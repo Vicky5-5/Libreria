@@ -1,0 +1,10 @@
+<h2 mat-dialog-title>Dar de baja usuario</h2>
+
+<mat-dialog-content>
+  <p>¿Seguro que deseas dar de baja este usuario?</p>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="cancelar()">Cancelar</button>
+  <button mat-raised-button color="warn" (click)="confirmarBaja()">Dar de baja</button>
+</mat-dialog-actions>

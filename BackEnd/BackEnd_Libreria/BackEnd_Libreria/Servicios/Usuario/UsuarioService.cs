@@ -63,6 +63,8 @@ namespace BackEnd_Libreria.Services
             usuario.Estado = dto.Estado;
 
             var result = await _userManager.UpdateAsync(usuario);
+
+            // Si la actualización falla, lanzamos una excepción con los errores
             if (!result.Succeeded)
             {
                 var errores = string.Join("; ", result.Errors.Select(e => e.Description));
@@ -86,28 +88,29 @@ namespace BackEnd_Libreria.Services
 
 
 
-        public bool DarBaja(string id)
+        public async Task<bool> DarBajaUsuario(string id)
+        {
+            var usuario = await _context.Users.FindAsync(id);
+            if (usuario == null) return false;
+
+            usuario.Estado = false;
+            usuario.FechaBaja = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+
+        public async Task<bool> DarAltaUsuario(string id)
         {
             var usuario = _userManager.Users.FirstOrDefault(u => u.Id == id);
             if (usuario == null) return false;
 
-            usuario.Estado = false;
-            usuario.FechaBaja = DateTime.Now;
-
-            var result = _userManager.UpdateAsync(usuario).Result;
-            return result.Succeeded;
-        }
-
-        public bool DarAltaDeNuevo(string id)
-        {
-            var usuario = _userManager.Users.FirstOrDefault(u => u.Id == id);
-            if (usuario == null || usuario.Estado) return false;
-
             usuario.Estado = true;
-            usuario.FechaBaja = null;
+            usuario.FechaRegistro = DateTime.UtcNow;
 
-            var result = _userManager.UpdateAsync(usuario).Result;
-            return result.Succeeded;
+            await _context.SaveChangesAsync();
+            return true;
         }
     }
 }
