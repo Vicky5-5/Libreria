@@ -1,11 +1,16 @@
-﻿namespace BackEnd_Libreria.Models.Libros
+﻿using BackEnd_Libreria.Models.DTO;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+
+namespace BackEnd_Libreria.Models.Libros
 {
     public interface ILibrosService
     {
-        IEnumerable<Libros> GetAll();
-        Libros? GetById(int id);
-        Libros Add(Libros libro);
-        bool Update(int id, Libros libro);
-        bool Delete(int id);
+        Task<IEnumerable<Libros>> GetAll();
+        Task<Libros?> GetById(Guid id);
+        Task<Libros> Add(CrearLibroDTO libro);
+        Task<Libros> Actualizar(Guid id, EditarLibroDTO libro);
+        Task<bool> Delete(Guid id);
     }
 }

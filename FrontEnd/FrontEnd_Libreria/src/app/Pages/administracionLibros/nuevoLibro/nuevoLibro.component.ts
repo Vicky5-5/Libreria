@@ -30,14 +30,13 @@ import { MatDialogContent } from "@angular/material/dialog";
 })
 export class NuevoLibroComponent implements OnInit {
   libro: Libros = {
-    idLibro: 0,
+    idLibro: '',
     rutaArchivoPortada: '',
     rutaArchivoPDF: '',
     titulo: '',
     autor: '',
     yearPublicacion: new Date().getFullYear(),
     genero: Genero.Terror,
-    favorito: false,
     sinopsis: '',
     idioma: '',
     disponibilidad: true,
@@ -87,7 +86,6 @@ export class NuevoLibroComponent implements OnInit {
     formData.append('idioma', this.libro.idioma);
     formData.append('sinopsis', this.libro.sinopsis);
     formData.append('disponibilidad', this.libro.disponibilidad.toString());
-    formData.append('favorito', this.libro.favorito.toString());
 
     if (this.libro.archivoPDF) {
       formData.append('archivoPDF', this.libro.archivoPDF);

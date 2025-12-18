@@ -3,10 +3,12 @@ using BackEnd_Libreria.Models.Libros;
 using Microsoft.AspNetCore.Mvc;
 namespace BackEnd_Libreria.Controllers
 {
+
+    //Controlador para la gestión de libros en modo adminsitrador
+
     [ApiController]
     [Route("api/[controller]")]
     public class LibrosController : ControllerBase
-
     {
         private readonly ILibrosService _service;
 
@@ -16,21 +18,21 @@ namespace BackEnd_Libreria.Controllers
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<LibroDetalleDTO>> GetAll() {
-            var libros = _service.GetAll()
-            .Select(libro => new LibroDetalleDTO
-            {
-                Titulo = libro.Titulo,
-                Autor = libro.Autor,
-                yearPublicacion = libro.yearPublicacion,
-                Genero = (int)libro.Genero,
-                Idioma = libro.Idioma,
-                Sinopsis = libro.Sinopsis,
-                Disponibilidad = libro.Disponibilidad,
-                Favorito = libro.Favorito,
-                RutaArchivoPortada = libro.RutaArchivoPortada,
-                RutaArchivoPDF = libro.RutaArchivoPDF
-            });
+        public async Task<ActionResult<IEnumerable<LibroDetalleDTO>>> GetAll()
+        {
+            var libros = (await _service.GetAll())
+                .Select(libro => new LibroDetalleDTO
+                {
+                    Titulo = libro.Titulo,
+                    Autor = libro.Autor,
+                    yearPublicacion = libro.yearPublicacion,
+                    Genero = libro.Genero,
+                    Idioma = libro.Idioma,
+                    Sinopsis = libro.Sinopsis,
+                    Disponibilidad = libro.Disponibilidad,
+                    RutaArchivoPortada = libro.RutaArchivoPortada,
+                    RutaArchivoPDF = libro.RutaArchivoPDF
+                }).ToList();
 
             return Ok(new
             {
@@ -41,9 +43,9 @@ namespace BackEnd_Libreria.Controllers
         }
 
         [HttpGet("{id}")]
-        public ActionResult<LibroDetalleDTO> Get(int id)
+        public async Task<ActionResult<LibroDetalleDTO>> GetById(Guid id)
         {
-            var libro = _service.GetById(id);
+            var libro = await _service.GetById(id);
             if (libro == null) return NotFound();
 
             var dto = new LibroDetalleDTO
@@ -51,99 +53,68 @@ namespace BackEnd_Libreria.Controllers
                 Titulo = libro.Titulo,
                 Autor = libro.Autor,
                 yearPublicacion = libro.yearPublicacion,
-                Genero = (int)libro.Genero,
+                Genero = libro.Genero,
                 Idioma = libro.Idioma,
                 Sinopsis = libro.Sinopsis,
                 Disponibilidad = libro.Disponibilidad,
-                Favorito = libro.Favorito
+                RutaArchivoPortada = libro.RutaArchivoPortada,
+                RutaArchivoPDF = libro.RutaArchivoPDF
             };
 
             return Ok(dto);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromForm] LibrosDTO dto)
+        public async Task<IActionResult> Create([FromForm] CrearLibroDTO dto)
         {
-            var libro = new Libros
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            var libro = await _service.Add(dto);
+
+            return CreatedAtAction(nameof(GetById), new { id = libro.idLibro }, new
             {
-                Titulo = dto.Titulo,
-                Autor = dto.Autor,
-                yearPublicacion = dto.yearPublicacion,
-                Genero = (Genero)dto.Genero,
-                Idioma = dto.Idioma,
-                Sinopsis = dto.Sinopsis,
-                Disponibilidad = dto.Disponibilidad,
-                Favorito = dto.Favorito
-            };
+                isSuccess = true,
+                message = "Libro creado correctamente",
+                data = libro
+            });
+        }
 
-            if (dto.ArchivoPDF != null)
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Editar(Guid id, [FromForm] EditarLibroDTO dto)
+        {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            var libroActualizado = await _service.Actualizar(id, dto);
+            if (libroActualizado == null) return NotFound();
+
+            return Ok(new
             {
-                var pdfName = Guid.NewGuid() + Path.GetExtension(dto.ArchivoPDF.FileName);
-                var pdfFolder = Path.Combine(Directory.GetCurrentDirectory(), "pdfs");
-                Directory.CreateDirectory(pdfFolder);
+                isSuccess = true,
+                message = "Libro actualizado correctamente",
+                data = libroActualizado
+            });
+        }
 
-                var pdfPath = Path.Combine(pdfFolder, pdfName);
-                using var stream = new FileStream(pdfPath, FileMode.Create);
-                await dto.ArchivoPDF.CopyToAsync(stream);
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            var eliminado = await _service.Delete(id);
+            if (!eliminado) return NotFound();
 
-                libro.RutaArchivoPDF = $"/pdfs/{pdfName}";
-            }
-
-            if (dto.Portada != null)
-            {
-                var portadaName = Guid.NewGuid() + Path.GetExtension(dto.Portada.FileName);
-                var portadaFolder = Path.Combine(Directory.GetCurrentDirectory(), "Portadas");
-                Directory.CreateDirectory(portadaFolder);
-
-                var portadaPath = Path.Combine(portadaFolder, portadaName);
-                using var stream = new FileStream(portadaPath, FileMode.Create);
-                await dto.Portada.CopyToAsync(stream);
-
-                libro.RutaArchivoPortada = $"/Portadas/{portadaName}";
-            }
-
-
-            if (string.IsNullOrEmpty(libro.RutaArchivoPDF) || string.IsNullOrEmpty(libro.RutaArchivoPortada))
-            {
-                return BadRequest("Faltan archivos requeridos.");
-            }
-
-            var nuevo = _service.Add(libro);
-
-            return CreatedAtAction(nameof(Get), new { id = nuevo.idLibro }, nuevo);
+            return NoContent();
         }
 
         [HttpGet("descargar/{nombreArchivo}")]
         public IActionResult DescargarLibro(string nombreArchivo)
         {
-            // Ruta física del archivo PDF
-            var ruta = Path.Combine(Directory.GetCurrentDirectory(), "pdfs", nombreArchivo);
+            var ruta = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "pdfs", nombreArchivo);
 
-            if (!System.IO.File.Exists(ruta))
-            {
-                return NotFound("El archivo no existe.");
-            }
+            if (!System.IO.File.Exists(ruta)) return NotFound("El archivo no existe.");
 
             var tipoContenido = "application/pdf";
             var bytes = System.IO.File.ReadAllBytes(ruta);
 
             return File(bytes, tipoContenido, nombreArchivo);
         }
-
-
-        [HttpPut("{id}")]
-        public IActionResult Update(int id, Libros libro)
-        {
-            if (!_service.Update(id, libro)) return NotFound();
-            return NoContent();
-        }
-
-        [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
-        {
-            if (!_service.Delete(id)) return NotFound();
-            return NoContent();
-        }
     }
-
 }

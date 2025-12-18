@@ -1,0 +1,68 @@
+<h1>Editar Libro</h1>
+<form [formGroup]="formRegistro" class="contenedor">
+
+  <mat-dialog-content>
+
+    <mat-form-field appearance="fill" class="form-field">
+      <mat-label>Título del libro</mat-label>
+      <input matInput formControlName="titulo">
+    </mat-form-field>
+
+    <mat-form-field appearance="fill" class="form-field">
+      <mat-label>Autor</mat-label>
+      <input matInput formControlName="autor">
+    </mat-form-field>
+
+    <mat-form-field appearance="fill" class="form-field">
+      <mat-label>Año de Publicación</mat-label>
+      <input matInput type="number" formControlName="yearPublicacion">
+    </mat-form-field>
+
+    <mat-form-field appearance="fill" class="form-field">
+      <mat-label>Idioma</mat-label>
+      <input matInput formControlName="idioma">
+    </mat-form-field>
+
+    <mat-form-field appearance="fill" class="form-field full-width">
+      <mat-label>Género</mat-label>
+      <mat-select formControlName="genero">
+        <mat-option *ngFor="let g of generos" [value]="g.value">
+          {{ g.label }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="fill" class="form-field full-width">
+      <mat-label>Sinopsis</mat-label>
+      <textarea matInput formControlName="sinopsis"></textarea>
+    </mat-form-field>
+
+    <mat-form-field appearance="fill" class="form-field">
+      <mat-label>Disponibilidad</mat-label>
+      <mat-select formControlName="disponibilidad">
+        <mat-option [value]="true">Disponible</mat-option>
+        <mat-option [value]="false">No disponible</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <!-- Archivos -->
+    <div class="form-row full-width archivo-pdf">
+      <label>Archivo PDF</label>
+      <input type="file" (change)="onArchivoSeleccionado($event)" accept=".pdf">
+    </div>
+
+    <div class="form-row full-width archivo-pdf">
+      <label>Portada del libro</label>
+      <input type="file" (change)="onPortadaSeleccionada($event)" accept="image/*">
+    </div>
+
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button type="button" (click)="cancelar()">Cancelar</button>
+    <button mat-raised-button color="primary" type="submit" (click)="guardarLibro()">
+      Guardar Libro
+    </button>
+  </mat-dialog-actions>
+
+</form>

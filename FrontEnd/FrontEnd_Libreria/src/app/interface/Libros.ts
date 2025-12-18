@@ -1,12 +1,11 @@
 export interface Libros {
-  idLibro: number;
+  idLibro: string;
   rutaArchivoPortada: string;
   rutaArchivoPDF: string;
   titulo: string;
   autor: string;
   yearPublicacion: number;
   genero: number;
-  favorito: boolean;
   idioma: string;
   sinopsis: string;
   disponibilidad: boolean;

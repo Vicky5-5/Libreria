@@ -24,20 +24,15 @@ namespace BackEnd_Libreria.Migrations
 
             modelBuilder.Entity("BackEnd_Libreria.Models.Libros.Libros", b =>
                 {
-                    b.Property<int>("idLibro")
+                    b.Property<Guid>("idLibro")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("idLibro"));
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Autor")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("Disponibilidad")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("Favorito")
                         .HasColumnType("bit");
 
                     b.Property<int>("Genero")
@@ -68,7 +63,7 @@ namespace BackEnd_Libreria.Migrations
 
                     b.HasKey("idLibro");
 
-                    b.ToTable("Libros");
+                    b.ToTable("Libros", "dbo");
                 });
 
             modelBuilder.Entity("BackEnd_Libreria.Models.Usuario.Usuario", b =>

@@ -14,6 +14,8 @@ import { MatDialog, MatDialogModule, MatDialogTitle } from '@angular/material/di
 import { NuevoLibroComponent } from './nuevoLibro/nuevoLibro.component';
 import { MatDialogRef } from '@angular/material/dialog';
 import { PortadasComponent } from './portadas/portadas.component/portadas.component';
+import { EdicionLibro } from './editarLibro/edicionLibro/edicionLibro';
+import { EditarLibroAdminDTO } from '../../interface/EditarLibroAdminDTO';
 
 @Component({
   selector: 'app-administracionLibros',
@@ -97,17 +99,23 @@ descargar(libro: Libros) {
   });
 }
 
-  editar(libro: Libros) {
-const dialogRef = this.dialog.open(NuevoLibroComponent, {
+editar(libro: Libros) {
+  console.log(libro);
+  console.log(libro.idLibro);
+  
+  const dialogRef = this.dialog.open(EdicionLibro, {
     width: '500px',
     disableClose: true,
     data: libro
   });
+
   dialogRef.afterClosed().subscribe(resultado => {
     if (resultado) {
       this.obtenerLibros();
     }
-  });  }
+  });
+}
+
 
   eliminar(libro: Libros) {
     if (confirm(`¿Desea eliminar el libro "${libro.titulo}"?`)) {

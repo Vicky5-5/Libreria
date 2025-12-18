@@ -4,6 +4,8 @@ import { Observable } from 'rxjs';
 import { Libros } from '../interface/Libros';
 import { responseAPILibro } from '../Models/responseAPILibro';
 import { appsettings } from '../Settings/appsettings/appsettings';
+import { EditarLibroAdminDTO } from '../interface/EditarLibroAdminDTO';
+import { CrearLibroAdminDTO } from '../interface/CrearLibroAdminDTO';
 
 
 @Injectable({
@@ -18,7 +20,7 @@ export class LibrosService {
     return this.http.get<responseAPILibro<Libros[]>>(this.apiUrl);
   }
 
-  obtener(id: number): Observable<responseAPILibro<Libros>> {
+  obtener(id: string): Observable<responseAPILibro<Libros>> {
     return this.http.get<responseAPILibro<Libros>>(`${this.apiUrl}/${id}`);
   }
 
@@ -33,15 +35,15 @@ export class LibrosService {
     });
   }
 
-  crear(objeto: Libros): Observable<responseAPILibro<Libros>> {
-    return this.http.post<responseAPILibro<Libros>>(this.apiUrl, objeto);
+  crear(objeto: CrearLibroAdminDTO): Observable<responseAPILibro<CrearLibroAdminDTO>> {
+    return this.http.post<responseAPILibro<CrearLibroAdminDTO>>(this.apiUrl, objeto);
   }
 
-  editar(objeto: Libros): Observable<responseAPILibro<Libros>> {
-    return this.http.put<responseAPILibro<Libros>>(`${this.apiUrl}/${objeto.idLibro}`, objeto);
+  editar(idLibro: string, objeto: EditarLibroAdminDTO): Observable<Libros> {
+    return this.http.put<Libros>(`${this.apiUrl}/${idLibro}`, objeto);
   }
 
-  borrar(id: number): Observable<any> {
+  borrar(id: string): Observable<any> {
     return this.http.delete<responseAPILibro<any>>(`${this.apiUrl}/${id}`);
   }
 }

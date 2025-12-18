@@ -4,10 +4,12 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace BackEnd_Libreria.Models.Libros
 {
+    [Table("Libros", Schema = "dbo")]
+
     public class Libros
     {
         [Key]
-        public int idLibro { get; set; }
+        public Guid idLibro { get; set; }
         [NotMapped]
         public IFormFile Portada { get; set; }
         
@@ -22,23 +24,10 @@ namespace BackEnd_Libreria.Models.Libros
         public string RutaArchivoPDF { get; set; }
         public int yearPublicacion { get; set; }
         public Genero Genero { get; set; }
-        public bool Favorito { get; set; }
         public string Idioma { get; set; }
         public string Sinopsis { get; set; }
         public bool Disponibilidad { get; set; }
         
     }
-    public enum Genero
-    {
-        [DescriptionAttribute("Terror")]
-        Terror,
-
-        [DescriptionAttribute("Comedia")]
-        Comedia,
-
-        [DescriptionAttribute("Romance")]
-        Romance,
-        [DescriptionAttribute("Acción")]
-        Acción
-    }
+ 
 }
