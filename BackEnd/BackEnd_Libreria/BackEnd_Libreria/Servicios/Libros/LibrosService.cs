@@ -89,7 +89,6 @@ namespace BackEnd_Libreria.Services
             existing.Idioma = dto.Idioma;
             existing.Sinopsis = dto.Sinopsis;
             existing.Disponibilidad = dto.Disponibilidad;
-            //existing.Favorito = dto.Favorito;
 
             // Actualizar rutas solo si vienen nuevas
             if (!string.IsNullOrEmpty(dto.RutaArchivoPDF))

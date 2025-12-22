@@ -18,7 +18,5 @@ export const routes: Routes = [
   {path: 'indexUsuario', component: IndexUsuarioComponent }, // Donde va el usuario normal
   { path: 'administracionLibros', component: AdministracionLibrosComponent }, // Es es el de los libros
   { path: 'administracionUsuarios', component: AdministracionUsuariosComponent }, // Es el de los usuarios
-  { path: 'libros/nuevo', component: NuevoLibroComponent }, //Creacion de nuevo libro
-  { path: 'libros/:id', component: EdicionLibro } //Edicion de libro existente
 ];
 

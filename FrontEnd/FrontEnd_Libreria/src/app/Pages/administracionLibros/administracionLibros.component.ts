@@ -100,21 +100,19 @@ descargar(libro: Libros) {
 }
 
 editar(libro: Libros) {
-  console.log(libro);
-  console.log(libro.idLibro);
-  
-  const dialogRef = this.dialog.open(EdicionLibro, {
-    width: '500px',
+  console.log('Libro recibido:', libro);
+  console.log('ID:', libro.idLibro);
+
+  this.dialog.open(EdicionLibro, {
+    width: '450px',
     disableClose: true,
     data: libro
-  });
-
-  dialogRef.afterClosed().subscribe(resultado => {
-    if (resultado) {
-      this.obtenerLibros();
-    }
+  }).afterClosed().subscribe(ok => {
+    if (ok) this.obtenerLibros();
   });
 }
+
+
 
 
   eliminar(libro: Libros) {

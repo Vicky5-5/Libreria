@@ -56,26 +56,29 @@ export class EdicionLibro implements OnInit {
   disponibilidad: [true, Validators.required]
 });
 
-
-
+// Cargar datos del libro existente
+  obtenerLibros() {
+    this.librosService.obtener(this.data.idLibro).subscribe({
+      next: (response) => {
+        if (response.isSuccess) {
+          const libro = response.data;
+          this.formRegistro.patchValue({
+            titulo: libro.titulo,
+            autor: libro.autor,
+            yearPublicacion: libro.yearPublicacion,
+            genero: libro.genero,
+            idioma: libro.idioma,
+            sinopsis: libro.sinopsis,
+            disponibilidad: libro.disponibilidad
+          })
+        } 
+      },
+      
+    });
+  }
 
 ngOnInit() {
-this.librosService.obtener(this.data.idLibro).subscribe({
-  next: (response) =>{
-    if (response.isSuccess) {
-      const libro = response.data;
-      this.formRegistro.patchValue({
-        titulo: libro.titulo,
-        autor: libro.autor,
-        yearPublicacion: libro.yearPublicacion,
-        genero: libro.genero,
-        idioma: libro.idioma,
-        sinopsis: libro.sinopsis,
-        disponibilidad: libro.disponibilidad
-      });
-    }
-  }
-})
+this.obtenerLibros();
 }
 
 onArchivoSeleccionado(event: Event): void {
@@ -97,23 +100,34 @@ onPortadaSeleccionada(event: Event): void {
 guardarLibro(): void {
   if (this.formRegistro.invalid) return;
 
- const dto: EditarLibroAdminDTO = {
-  titulo: this.formRegistro.value.titulo!,
-  autor: this.formRegistro.value.autor!,
-  YearPublicacion: this.formRegistro.value.yearPublicacion!,
-  genero: this.formRegistro.value.genero!,
-  idioma: this.formRegistro.value.idioma!,
-  sinopsis: this.formRegistro.value.sinopsis!,
-  disponibilidad: this.formRegistro.value.disponibilidad!,
-  archivoPDF: this.archivoPDF || undefined,
-  portada: this.portada || undefined
-};
+  const formData = new FormData();
 
-this.librosService.editar(this.data.idLibro, dto).subscribe({
-  next: () => this.dialogRef.close(true),
-  error: err => console.error(err)
-});
+  formData.append('Titulo', this.formRegistro.value.titulo!);
+  formData.append('Autor', this.formRegistro.value.autor!);
+  formData.append(
+    'YearPublicacion',
+    this.formRegistro.value.yearPublicacion!.toString()
+  );
+  formData.append('Genero', this.formRegistro.value.genero!.toString());
+  formData.append('Idioma', this.formRegistro.value.idioma!);
+  formData.append('Sinopsis', this.formRegistro.value.sinopsis!);
+  formData.append(
+    'Disponibilidad',
+    this.formRegistro.value.disponibilidad!.toString()
+  );
 
+  if (this.archivoPDF) {
+    formData.append('ArchivoPDF', this.archivoPDF);
+  }
+
+  if (this.portada) {
+    formData.append('Portada', this.portada);
+  }
+
+  this.librosService.editar(this.data.idLibro, formData).subscribe({
+    next: () => this.dialogRef.close(true),
+    error: err => console.error(err)
+  });
 }
 
 

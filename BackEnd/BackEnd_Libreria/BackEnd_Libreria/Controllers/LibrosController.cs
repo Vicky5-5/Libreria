@@ -23,6 +23,7 @@ namespace BackEnd_Libreria.Controllers
             var libros = (await _service.GetAll())
                 .Select(libro => new LibroDetalleDTO
                 {
+                    idLibro = libro.idLibro,
                     Titulo = libro.Titulo,
                     Autor = libro.Autor,
                     yearPublicacion = libro.yearPublicacion,

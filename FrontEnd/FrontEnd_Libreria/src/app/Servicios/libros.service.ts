@@ -35,15 +35,16 @@ export class LibrosService {
     });
   }
 
-  crear(objeto: CrearLibroAdminDTO): Observable<responseAPILibro<CrearLibroAdminDTO>> {
-    return this.http.post<responseAPILibro<CrearLibroAdminDTO>>(this.apiUrl, objeto);
+  crear(objeto: CrearLibroAdminDTO): Observable<CrearLibroAdminDTO> {
+    return this.http.post<CrearLibroAdminDTO>(this.apiUrl, objeto);
   }
 
-  editar(idLibro: string, objeto: EditarLibroAdminDTO): Observable<Libros> {
-    return this.http.put<Libros>(`${this.apiUrl}/${idLibro}`, objeto);
-  }
+ editar(id: string, formData: FormData) {
+  return this.http.put(`${this.apiUrl}/${id}`, formData);
+}
 
-  borrar(id: string): Observable<any> {
-    return this.http.delete<responseAPILibro<any>>(`${this.apiUrl}/${id}`);
+
+  borrar(IdLibro: string): Observable<any> {
+    return this.http.delete<responseAPILibro<any>>(`${this.apiUrl}/${IdLibro}`);
   }
 }

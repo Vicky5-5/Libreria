@@ -46,6 +46,12 @@ builder.Services.AddCors(options =>
               .AllowAnyMethod();
     });
 });
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.PropertyNamingPolicy =
+            System.Text.Json.JsonNamingPolicy.CamelCase;
+    });
 
 var adminSection = builder.Configuration.GetSection("DefaultAdmin");
 var adminEmail = adminSection["Email"];

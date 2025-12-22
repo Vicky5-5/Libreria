@@ -4,7 +4,7 @@ namespace BackEnd_Libreria.Models.DTO
 {
     public class LibroDetalleDTO
     {
-        public Guid IdLibro { get; set; }
+        public Guid idLibro { get; set; }
         public string Titulo { get; set; }
         public string Autor { get; set; }
         public int yearPublicacion { get; set; }
