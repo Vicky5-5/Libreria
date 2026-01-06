@@ -11,6 +11,8 @@ namespace BackEnd_Libreria.Models.Libros
         Task<Libros?> GetById(Guid id);
         Task<Libros> Add(CrearLibroDTO libro);
         Task<Libros> Actualizar(Guid id, EditarLibroDTO libro);
+        Task<Libros> LibroNoDisponible(Guid id, bool disponibilidad);
+        Task<Libros> LibroDisponible(Guid id, bool disponibilidad);
         Task<bool> Delete(Guid id);
     }
 }

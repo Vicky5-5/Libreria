@@ -110,5 +110,22 @@ namespace BackEnd_Libreria.Services
             await _context.SaveChangesAsync();
             return true;
         }
+
+        public async Task<Libros?> LibroNoDisponible(Guid id, bool disponibilidad)
+        {
+            var existing = await _context.Libros.FirstOrDefaultAsync(l => l.idLibro == id);
+            if (existing == null) return null;
+            existing.Disponibilidad = false;
+            await _context.SaveChangesAsync();
+            return existing;
+        }
+        public async Task<Libros?> LibroDisponible(Guid id, bool disponibilidad)
+        {
+            var existing = await _context.Libros.FirstOrDefaultAsync(l => l.idLibro == id);
+            if (existing == null) return null;
+            existing.Disponibilidad = true;
+            await _context.SaveChangesAsync();
+            return existing;
+        }
     }
 }

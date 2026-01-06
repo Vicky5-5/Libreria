@@ -117,5 +117,29 @@ namespace BackEnd_Libreria.Controllers
 
             return File(bytes, tipoContenido, nombreArchivo);
         }
+        [HttpPost("{id}/noDisponible")]
+        public async Task<IActionResult> ActualizarDisponibilidad(Guid id, bool disponibilidad)
+        {
+            var libroActualizado = await _service.LibroNoDisponible(id, disponibilidad);
+            if (libroActualizado == null) return NotFound();
+            return Ok(new
+            {
+                isSuccess = true,
+                message = "Disponibilidad del libro actualizada correctamente",
+                data = libroActualizado
+            });
+        }
+        [HttpPost("{id}/disponible")]
+        public async Task<IActionResult> ActualizarDisponibilidadDisponible(Guid id, bool disponibilidad)
+        {
+            var libroActualizado = await _service.LibroDisponible(id, disponibilidad);
+            if (libroActualizado == null) return NotFound();
+            return Ok(new
+            {
+                isSuccess = true,
+                message = "Disponibilidad del libro actualizada correctamente",
+                data = libroActualizado
+            });
+        }
     }
 }

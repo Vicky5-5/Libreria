@@ -16,6 +16,8 @@ import { MatDialogRef } from '@angular/material/dialog';
 import { PortadasComponent } from './portadas/portadas.component/portadas.component';
 import { EdicionLibro } from './editarLibro/edicionLibro/edicionLibro';
 import { EditarLibroAdminDTO } from '../../interface/EditarLibroAdminDTO';
+import { LibroNoDisponible } from './libroNoDisponible/libroNoDisponible';
+import { LibroDisponible } from './libroDisponible/libroDisponible';
 
 @Component({
   selector: 'app-administracionLibros',
@@ -36,6 +38,7 @@ private dialog = inject(MatDialog);
   'autor',
   'yearPublicacion',
   'genero',
+  'disponibilidad',
   'idioma',
   'sinopsis',
   'pdf',
@@ -89,7 +92,7 @@ descargar(libro: Libros) {
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = libro.titulo + '.pdf'; // nombre amigable
+      a.download = libro.titulo + '.pdf';
       a.click();
       window.URL.revokeObjectURL(url);
     },
@@ -112,9 +115,6 @@ editar(libro: Libros) {
   });
 }
 
-
-
-
   eliminar(libro: Libros) {
     if (confirm(`¿Desea eliminar el libro "${libro.titulo}"?`)) {
       this.librosService.borrar(libro.idLibro).subscribe({
@@ -131,5 +131,26 @@ editar(libro: Libros) {
         }
       });
     }
+  }
+
+  libroNoDisponible(libro : Libros) {
+    this.dialog.open(LibroNoDisponible, {
+      width: '400px',
+      data: libro
+    }).afterClosed().subscribe(result => {
+      if (result) {
+        this.obtenerLibros();
+      }
+  });
+}
+  libroDisponible(libro : Libros) {
+     this.dialog.open(LibroDisponible, {
+      width: '400px',
+      data: libro
+    }).afterClosed().subscribe(result => {
+      if (result) {
+        this.obtenerLibros();
+      }
+  });
   }
 }

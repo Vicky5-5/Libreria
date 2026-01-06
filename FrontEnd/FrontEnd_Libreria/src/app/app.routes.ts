@@ -9,6 +9,7 @@ import { adminGuard } from './Servicios/Guard/admin.guard';
 import { NuevoLibroComponent } from './Pages/administracionLibros/nuevoLibro/nuevoLibro.component';
 import { IndexUsuarioComponent } from './Pages/indexUsuario/indexUsuario/indexUsuario.component';
 import { EdicionLibro } from './Pages/administracionLibros/editarLibro/edicionLibro/edicionLibro';
+import { ListadoLibrosComponent } from './Pages/listado_libros/listado_libros.component';
 
 export const routes: Routes = [
   { path: '', component: InicioComponent },
@@ -18,5 +19,6 @@ export const routes: Routes = [
   {path: 'indexUsuario', component: IndexUsuarioComponent }, // Donde va el usuario normal
   { path: 'administracionLibros', component: AdministracionLibrosComponent }, // Es es el de los libros
   { path: 'administracionUsuarios', component: AdministracionUsuariosComponent }, // Es el de los usuarios
+  { path: 'listadoLibros', component: ListadoLibrosComponent}
 ];
 

@@ -1,4 +1,5 @@
-using BackEnd_Libreria.Contexto;
+Ôªøusing BackEnd_Libreria.Contexto;
+using BackEnd_Libreria.Hub;
 using BackEnd_Libreria.Models.Libros;
 using BackEnd_Libreria.Models.Usuario;
 using BackEnd_Libreria.Services;
@@ -8,10 +9,10 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
-using System.Security.Cryptography;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
+
 // Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -31,21 +32,23 @@ builder.Services.AddScoped<ILibrosService, LibrosService>();
 builder.Services.AddDbContext<Conexion>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("Libreria")));
 
-// ConfiguraciÛn de Identity
+// Configuraci√≥n de Identity
 builder.Services.AddIdentity<Usuario, IdentityRole>()
     .AddEntityFrameworkStores<Conexion>()
     .AddDefaultTokenProviders();
 
-// ConfiguraciÛn de CORS
+// Configuraci√≥n de CORS
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAngularDevClient", policy =>
     {
         policy.WithOrigins(origenesPermitidos)
               .AllowAnyHeader()
-              .AllowAnyMethod();
+              .AllowAnyMethod()
+              .AllowCredentials(); // ‚≠ê Necesario para SignalR
     });
 });
+
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
@@ -57,7 +60,7 @@ var adminSection = builder.Configuration.GetSection("DefaultAdmin");
 var adminEmail = adminSection["Email"];
 var adminPassword = adminSection["Password"];
 
-// ConfiguraciÛn de autenticaciÛn JWT
+// Configuraci√≥n de autenticaci√≥n JWT
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -72,9 +75,27 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])
             )
         };
+
+        // ‚≠ê IMPORTANTE PARA SIGNALR + JWT
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                var accessToken = context.Request.Query["access_token"];
+                var path = context.HttpContext.Request.Path;
+
+                if (!string.IsNullOrEmpty(accessToken) &&
+                    path.StartsWithSegments("/chat"))
+                {
+                    context.Token = accessToken;
+                }
+
+                return Task.CompletedTask;
+            }
+        };
     });
 
-// Para subir archivos. Si son grandes, aumenta el lÌmite:
+// Para subir archivos. Si son grandes, aumenta el l√≠mite:
 builder.Services.Configure<FormOptions>(options =>
 {
     options.MultipartBodyLengthLimit = 100_000_000; // 100 MB
@@ -85,6 +106,9 @@ builder.WebHost.ConfigureKestrel(serverOptions =>
 {
     serverOptions.Limits.MaxRequestBodySize = 100_000_000; // 100 MB
 });
+
+// ‚≠ê SignalR
+builder.Services.AddSignalR();
 
 var app = builder.Build();
 
@@ -102,30 +126,36 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-// RedirecciÛn HTTPS primero
+// Redirecci√≥n HTTPS primero
 app.UseHttpsRedirection();
 
-// Configurar CORS antes de routing
+// ‚≠ê Routing ANTES de CORS y Auth
+app.UseRouting();
+
+// Configurar CORS antes de auth
 app.UseCors("AllowAngularDevClient");
 
-// AutenticaciÛn y autorizaciÛn antes de routing
+// Autenticaci√≥n y autorizaci√≥n antes de endpoints
 app.UseAuthentication();
 app.UseAuthorization();
 
-// Servir archivos est·ticos desde la carpeta Portadas
+// Servir archivos est√°ticos desde la carpeta Portadas
 app.UseStaticFiles(new StaticFileOptions
 {
-    FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), "Portadas")),
+    FileProvider = new PhysicalFileProvider(
+        Path.Combine(Directory.GetCurrentDirectory(), "Portadas")),
     RequestPath = "/Portadas"
 });
+
 app.UseStaticFiles(new StaticFileOptions
 {
-    FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), "pdfs")),
+    FileProvider = new PhysicalFileProvider(
+        Path.Combine(Directory.GetCurrentDirectory(), "pdfs")),
     RequestPath = "/pdfs"
 });
 
-// Routing y controladores
-app.UseRouting();
+
 app.MapControllers();
+app.MapHub<ChatHub>("/chat");
 
 app.Run();

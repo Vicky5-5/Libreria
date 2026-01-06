@@ -43,7 +43,13 @@ export class LibrosService {
   return this.http.put(`${this.apiUrl}/${id}`, formData);
 }
 
+libroNoDisponible(IdLibro: string) {
+    return this.http.post(`${this.apiUrl}/${IdLibro}/noDisponible`, {});
+  }
 
+  libroDisponible(IdLibro: string) {
+    return this.http.post(`${this.apiUrl}/${IdLibro}/disponible`, {});
+  }
   borrar(IdLibro: string): Observable<any> {
     return this.http.delete<responseAPILibro<any>>(`${this.apiUrl}/${IdLibro}`);
   }
