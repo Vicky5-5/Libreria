@@ -1,0 +1,75 @@
+<div class="card-container">
+  <mat-card class="login-card">
+    <mat-card-title>Registrarse</mat-card-title>
+
+    <mat-card-content>
+      <!-- 🔴 FORMULARIO FALTANTE -->
+      <form [formGroup]="formRegistro" (ngSubmit)="guardar()">
+
+        <!-- Nombre -->
+        <mat-form-field appearance="fill" class="full-width">
+          <mat-label>Nombre</mat-label>
+          <input matInput formControlName="nombre" type="text" required>
+          <mat-error *ngIf="formRegistro.get('nombre')?.hasError('required')">
+            El nombre es obligatorio
+          </mat-error>
+          <mat-error *ngIf="formRegistro.get('nombre')?.hasError('minlength')">
+            Mínimo 3 caracteres
+          </mat-error>
+        </mat-form-field>
+
+        <!-- Correo -->
+        <mat-form-field appearance="fill" class="full-width">
+          <mat-label>Correo Electrónico</mat-label>
+          <input matInput formControlName="email" type="email" required>
+          <mat-error *ngIf="formRegistro.get('email')?.hasError('required')">
+            El correo es obligatorio
+          </mat-error>
+          <mat-error *ngIf="formRegistro.get('email')?.hasError('email')">
+            Formato de correo inválido
+          </mat-error>
+        </mat-form-field>
+
+        <!-- Contraseña -->
+        <mat-form-field appearance="fill" class="full-width">
+          <mat-label>Contraseña</mat-label>
+          <input matInput formControlName="password" type="password" required>
+          <mat-error *ngIf="formRegistro.get('password')?.hasError('required')">
+            La contraseña es obligatoria
+          </mat-error>
+          <mat-error *ngIf="formRegistro.get('password')?.hasError('minlength')">
+            Mínimo 6 caracteres
+          </mat-error>
+          <mat-error *ngIf="formRegistro.get('password')?.hasError('passwordComplexity')">
+            Debe incluir mayúscula, minúscula, número y símbolo
+          </mat-error>
+        </mat-form-field>
+
+        <!-- Confirmar contraseña -->
+        <mat-form-field appearance="fill" class="full-width">
+          <mat-label>Confirmar contraseña</mat-label>
+          <input matInput formControlName="confirmPassword" type="password" required>
+          <mat-error *ngIf="formRegistro.get('confirmPassword')?.hasError('required')">
+            Debes confirmar la contraseña
+          </mat-error>
+          <mat-error *ngIf="formRegistro.hasError('mismatch')">
+            Las contraseñas no coinciden
+          </mat-error>
+        </mat-form-field>
+
+        <div class="flex">
+          <button mat-raised-button color="primary" type="submit" [disabled]="formRegistro.invalid">
+            Registrarse
+          </button>
+
+          <div class="flex">
+            <button mat-raised-button color="warn" (click)="volver()">
+              Volver
+            </button>
+          </div>
+        </div>
+
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

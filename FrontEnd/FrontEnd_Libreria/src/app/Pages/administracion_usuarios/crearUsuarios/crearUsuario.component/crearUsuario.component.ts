@@ -35,7 +35,6 @@ import { Usuario } from '../../../../interface/Usuario';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CrearUsuarioComponent {
-  private router = inject(Router);
   private fb = inject(FormBuilder);
   private usuarioService = inject(UsuariosService);
   private dialogRef = inject(MatDialogRef<CrearUsuarioComponent>);

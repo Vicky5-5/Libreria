@@ -6,6 +6,7 @@ import { responseAPIUsuario } from '../Models/responseAPIUsuario';
 import { appsettings } from '../Settings/appsettings/appsettings';
 import { CrearUsuariosAdminDTO } from '../interface/CrearUsuariosAdminDTO';
 import { EdicionUsuariosAdminDTO } from '../interface/EdicionUsuarioAdminDTO';
+import { RegistrarDTO } from '../interface/RegistrarDTO';
 
 @Injectable({
   providedIn: 'root'
@@ -26,7 +27,9 @@ export class UsuariosService {
   crear(objeto: CrearUsuariosAdminDTO): Observable<Usuario> {
   return this.http.post<Usuario>(`${this.apiUrl}/Registrar`, objeto);
 }
-
+registrar(objetos: RegistrarDTO): Observable<Usuario> {
+    return this.http.post<Usuario>(`${this.apiUrl}/RegistrarNuevoUsuario`, objetos);
+  }
   darDeBaja(id: string) {
     return this.http.post(`${this.apiUrl}/${id}/baja`, {});
   }

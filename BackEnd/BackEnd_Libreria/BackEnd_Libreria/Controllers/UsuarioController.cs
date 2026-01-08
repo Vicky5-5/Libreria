@@ -160,23 +160,37 @@ namespace BackEnd_Libreria.Controllers
         }
 
 
+        // Registro de usuario por parte del usuario de la aplicacion
+        [HttpPost("RegistrarNuevoUsuario")]
+        public async Task<ActionResult> RegistrarseUsuario([FromBody] RegistroDTO dto)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var nuevoUsuario = new Usuario
+            {
+                UserName = dto.Email,
+                Email = dto.Email,
+                Nombre = dto.Nombre,
+                Estado = true,
+                Admin = false,
+            };
+
+            var creado = await _service.Add(nuevoUsuario, dto.Password);
+
+            if (creado == null)
+                return BadRequest("No se pudo crear el usuario.");
 
 
+            var usuarioDTO = new RegistroDTO
+            {
+                Nombre = creado.Nombre,
+                Email = creado.Email,
+              
+            };
 
-        //[HttpDelete("{id}")]
-        //public ActionResult DarBaja(string id)
-        //{
-        //    var resultado = _service.DarBaja(id);
-        //    if (!resultado) return NotFound();
-        //    return NoContent();
-        //}
+            return CreatedAtAction(nameof(Get), new { id = creado.Id }, usuarioDTO);
 
-        //[HttpPut("{id}/DarAltaDeNuevo")]
-        //public ActionResult Reactivar(string id)
-        //{
-        //    var resultado = _service.DarAltaDeNuevo(id);
-        //    if (!resultado) return NotFound();
-        //    return NoContent();
-        //}
+        }
     }
 }

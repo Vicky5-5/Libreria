@@ -6,6 +6,7 @@ import { responseAPILibro } from '../Models/responseAPILibro';
 import { appsettings } from '../Settings/appsettings/appsettings';
 import { EditarLibroAdminDTO } from '../interface/EditarLibroAdminDTO';
 import { CrearLibroAdminDTO } from '../interface/CrearLibroAdminDTO';
+import { RegistrarDTO } from '../interface/RegistrarDTO';
 
 
 @Injectable({
@@ -39,6 +40,7 @@ export class LibrosService {
     return this.http.post<CrearLibroAdminDTO>(this.apiUrl, objeto);
   }
 
+  
  editar(id: string, formData: FormData) {
   return this.http.put(`${this.apiUrl}/${id}`, formData);
 }

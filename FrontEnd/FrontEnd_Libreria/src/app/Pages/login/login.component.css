@@ -32,3 +32,22 @@ button {
   border-radius: 8px;
   margin-top: 16px;
 }
+
+.registro-link {
+  text-align: center;
+  margin-top: 15px;
+}
+
+.registro-link a {
+  color: #3f51b5;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.registro-link a:hover {
+  color: #303f9f;
+}
+
+p{
+  text-align: center;
+}

@@ -32,3 +32,6 @@ button {
   border-radius: 8px;
   margin-top: 16px;
 }
+.mat-mdc-card{
+  height: 75%;
+}

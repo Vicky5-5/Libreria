@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { AccesoService } from '../../Servicios/acceso.service';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Login } from '../../interface/Login';
 
@@ -15,7 +15,7 @@ import { jwtDecode } from 'jwt-decode';
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [MatCardModule, MatLabel, MatError, ReactiveFormsModule, CommonModule, MatInputModule,MatFormFieldModule, MatButtonModule],
+  imports: [RouterModule, MatCardModule, MatLabel, MatError, ReactiveFormsModule, CommonModule, MatInputModule,MatFormFieldModule, MatButtonModule],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css'] 
 })
@@ -81,5 +81,8 @@ getRol(): string {
     this.router.navigate(['/registro']);
   }
  
-
+  
+   volver() {
+     this.router.navigate([""]);
+   }
 }

@@ -19,6 +19,7 @@ export const routes: Routes = [
   {path: 'indexUsuario', component: IndexUsuarioComponent }, // Donde va el usuario normal
   { path: 'administracionLibros', component: AdministracionLibrosComponent }, // Es es el de los libros
   { path: 'administracionUsuarios', component: AdministracionUsuariosComponent }, // Es el de los usuarios
-  { path: 'listadoLibros', component: ListadoLibrosComponent}
+  { path: 'listadoLibros', component: ListadoLibrosComponent},
+  { path: 'registro', component: RegistroComponent}
 ];
 

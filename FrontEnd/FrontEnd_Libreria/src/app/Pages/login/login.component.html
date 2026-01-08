@@ -24,17 +24,25 @@
             La contraseña debe tener al menos 6 caracteres
           </mat-error>
         </mat-form-field>
-    <div class="flex">
-        <button mat-raised-button color="primary" (click)="iniciarSesion()" type="submit" [disabled]="formLogin.invalid">
+
+        <div class="flex">
+          <button mat-raised-button color="primary" (click)="iniciarSesion()" type="submit"
+            [disabled]="formLogin.invalid">
             Iniciar Sesión
-        </button>
+          </button>
+          <p>¿No tienes cuenta?</p>
+          <div class="registro-link">
+            <a routerLink="/registro">Regístrate</a>
+          </div>
+          <div class="flex">
+            <button mat-raised-button color="warn" (click)="volver()">
+              Volver
+            </button>
+          </div>
 
-        <button mat-raised-button color="warn" type="button" (click)="registrarse()">
-            Registrarse
-        </button>
 
-    </div>  
-    </form>
+        </div>
+      </form>
     </mat-card-content>
   </mat-card>
 </div>
