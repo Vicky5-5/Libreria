@@ -61,7 +61,7 @@ export class RegistroComponent {
     this.usuarioService.registrar(dto).subscribe({
       next: () => {
         alert('Usuario registrado correctamente');
-        this.router.navigate(['/Login']);
+        this.router.navigate(['/login']);
       },
       error: (err) => {
         console.error('Error al registrar usuario:', err);

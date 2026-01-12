@@ -2,12 +2,12 @@
   <h2>Panel de Administración</h2>
 
   <div class="admin-actions">
-    <button mat-raised-button color="primary" routerLink="/administracionUsuarios">
+    <button mat-raised-button color="primary" (click)="administrarUsuarios()">
       <mat-icon>person</mat-icon>
       <span>Administrar Usuarios</span>
     </button>
 
-    <button mat-raised-button color="accent" routerLink="/administracionLibros">
+    <button mat-raised-button color="accent" (click)="administarLibros()">
       <mat-icon>book</mat-icon>
       <span>Administrar Libros</span>
     </button>

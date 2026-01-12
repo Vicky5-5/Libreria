@@ -19,3 +19,11 @@
   width: 100%;
   overflow-x: auto;
 }
+
+.flex {
+  display: flex;
+  justify-content: left;
+  margin-top: 20px;
+  margin-left: 20px;
+  margin-bottom: 20px;
+}

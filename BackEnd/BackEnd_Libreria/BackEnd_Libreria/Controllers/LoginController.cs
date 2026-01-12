@@ -11,7 +11,7 @@ using System.Text;
 namespace BackEnd_Libreria.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/auth")]
     public class LoginController : Controller
     {
         private readonly UserManager<Usuario> _userManager;
@@ -28,7 +28,7 @@ namespace BackEnd_Libreria.Controllers
             _config = config;
         }
 
-        [HttpPost("Login")]
+        [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] Login request)
         {
             var usuario = await _userManager.FindByEmailAsync(request.Email);

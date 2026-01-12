@@ -1,46 +1,48 @@
+import { Injectable, inject, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { inject, Injectable } from '@angular/core';
-import { appsettings } from '../Settings/appsettings/appsettings';
-import { Usuario } from '../interface/Usuario';
 import { Observable } from 'rxjs';
-import { ResponseAcceso } from '../interface/ResponseAcceso';
+import { jwtDecode } from 'jwt-decode';
 import { Login } from '../interface/Login';
+import { ResponseAcceso } from '../interface/ResponseAcceso';
 
-import {jwtDecode} from 'jwt-decode';
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class AccesoService {
-  obtenerUsuarios() {
-    throw new Error('Method not implemented.');
+
+  private platformId = inject(PLATFORM_ID);
+  private http = inject(HttpClient);
+  private apiUrl = 'https://localhost:7105/api/auth'; // ajusta según tu backend
+
+  setToken(token: string): void {
+    if (isPlatformBrowser(this.platformId)) {
+      localStorage.setItem('token', token);
+    }
   }
 
-  private http = inject(HttpClient); // Inyección de HttpClient
-  private apiUrl: string = appsettings.apiUrl + "/Login"; // URL base de la API
-
-  constructor() { }
-
-   registrarse(objeto: Usuario): Observable<ResponseAcceso<Usuario>> { 
-    return this.http.post<ResponseAcceso<Usuario>>(`${this.apiUrl}/Registrarse`, objeto);
-}
-
-login(objeto: Login): Observable<ResponseAcceso<Login>> {
-  return this.http.post<ResponseAcceso<Login>>(`${this.apiUrl}/Login`, objeto);
-}
-
-getRol(): string {
-  const token = localStorage.getItem('token');
-  if (!token) return '';
-
-  try {
-    const decoded: any = jwtDecode(token);
-    // Verifica si el rol está en "role" o en el claim estándar de Microsoft
-    return decoded.role || decoded['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] || '';
-  } catch {
-    return '';
+  getToken(): string | null {
+    if (isPlatformBrowser(this.platformId)) {
+      return localStorage.getItem('token');
+    }
+    return null;
   }
+
+  getRol(): string {
+    const token = this.getToken();
+    if (!token) return '';
+    try {
+      const decoded: any = jwtDecode(token);
+      return decoded.role ?? '';
+    } catch {
+      return '';
+    }
+  }
+
+  isAdmin(): boolean {
+    return this.getRol() === 'Admin';
+  }
+
+ login(objeto: Login): Observable<ResponseAcceso<Login>> {
+  return this.http.post<ResponseAcceso<Login>>(`${this.apiUrl}/login`, objeto);
 }
-
-
 
 }

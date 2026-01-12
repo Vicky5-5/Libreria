@@ -13,10 +13,10 @@ import { ListadoLibrosComponent } from './Pages/listado_libros/listado_libros.co
 
 export const routes: Routes = [
   { path: '', component: InicioComponent },
-  {path: 'Login', component: LoginComponent},
+  {path: 'login', component: LoginComponent},
   {path: 'registro', component: RegistroComponent },
-  {path: 'indexAdmin', component: IndexAdminComponent, canActivate:[adminGuard] }, // Donde va el administrador. Ahi puede elegir entre editar usuarios o libros
-  {path: 'indexUsuario', component: IndexUsuarioComponent }, // Donde va el usuario normal
+  {path: 'index-admin', component: IndexAdminComponent, canActivate:[adminGuard] }, // Donde va el administrador. Ahi puede elegir entre editar usuarios o libros
+  {path: 'index-usuario', component: IndexUsuarioComponent }, // Donde va el usuario normal
   { path: 'administracionLibros', component: AdministracionLibrosComponent }, // Es es el de los libros
   { path: 'administracionUsuarios', component: AdministracionUsuariosComponent }, // Es el de los usuarios
   { path: 'listadoLibros', component: ListadoLibrosComponent},
