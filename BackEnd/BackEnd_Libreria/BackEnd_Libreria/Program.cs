@@ -1,4 +1,5 @@
 ﻿using BackEnd_Libreria.Contexto;
+using BackEnd_Libreria.ExceptionMiddleware;
 using BackEnd_Libreria.Hub;
 using BackEnd_Libreria.Models.Libros;
 using BackEnd_Libreria.Models.Usuario;
@@ -9,6 +10,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
+using Serilog;
+using Serilog.Events;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -76,7 +79,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             )
         };
 
-        // ⭐ IMPORTANTE PARA SIGNALR + JWT
+        // IMPORTANTE PARA SIGNALR + JWT
         options.Events = new JwtBearerEvents
         {
             OnMessageReceived = context =>
@@ -107,7 +110,32 @@ builder.WebHost.ConfigureKestrel(serverOptions =>
     serverOptions.Limits.MaxRequestBodySize = 100_000_000; // 100 MB
 });
 
-// ⭐ SignalR
+// Asegurarse de que la carpeta de logs exista
+
+Directory.CreateDirectory("Logs");
+
+// CONFIGURACIÓN DE SERILOG. ESTO SIRVE PARA REGISTRAR LOGS EN ARCHIVOS TXT Y/O BASES DE DATOS
+Log.Logger = new LoggerConfiguration()
+
+    .MinimumLevel.Error()
+
+    .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
+
+    .Enrich.FromLogContext()
+
+    // EL ERROR SE REGISTRAR EN UN ARCHIVO TXT
+    .WriteTo.File(
+        path: "Logs/errors-.txt",
+        rollingInterval: RollingInterval.Day,
+        restrictedToMinimumLevel: LogEventLevel.Error,
+        retainedFileCountLimit: 15
+    )
+    .CreateLogger();
+
+// SE CONECTA SERILOG CON LA APLICACIÓN
+builder.Host.UseSerilog();
+
+// SignalR
 builder.Services.AddSignalR();
 
 var app = builder.Build();
@@ -154,8 +182,18 @@ app.UseStaticFiles(new StaticFileOptions
     RequestPath = "/pdfs"
 });
 
-
+app.UseMiddleware<ExceptionMiddleware>();
 app.MapControllers();
 app.MapHub<ChatHub>("/chat");
 
-app.Run();
+// Nos aseguramos de cerrar y guardar los logs al finalizar la aplicación
+
+try
+{
+    app.Run();
+}
+finally
+{
+    Log.CloseAndFlush();
+}
+

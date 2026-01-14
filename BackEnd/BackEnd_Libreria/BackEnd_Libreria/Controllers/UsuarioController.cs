@@ -25,6 +25,16 @@ namespace BackEnd_Libreria.Controllers
         {
             var usuarios = _service.GetAll();
 
+            if (!usuarios.Any())
+            {
+                return Ok(new
+                {
+                    isSuccess = true,
+                    message = "No hay usuarios registrados",
+                    data = new List<UsuarioDTO>()
+                });
+            }
+
             var usuariosDTO = usuarios.Select(usuario => new UsuarioDTO
             {
                 Id = usuario.Id,
@@ -35,7 +45,7 @@ namespace BackEnd_Libreria.Controllers
                 FechaBaja = usuario.FechaBaja,
                 FechaRegistro = usuario.FechaRegistro
             });
-
+           
             return Ok(new
             {
                 isSuccess = true,
@@ -49,6 +59,11 @@ namespace BackEnd_Libreria.Controllers
         public ActionResult<IEnumerable<Usuario>> GetAllActivos()
         {
             var activos = _service.GetAllActivos(); 
+
+            if (activos==null)
+            {
+                _logger.LogError("No se pudieron cargar los usuarios activos.");
+            }
             return Ok(activos);
         }
 
@@ -57,7 +72,19 @@ namespace BackEnd_Libreria.Controllers
         public ActionResult<Usuario> Get(string id)
         {
             var usuario = _service.GetById(id);
-            if (usuario == null) return NotFound();
+
+            if (usuario == null)
+            {
+                _logger.LogError(
+                    "No se pudo encontrar el usuario con ID {id}",id);
+
+                return BadRequest(new
+                {
+                    isSuccess = false,
+                    message = "No se pudo crear el usuario."
+                });
+            }
+
             return Ok(usuario);
         }
 
@@ -81,10 +108,22 @@ namespace BackEnd_Libreria.Controllers
 
             var creado = await _service.Add(nuevoUsuario, dto.Password);
 
-            if (creado == null)
-                return BadRequest("No se pudo crear el usuario.");
+            // Verificamos si el usuario fue creado correctamente, si no, registramos un error en el log y devolvemos un BadRequest
 
-            
+            if (creado == null)
+            {
+                _logger.LogError(
+                    "No se pudo crear el usuario. Email: {Email}",
+                    dto.Email);
+
+                return BadRequest(new
+                {
+                    isSuccess = false,
+                    message = "No se pudo crear el usuario."
+                });
+            }
+
+
             var usuarioDTO = new UsuarioDTO
             {
                 Id = creado.Id,
@@ -94,7 +133,7 @@ namespace BackEnd_Libreria.Controllers
                 Admin = creado.Admin,
                 FechaRegistro = creado.FechaRegistro,
                 FechaBaja = creado.FechaBaja
-            };
+            };                       
 
             return CreatedAtAction(nameof(Get), new { id = creado.Id }, usuarioDTO);
         }
@@ -106,7 +145,12 @@ namespace BackEnd_Libreria.Controllers
             if (usuario == null) return NotFound();
 
             var ok = await _service.DarBajaUsuario(id);
-            if (!ok) return BadRequest();
+
+            if (ok == false)
+            {
+                _logger.LogError(
+                    "No se pudo dar de baja al usuario con ID {Id}", id);
+            }
 
             return Ok(new
             {
@@ -121,7 +165,12 @@ namespace BackEnd_Libreria.Controllers
             if (usuario == null) return NotFound();
 
             var ok = await _service.DarAltaUsuario(id);
-            if (!ok) return BadRequest();
+
+            if (ok == false)
+            {
+                _logger.LogError(
+                    "No se pudo dar de alta al usuario con ID {Id}", id);
+            }
 
             return Ok(new
             {
@@ -138,7 +187,18 @@ namespace BackEnd_Libreria.Controllers
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
             var usuarioActualizado = await _service.Actualizar(Id, dto);
-            if (usuarioActualizado == null) return NotFound();
+
+            if (usuarioActualizado == null)
+            {
+                _logger.LogWarning(
+                    "Intento de edición fallido. Usuario no encontrado. Id: {Id}", Id);
+
+                return BadRequest(new
+                {
+                    isSuccess = false,
+                    message = "Usuario no encontrado."
+                });
+            }
 
             var usuarioDTO = new UsuarioDTO
             {
@@ -150,7 +210,7 @@ namespace BackEnd_Libreria.Controllers
                 FechaRegistro = usuarioActualizado.FechaRegistro,
                 FechaBaja = usuarioActualizado.FechaBaja
             };
-
+           
             return Ok(new
             {
                 isSuccess = true,
@@ -179,7 +239,17 @@ namespace BackEnd_Libreria.Controllers
             var creado = await _service.Add(nuevoUsuario, dto.Password);
 
             if (creado == null)
-                return BadRequest("No se pudo crear el usuario.");
+            {
+                _logger.LogError(
+                    "Error al registrar nuevo usuario. Email: {Email}",
+                    dto.Email);
+
+                return BadRequest(new
+                {
+                    isSuccess = false,
+                    message = "No se pudo editar el usuario."
+                });
+            }
 
 
             var usuarioDTO = new RegistroDTO

@@ -17,6 +17,7 @@ namespace BackEnd_Libreria.Controllers
         private readonly UserManager<Usuario> _userManager;
         private readonly SignInManager<Usuario> _signInManager;
         private readonly IConfiguration _config;
+        private readonly ILogger<LoginController> _logger;
 
         public LoginController(
             UserManager<Usuario> userManager,
@@ -42,35 +43,6 @@ namespace BackEnd_Libreria.Controllers
             var token = GenerarToken(usuario);
             return Ok(new { isSuccess = true, token });
         }
-
-        [HttpPost("Registrarse")]
-        public async Task<IActionResult> Registrarse([FromBody] RegistroDTO modelo)
-        {
-            if (string.IsNullOrEmpty(modelo.Email) || string.IsNullOrEmpty(modelo.Password))
-                return BadRequest(new { isSuccess = false, message = "Email y contraseña son obligatorios." });
-
-            var existe = await _userManager.FindByEmailAsync(modelo.Email);
-            if (existe != null)
-                return BadRequest(new { isSuccess = false, message = "El email ya está registrado." });
-
-            var nuevoUsuario = new Usuario
-            {
-                UserName = modelo.Email,
-                Email = modelo.Email,
-                Nombre = modelo.Nombre,
-                FechaRegistro = DateTime.Now,
-                Estado = true,
-                Admin = false
-            };
-
-            var result = await _userManager.CreateAsync(nuevoUsuario, modelo.Password);
-            if (!result.Succeeded)
-                return BadRequest(new { isSuccess = false, message = "Error al registrar usuario.", errors = result.Errors });
-
-            var token = GenerarToken(nuevoUsuario);
-            return Ok(new { isSuccess = true, token });
-        }
-
         private string GenerarToken(Usuario usuario)
         {
             var roles = _userManager.GetRolesAsync(usuario).Result;
