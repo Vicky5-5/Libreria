@@ -11,43 +11,68 @@ namespace BackEnd_Libreria.Controllers
     public class LibrosController : ControllerBase
     {
         private readonly ILibrosService _service;
+        private readonly ILogger<LibrosController> _logger;
 
-        public LibrosController(ILibrosService service)
+        public LibrosController(ILibrosService service, ILogger<LibrosController> logger)
         {
             _service = service;
+            _logger = logger;
         }
+        // GET: api/Libros
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<LibroDetalleDTO>>> GetAll()
         {
-            var libros = (await _service.GetAll())
-                .Select(libro => new LibroDetalleDTO
+            var libros = await _service.GetAll();
+
+            if (!libros.Any())
+            {
+                _logger.LogInformation("No se encontraron libros en la base de datos.");
+                return Ok(new
                 {
-                    idLibro = libro.idLibro,
-                    Titulo = libro.Titulo,
-                    Autor = libro.Autor,
-                    yearPublicacion = libro.yearPublicacion,
-                    Genero = libro.Genero,
-                    Idioma = libro.Idioma,
-                    Sinopsis = libro.Sinopsis,
-                    Disponibilidad = libro.Disponibilidad,
-                    RutaArchivoPortada = libro.RutaArchivoPortada,
-                    RutaArchivoPDF = libro.RutaArchivoPDF
-                }).ToList();
+                    isSuccess = true,
+                    message = "No se encontraron libros",
+                    data = new List<LibroDetalleDTO>()
+                });
+            }
+
+            var librosDTO = libros.Select(libro => new LibroDetalleDTO
+            {
+                idLibro = libro.idLibro,
+                Titulo = libro.Titulo,
+                Autor = libro.Autor,
+                yearPublicacion = libro.yearPublicacion,
+                Genero = libro.Genero,
+                Idioma = libro.Idioma,
+                Sinopsis = libro.Sinopsis,
+                Disponibilidad = libro.Disponibilidad,
+                RutaArchivoPortada = libro.RutaArchivoPortada,
+                RutaArchivoPDF = libro.RutaArchivoPDF
+            }).ToList();
+
+            _logger.LogInformation("Libros cargados correctamente. Total: {Total}", librosDTO.Count);
 
             return Ok(new
             {
                 isSuccess = true,
                 message = "Libros cargados correctamente",
-                data = libros
+                data = librosDTO
             });
         }
+        
 
         [HttpGet("{id}")]
         public async Task<ActionResult<LibroDetalleDTO>> GetById(Guid id)
         {
             var libro = await _service.GetById(id);
-            if (libro == null) return NotFound();
+            if (libro == null) { 
+                _logger.LogWarning("Libro con ID {Id} no encontrado.", id);
+                return NotFound(new
+                {
+                    isSuccess = false,
+                    message = "Libro no encontrado"
+                });
+            }
 
             var dto = new LibroDetalleDTO
             {
@@ -68,9 +93,20 @@ namespace BackEnd_Libreria.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromForm] CrearLibroDTO dto)
         {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
+            if (!ModelState.IsValid) 
+                return BadRequest(ModelState);
 
             var libro = await _service.Add(dto);
+
+            if (libro == null)
+            {
+                _logger.LogError("Error al crear el libro.");
+                return BadRequest(new
+                {
+                    isSuccess = false,
+                    message = "Error al crear el libro"
+                });
+            }
 
             return CreatedAtAction(nameof(GetById), new { id = libro.idLibro }, new
             {
@@ -86,7 +122,15 @@ namespace BackEnd_Libreria.Controllers
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
             var libroActualizado = await _service.Actualizar(id, dto);
-            if (libroActualizado == null) return NotFound();
+
+            if (libroActualizado == null) { 
+            _logger.LogWarning("No se pudo actualizar el libro con ID {Id} porque no fue encontrado.", id);
+                return BadRequest(new
+                {
+                    isSuccess = false,
+                    message = "No se pudo actualizar el libro porque no fue encontrado"
+                });
+            }
 
             return Ok(new
             {
@@ -100,7 +144,15 @@ namespace BackEnd_Libreria.Controllers
         public async Task<IActionResult> Delete(Guid id)
         {
             var eliminado = await _service.Delete(id);
-            if (!eliminado) return NotFound();
+            if (!eliminado) { 
+            _logger.LogWarning("No se pudo eliminar el libro con ID {Id} porque no fue encontrado.", id);
+                return NotFound(new
+                {
+                    isSuccess = false,
+                    message = "No se pudo eliminar el libro porque no fue encontrado"
+                });
+            }
+            _logger.LogInformation("Libro eliminado correctamente. Id: {Id}", id);
 
             return NoContent();
         }
@@ -117,6 +169,7 @@ namespace BackEnd_Libreria.Controllers
 
             return File(bytes, tipoContenido, nombreArchivo);
         }
+
         [HttpPost("{id}/noDisponible")]
         public async Task<IActionResult> ActualizarDisponibilidad(Guid id, bool disponibilidad)
         {
@@ -129,6 +182,7 @@ namespace BackEnd_Libreria.Controllers
                 data = libroActualizado
             });
         }
+
         [HttpPost("{id}/disponible")]
         public async Task<IActionResult> ActualizarDisponibilidadDisponible(Guid id, bool disponibilidad)
         {
