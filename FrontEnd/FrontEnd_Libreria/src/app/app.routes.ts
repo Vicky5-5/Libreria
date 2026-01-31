@@ -17,9 +17,9 @@ export const routes: Routes = [
   {path: 'registro', component: RegistroComponent },
   {path: 'index-admin', component: IndexAdminComponent, canActivate:[adminGuard] }, // Donde va el administrador. Ahi puede elegir entre editar usuarios o libros
   {path: 'index-usuario', component: IndexUsuarioComponent }, // Donde va el usuario normal
-  { path: 'administracionLibros', component: AdministracionLibrosComponent }, // Es es el de los libros
-  { path: 'administracionUsuarios', component: AdministracionUsuariosComponent }, // Es el de los usuarios
-  { path: 'listadoLibros', component: ListadoLibrosComponent},
+  { path: 'administracion-libros', component: AdministracionLibrosComponent }, // Es es el de los libros
+  { path: 'administracion-usuarios', component: AdministracionUsuariosComponent }, // Es el de los usuarios
+  { path: 'listado-libros', component: ListadoLibrosComponent},
   { path: 'registro', component: RegistroComponent}
 ];
 

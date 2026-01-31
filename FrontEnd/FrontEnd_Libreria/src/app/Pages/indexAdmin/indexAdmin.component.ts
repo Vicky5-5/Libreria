@@ -15,13 +15,13 @@ export class IndexAdminComponent {
   private router = inject(Router);
 
   administarLibros() {
-    this.router.navigate(['administracionLibros']);
+    this.router.navigate(['/administracion-libros']);
   }
   administrarUsuarios() {
-    this.router.navigate(['administracionUsuarios']);
+    this.router.navigate(['/administracion-usuarios']);
   }
 
   volver() {
-    this.router.navigate(['']);
+    this.router.navigate(['/']);
   }
 }
