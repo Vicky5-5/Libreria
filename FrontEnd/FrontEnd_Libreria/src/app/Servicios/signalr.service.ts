@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import * as signalR from '@microsoft/signalr';
+import { Subject } from 'rxjs';
 
 export interface MensajeChat {
   userId: string;
@@ -15,23 +16,32 @@ export class SignalrService {
 
   private hubConnection!: signalR.HubConnection;
 
-  startConnection(): void {
-    this.hubConnection = new signalR.HubConnectionBuilder()
-      .withUrl('https://localhost:7105/hub', {
-        accessTokenFactory: () => localStorage.getItem('token') ?? ''
-      })
-      .withAutomaticReconnect()
-      .build();
+  // Stream reactivo de mensajes
+  private mensajeSubject = new Subject<MensajeChat>();
+  mensajes$ = this.mensajeSubject.asObservable();
 
-    // Listener del servidor
-    this.hubConnection.on('RecibirMensaje', (data: MensajeChat) => {
-      console.log('Mensaje recibido:', data);
-    });
+  startConnection(token?: string): void {
 
-    this.hubConnection.start()
-      .then(() => console.log('✅ SignalR conectado'))
-      .catch(err => console.error('❌ Error SignalR:', err));
+  if (this.hubConnection &&
+      this.hubConnection.state === signalR.HubConnectionState.Connected) {
+    return;
   }
+
+  this.hubConnection = new signalR.HubConnectionBuilder()
+    .withUrl('https://localhost:7105/hub', {
+      accessTokenFactory: () => localStorage.getItem('token') ?? ''
+    })
+    .withAutomaticReconnect()
+    .build();
+
+  this.hubConnection.on('RecibirMensaje', (data) => {
+    this.mensajeSubject.next(data);
+  });
+
+  this.hubConnection.start()
+    .then(() => console.log('✅ SignalR conectado'))
+    .catch(err => console.error('❌ Error SignalR:', err));
+}
 
   enviarMensaje(mensaje: string): void {
     if (!this.hubConnection) return;
