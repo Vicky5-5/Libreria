@@ -39,7 +39,7 @@ namespace BackEnd_Libreria.Controllers
             var result = await _signInManager.CheckPasswordSignInAsync(usuario, request.Password, false);
             if (!result.Succeeded)
                 return BadRequest(new { isSuccess = false, message = "Contraseña incorrecta." });
-                       
+
             var token = GenerarToken(usuario);
             return Ok(new { isSuccess = true, token });
         }
@@ -60,7 +60,7 @@ namespace BackEnd_Libreria.Controllers
                 issuer: _config["Jwt:Issuer"],
                 audience: _config["Jwt:Audience"],
                 claims: claims,
-                expires: DateTime.Now.AddHours(2),
+                DateTime.UtcNow.AddMinutes(15),
                 signingCredentials: creds
             );
 

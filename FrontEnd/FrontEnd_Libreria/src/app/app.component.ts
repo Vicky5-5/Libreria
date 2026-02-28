@@ -1,9 +1,11 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { BarraNavegacionComponent} from './Componentes/barra-navegacion/barra-navegacion.component';
 import { FooterComponent } from "./Componentes/footer/footer.component";
 import { HttpClientModule } from '@angular/common/http';
-
+import { AccesoService } from './Servicios/acceso.service';
+import { SignalrService } from './Servicios/signalr.service';
+import { EstadoService } from './Servicios/estado.service';
 @Component({
   selector: 'app-root',
   standalone: true,
@@ -11,6 +13,22 @@ import { HttpClientModule } from '@angular/common/http';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
+
   title = 'Librería Alejandría';
+
+  // Para mantener el log del usuario cuando recargue
+  constructor(
+    private accesoService: AccesoService,
+    private signalRService: SignalrService,
+    private estadoService: EstadoService
+  ) {}
+
+  ngOnInit(): void {
+    if (this.accesoService.isLoggedIn()) {
+      this.signalRService.startConnection();
+      this.estadoService.iniciarSeguimiento();
+    }
+  }
 }
+

@@ -44,5 +44,10 @@ export class AccesoService {
  login(objeto: Login): Observable<ResponseAcceso<Login>> {
   return this.http.post<ResponseAcceso<Login>>(`${this.apiUrl}/login`, objeto);
 }
-
+isLoggedIn(): boolean {
+    return !!this.getToken();
+  }
+  logout(): void {
+    if (isPlatformBrowser(this.platformId)) localStorage.removeItem('token');
+  }
 }

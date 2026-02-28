@@ -1,21 +1,24 @@
-
-  <mat-toolbar>
-    
+<mat-toolbar color="primary">
   <a routerLink="/" class="nav-brand">
-  <img src="/assets/icono-libro.png" alt="Logo Librería">
-  <span>Librería Alejandría</span>
+    <img src="/assets/icono-libro.png" alt="Logo Librería">
+    <span>Librería Alejandría</span>
   </a>
 
+  <span class="example-spacer"></span>
 
-    <span class="example-spacer"></span>
-    <button mat-button class="example-icon" style="color: white;" aria-label="Contacto">
-      <span>Contacto</span>
-    </button>
-    <button mat-icon-button class="example-icon favorite-icon" style="color: white;" aria-label="Ir al login" routerLink="/login">
-      <mat-icon>person</mat-icon>
-    </button>
-    <button style="color: white;" class="mobile-only" mat-icon-button aria-label="Menú">
-      <mat-icon>menu</mat-icon>
-    </button>
+  <button mat-button *ngIf="!accesoService.isLoggedIn()" routerLink="/login">Login</button>
 
-  </mat-toolbar>
+  <button mat-button *ngIf="accesoService.isLoggedIn()" [matMenuTriggerFor]="userMenu">
+    <mat-icon>person</mat-icon>
+    {{ accesoService.getRol() }}
+  </button>
+
+  <mat-menu #userMenu="matMenu">
+    <button mat-menu-item routerLink="/login">
+      <mat-icon>account_circle</mat-icon> Login
+    </button>
+    <button mat-menu-item (click)="logout()">
+      <mat-icon>logout</mat-icon> Logout
+    </button>
+  </mat-menu>
+</mat-toolbar>

@@ -11,6 +11,8 @@ import { MatButtonModule } from "@angular/material/button";
 import { CommonModule } from '@angular/common';
 import { HttpClientModule, HttpErrorResponse } from '@angular/common/http';
 import { jwtDecode } from 'jwt-decode';
+import { SignalrService } from '../../Servicios/signalr.service';
+import { EstadoService } from '../../Servicios/estado.service';
 
 @Component({
   selector: 'app-login',
@@ -23,8 +25,9 @@ export class LoginComponent {
 
   private accesoService = inject(AccesoService);
   private router = inject(Router);
+  private signalrService = inject(SignalrService);
   public formBuild = inject(FormBuilder);
-
+private estadoService = inject(EstadoService);
   public formLogin = this.formBuild.group({
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(6)]]
@@ -59,6 +62,10 @@ getRol(): string {
       if (data.isSuccess) {
         localStorage.setItem('token', data.token);
 
+        // Iniciar la conexión SignalR después de iniciar sesión
+        this.signalrService.startConnection();
+        this.estadoService.iniciarSeguimiento();
+        
         const rol = this.accesoService.getRol();
         if (rol === 'Admin') {
           this.router.navigate(['/index-admin']);

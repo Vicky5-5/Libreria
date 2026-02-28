@@ -184,6 +184,7 @@ app.UseStaticFiles(new StaticFileOptions
 
 app.UseMiddleware<ExceptionMiddleware>();
 app.MapControllers();
+
 app.MapHub<ChatHub>("/chat");
 
 // Nos aseguramos de cerrar y guardar los logs al finalizar la aplicación
