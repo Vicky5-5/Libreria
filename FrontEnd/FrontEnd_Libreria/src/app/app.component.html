@@ -1,6 +1,7 @@
 <app-barra-navegacion></app-barra-navegacion>
 <div class="contenido-principal">
 <router-outlet></router-outlet>
-<app-chat-widget></app-chat-widget>
+
+<app-chat-widget *ngIf="estaLogueado"></app-chat-widget>
 </div>
 <app-footer></app-footer>

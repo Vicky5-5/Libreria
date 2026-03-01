@@ -1,8 +1,8 @@
-import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Inject, OnInit, PLATFORM_ID } from '@angular/core';
 import { SignalrService } from '../../Servicios/signalr.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-
+import { isPlatformBrowser } from '@angular/common';
 @Component({
   selector: 'app-chat',
   standalone: true,
@@ -16,15 +16,17 @@ export class ChatComponent implements OnInit {
   messages: any[] = [];
   newMessage: string = '';
 
-  constructor(private chat: SignalrService) {}
+  constructor(private chat: SignalrService, @Inject(PLATFORM_ID) private platformId: object) {}
 
   ngOnInit(): void {
-    this.chat.startConnection();
+    if (isPlatformBrowser(this.platformId)) {
+      this.chat.startConnection();
 
-    this.chat.mensajes$.subscribe(msg => {
-     
-      this.messages = [...this.messages, msg];
-    });
+      this.chat.mensajes$.subscribe(msg => {
+       
+        this.messages = [...this.messages, msg];
+      });
+    }
   }
 
   enviarMensaje(): void {
