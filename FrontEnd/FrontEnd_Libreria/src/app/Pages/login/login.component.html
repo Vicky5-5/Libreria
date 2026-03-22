@@ -15,15 +15,27 @@
         </mat-form-field>
 
         <mat-form-field appearance="fill" class="full-width">
-          <mat-label>Contraseña</mat-label>
-          <input matInput formControlName="password" type="password" required>
-          <mat-error *ngIf="formLogin.get('password')?.hasError('required')">
-            La contraseña es obligatoria
-          </mat-error>
-          <mat-error *ngIf="formLogin.get('password')?.hasError('minlength')">
-            La contraseña debe tener al menos 6 caracteres
-          </mat-error>
-        </mat-form-field>
+  <mat-label>Contraseña</mat-label>
+
+  <input matInput 
+         formControlName="password" 
+         [type]="ocultar ? 'password' : 'text'" 
+         required>
+
+  <button mat-icon-button 
+          matSuffix 
+          type="button"
+          (click)="ocultar = !ocultar">
+    <mat-icon>{{ocultar ? 'visibility_off' : 'visibility'}}</mat-icon>
+  </button>
+
+  <mat-error *ngIf="formLogin.get('password')?.hasError('required')">
+    La contraseña es obligatoria
+  </mat-error>
+  <mat-error *ngIf="formLogin.get('password')?.hasError('minlength')">
+    La contraseña debe tener al menos 6 caracteres
+  </mat-error>
+</mat-form-field>
 
         <div class="flex">
           <button mat-raised-button color="primary" (click)="iniciarSesion()" type="submit"

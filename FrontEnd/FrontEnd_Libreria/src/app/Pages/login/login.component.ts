@@ -13,11 +13,12 @@ import { HttpClientModule, HttpErrorResponse } from '@angular/common/http';
 import { jwtDecode } from 'jwt-decode';
 import { SignalrService } from '../../Servicios/signalr.service';
 import { EstadoService } from '../../Servicios/estado.service';
+import { MatIcon } from "@angular/material/icon";
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [RouterModule, MatCardModule, MatLabel, MatError, ReactiveFormsModule, CommonModule, MatInputModule,MatFormFieldModule, MatButtonModule],
+  imports: [RouterModule, MatCardModule, MatLabel, MatError, ReactiveFormsModule, CommonModule, MatInputModule, MatFormFieldModule, MatButtonModule, MatIcon],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css'] 
 })
@@ -28,6 +29,9 @@ export class LoginComponent {
   private signalrService = inject(SignalrService);
   public formBuild = inject(FormBuilder);
 private estadoService = inject(EstadoService);
+
+ocultar: boolean = true;
+
   public formLogin = this.formBuild.group({
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(6)]]

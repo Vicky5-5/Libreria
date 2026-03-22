@@ -1,6 +1,6 @@
 <!-- Botón flotante -->
 <div class="chat-button" (click)="toggleChat()">
-  💬
+  <mat-icon>chat</mat-icon>
   <span *ngIf="unreadCount > 0" class="badge">
     {{ unreadCount }}
   </span>
@@ -14,26 +14,6 @@
     <button (click)="toggleChat()">✖</button>
   </div>
 
-  <div class="chat-body">
-    <div *ngFor="let msg of messages"
-         class="message"
-         [class.self]="msg.userId === currentUserId">
-
-      <div class="bubble">
-        <strong>{{msg.nombre}}</strong>
-        <p>{{msg.mensaje}}</p>
-        <small>{{msg.fecha | date:'shortTime'}}</small>
-      </div>
-
-    </div>
-  </div>
-
-  <div class="chat-footer">
-    <input
-      [(ngModel)]="newMessage"
-      (keyup.enter)="send()"
-      placeholder="Escribe un mensaje..." />
-    <button (click)="send()">Enviar</button>
-  </div>
+  <app-chat></app-chat>
 
 </div>

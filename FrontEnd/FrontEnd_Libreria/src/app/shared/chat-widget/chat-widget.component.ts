@@ -4,11 +4,13 @@ import { SignalrService, MensajeChat } from '../../Servicios/signalr.service';
 import { Subject, takeUntil } from 'rxjs';
 import { isPlatformBrowser } from '@angular/common';
 import { AccesoService } from '../../Servicios/acceso.service';
+import { MatIconModule } from "@angular/material/icon";
+import { ChatComponent } from "../../Componentes/chat/chat.component";
 
 @Component({
   selector: 'app-chat-widget',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, MatIconModule, ChatComponent],
   templateUrl: './chat-widget.component.html',
   styleUrls: ['./chat-widget.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -65,12 +67,7 @@ export class ChatWidgetComponent implements OnInit, OnDestroy {
     }
   }
 
-  send(): void {
-    if (this.newMessage.trim() !== '') {
-      this.chatService.enviarMensaje(this.newMessage);
-      this.newMessage = '';
-    }
-  }
+
 
   private scrollToBottom(): void {
     const container = document.querySelector('.chat-body');

@@ -5,6 +5,7 @@ import { Observable } from 'rxjs';
 import { jwtDecode } from 'jwt-decode';
 import { Login } from '../interface/Login';
 import { ResponseAcceso } from '../interface/ResponseAcceso';
+import { Usuario } from '../interface/Usuario';
 
 @Injectable({ providedIn: 'root' })
 export class AccesoService {
@@ -36,11 +37,27 @@ export class AccesoService {
       return '';
     }
   }
+  getUsuario(): Partial<Usuario> {
+    const token = this.getToken();
+    if (!token) return {};
+    try {
+      const decoded: any = jwtDecode(token);
+      return {
+        nombre: decoded.unique_name || decoded.name || '',
+        Admin: decoded.role === 'Admin'
+      };
+    } catch {
+      return {};
+    }
+  }
 
   isAdmin(): boolean {
     return this.getRol() === 'Admin';
   }
-
+getNombre(): string {
+    return this.getUsuario().nombre || '';
+  }
+  
  login(objeto: Login): Observable<ResponseAcceso<Login>> {
   return this.http.post<ResponseAcceso<Login>>(`${this.apiUrl}/login`, objeto);
 }
@@ -48,6 +65,6 @@ isLoggedIn(): boolean {
     return !!this.getToken();
   }
   logout(): void {
-    if (isPlatformBrowser(this.platformId)) localStorage.removeItem('token');
-  }
+  if (isPlatformBrowser(this.platformId)) localStorage.removeItem('token');
+}
 }

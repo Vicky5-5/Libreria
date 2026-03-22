@@ -10,7 +10,8 @@
 
   <button mat-button *ngIf="accesoService.isLoggedIn()" [matMenuTriggerFor]="userMenu">
     <mat-icon>person</mat-icon>
-    {{ accesoService.getRol() }}
+    {{ accesoService.getRol() }} 
+    {{ accesoService.getNombre() }}
   </button>
 
   <mat-menu #userMenu="matMenu">

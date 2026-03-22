@@ -14,6 +14,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { passwordValidator } from '../../shared/validadores';
 import { RegistrarDTO } from '../../interface/RegistrarDTO';
 import { UsuariosService } from '../../Servicios/usuarios.service';
+import { MatIconModule } from "@angular/material/icon";
 
 @Component({
   selector: 'app-registro',
@@ -23,12 +24,13 @@ import { UsuariosService } from '../../Servicios/usuarios.service';
     MatCardModule,
     MatInputModule,
     MatFormFieldModule,
-    MatButtonModule],
+    MatButtonModule, MatIconModule],
   templateUrl: './registro.component.html',
   styleUrls: ['./registro.component.css']
 })
 export class RegistroComponent {
-
+ocultar: boolean = true;  
+ocultarConfirm: boolean = true;
   private fb = inject(FormBuilder);
   private usuarioService = inject(UsuariosService);
   private router = inject(Router);
@@ -45,6 +47,7 @@ export class RegistroComponent {
       return pass === confirm ? null : { mismatch: true };
     }
   });
+
 
   guardar() {
     if (this.formRegistro.invalid) return;

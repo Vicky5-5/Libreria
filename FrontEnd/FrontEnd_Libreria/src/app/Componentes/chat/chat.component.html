@@ -1,0 +1,27 @@
+<div class="chat-body">
+
+  <div *ngFor="let msg of messages"
+       class="message"
+       [class.self]="msg.userId === usuarioSeleccionado?.id">
+
+    <div class="bubble">
+      <strong>{{msg.nombre}}</strong>
+      <p>{{msg.mensaje}}</p>
+      <small>{{msg.fecha | date:'shortTime'}}</small>
+    </div>
+
+  </div>
+
+</div>
+
+<div class="chat-footer">
+  <input
+    [(ngModel)]="newMessage"
+    (keyup.enter)="enviarMensaje()"
+    placeholder="Escribe un mensaje..." />
+
+  <button (click)="enviarMensaje()">
+    <mat-icon>send</mat-icon>
+    Enviar
+  </button>
+</div>

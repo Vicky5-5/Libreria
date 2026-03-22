@@ -14,6 +14,7 @@ import { LibrosService } from '../../../Servicios/libros.service';
 import { Libros } from '../../../interface/Libros';
 import { responseAPILibro } from '../../../Models/responseAPILibro';
 import { PortadasComponent } from '../../administracionLibros/portadas/portadas.component/portadas.component';
+import { ChatComponent } from '../../../Componentes/chat/chat.component';
 
 @Component({
   selector: 'app-index-usuario',
@@ -27,7 +28,8 @@ import { PortadasComponent } from '../../administracionLibros/portadas/portadas.
     MatPaginatorModule,
     MatSortModule,
     MatIconModule,
-    PortadasComponent
+    PortadasComponent,
+    ChatComponent
   ],
   templateUrl: './indexUsuario.component.html',
   styleUrls: ['./indexUsuario.component.css'],
