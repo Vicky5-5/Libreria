@@ -15,6 +15,7 @@ import { Libros } from '../../../interface/Libros';
 import { responseAPILibro } from '../../../Models/responseAPILibro';
 import { PortadasComponent } from '../../administracionLibros/portadas/portadas.component/portadas.component';
 import { ChatComponent } from '../../../Componentes/chat/chat.component';
+import { ChatWidgetComponent } from "../../../shared/chat-widget/chat-widget.component";
 
 @Component({
   selector: 'app-index-usuario',
@@ -29,8 +30,8 @@ import { ChatComponent } from '../../../Componentes/chat/chat.component';
     MatSortModule,
     MatIconModule,
     PortadasComponent,
-    ChatComponent
-  ],
+    ChatWidgetComponent
+],
   templateUrl: './indexUsuario.component.html',
   styleUrls: ['./indexUsuario.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
