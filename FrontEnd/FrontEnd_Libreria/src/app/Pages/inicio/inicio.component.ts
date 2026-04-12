@@ -13,7 +13,7 @@ export class InicioComponent {
     private router = inject(Router);
   
 listarlibros(){
-      this.router.navigate(['/listadoLibros']);
+      this.router.navigate(['/listado-libros']);
 
 }
 }

@@ -50,17 +50,26 @@ namespace BackEnd_Libreria.Controllers
             var claims = new List<Claim>
     {
         new Claim(JwtRegisteredClaimNames.Sub, usuario.Email),
-        new Claim("role", roles.FirstOrDefault() ?? "Usuario") // ✅ Aquí se incluye el rol
+
+        // 🔥 ESTO ES LO QUE TE FALTA
+        new Claim(ClaimTypes.Name, usuario.Nombre),
+
+        new Claim(ClaimTypes.Email, usuario.Email),
+
+        new Claim("role", roles.FirstOrDefault() ?? "Usuario")
     };
 
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
+            var key = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(_config["Jwt:Key"])
+            );
+
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var token = new JwtSecurityToken(
                 issuer: _config["Jwt:Issuer"],
                 audience: _config["Jwt:Audience"],
                 claims: claims,
-                DateTime.UtcNow.AddMinutes(15),
+                expires: DateTime.UtcNow.AddMinutes(15), // ⚠️ también corrige esto
                 signingCredentials: creds
             );
 

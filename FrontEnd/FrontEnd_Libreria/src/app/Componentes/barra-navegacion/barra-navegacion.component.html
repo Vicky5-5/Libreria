@@ -4,22 +4,24 @@
     <span>Librería Alejandría</span>
   </a>
 
+
   <span class="example-spacer"></span>
 
-  <button mat-button *ngIf="!accesoService.isLoggedIn()" routerLink="/login">Login</button>
-
-  <button mat-button *ngIf="accesoService.isLoggedIn()" [matMenuTriggerFor]="userMenu">
+  <!-- 🟢 USUARIO -->
+  <button mat-button *ngIf="usuario$ | async as user" [matMenuTriggerFor]="userMenu">
     <mat-icon>person</mat-icon>
-    {{ accesoService.getRol() }} 
-    {{ accesoService.getNombre() }}
+    {{ user.Admin ? 'Admin' : '' }} 
+    {{ user.nombre }}
   </button>
 
   <mat-menu #userMenu="matMenu">
     <button mat-menu-item routerLink="/login">
       <mat-icon>account_circle</mat-icon> Login
     </button>
-    <button mat-menu-item (click)="logout()">
-      <mat-icon>logout</mat-icon> Logout
-    </button>
+     <button mat-menu-item 
+        (click)="logout()" 
+        *ngIf="(usuario$ | async)?.nombre">
+  <mat-icon>logout</mat-icon> Logout
+</button>
   </mat-menu>
 </mat-toolbar>
