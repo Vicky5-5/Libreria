@@ -2,6 +2,7 @@ import { Injectable, inject} from '@angular/core';
 import { Router } from '@angular/router';
 import { AccesoService } from './acceso.service';
 import { SignalrService } from './signalr.service';
+import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -10,7 +11,8 @@ export class EstadoService {
 
 private timeout: any;
 private readonly inactivityTime = 15 * 60 * 1000; // 15 minutos
-
+private logueado = new BehaviorSubject<boolean>(false);
+logueado$ = this.logueado.asObservable();
 private router= inject(Router);
 private accesoService= inject(AccesoService);
 private signalRService= inject(SignalrService);
@@ -34,4 +36,7 @@ iniciarSeguimiento(): void {
     this.accesoService.logout();
     this.router.navigate(['/login']);
   }
+  setLogueado(valor: boolean) {
+  this.logueado.next(valor);
+}
 }

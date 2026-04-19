@@ -51,7 +51,6 @@ namespace BackEnd_Libreria.Controllers
     {
         new Claim(JwtRegisteredClaimNames.Sub, usuario.Email),
 
-        // 🔥 ESTO ES LO QUE TE FALTA
         new Claim(ClaimTypes.Name, usuario.Nombre),
 
         new Claim(ClaimTypes.Email, usuario.Email),

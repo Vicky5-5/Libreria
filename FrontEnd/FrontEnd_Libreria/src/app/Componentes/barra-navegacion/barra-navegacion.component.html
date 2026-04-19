@@ -10,8 +10,7 @@
   <!-- 🟢 USUARIO -->
   <button mat-button *ngIf="usuario$ | async as user" [matMenuTriggerFor]="userMenu">
     <mat-icon>person</mat-icon>
-    {{ user.Admin ? 'Admin' : '' }} 
-    {{ user.nombre }}
+{{ user.Admin ? '(Admin)' : '' }} {{ user.nombre }}
   </button>
 
   <mat-menu #userMenu="matMenu">

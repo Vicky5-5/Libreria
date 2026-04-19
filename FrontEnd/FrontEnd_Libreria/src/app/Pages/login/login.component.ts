@@ -46,7 +46,9 @@ export class LoginComponent {
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(6)]]
   });
-
+ngOnInit(): void {
+  this.accesoService.logout();
+}
   iniciarSesion() {
     if (this.formLogin.invalid) return;
 
@@ -59,10 +61,10 @@ export class LoginComponent {
       next: (data) => {
         if (data.isSuccess) {
 
-          // ✅ CLAVE
           this.accesoService.setToken(data.token);
 
           this.signalrService.startConnection();
+          this.estadoService.setLogueado(true);
           this.estadoService.iniciarSeguimiento();
 
           const usuario = this.accesoService.getUsuario();

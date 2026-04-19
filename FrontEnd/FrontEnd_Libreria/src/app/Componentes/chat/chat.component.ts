@@ -74,11 +74,9 @@ usuariosFiltrados(): Usuario[] {
   );
 }
 
-// 👤 Seleccionar usuario
 seleccionarUsuario(user: any) {
   this.usuarioSeleccionado = user;
 
-  // aquí puedes cargar mensajes de ese usuario si quieres
   console.log('Usuario seleccionado:', user);
 }
   enviarMensaje(): void {

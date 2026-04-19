@@ -7,6 +7,7 @@ import { SignalrService } from '../../Servicios/signalr.service';
 import { AccesoService } from '../../Servicios/acceso.service';
 import { MatMenuModule } from '@angular/material/menu';
 import { CommonModule } from '@angular/common';
+import { EstadoService } from '../../Servicios/estado.service';
 
 @Component({
   selector: 'app-barra-navegacion',
@@ -27,13 +28,13 @@ export class BarraNavegacionComponent {
   accesoService = inject(AccesoService);
   router = inject(Router);
   signalrService = inject(SignalrService);
-
-  // ✅ CLAVE: usar observable
+  estadoService = inject(EstadoService);
   usuario$ = this.accesoService.usuario$;
 
   logout(): void {
     this.signalrService.stopConnection();
     this.accesoService.logout();
+    this.estadoService.setLogueado(false);
     this.router.navigate(['/login']);
   }
 }
