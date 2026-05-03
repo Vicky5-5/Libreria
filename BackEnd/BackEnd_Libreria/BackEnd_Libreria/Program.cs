@@ -39,31 +39,6 @@ builder.Services.AddDbContext<Conexion>(options =>
 builder.Services.AddIdentity<Usuario, IdentityRole>()
     .AddEntityFrameworkStores<Conexion>()
     .AddDefaultTokenProviders();
-
-// Configuración de CORS
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowAngularDevClient", policy =>
-    {
-        policy.WithOrigins(origenesPermitidos)
-              .AllowAnyHeader()
-              .AllowAnyMethod()
-              .AllowCredentials(); // ⭐ Necesario para SignalR
-    });
-});
-
-builder.Services.AddControllers()
-    .AddJsonOptions(options =>
-    {
-        options.JsonSerializerOptions.PropertyNamingPolicy =
-            System.Text.Json.JsonNamingPolicy.CamelCase;
-    });
-
-var adminSection = builder.Configuration.GetSection("DefaultAdmin");
-var adminEmail = adminSection["Email"];
-var adminPassword = adminSection["Password"];
-
-// Configuración de autenticación JWT
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -99,6 +74,31 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             }
         };
     });
+// Configuración de CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAngularDevClient", policy =>
+    {
+        policy.WithOrigins(origenesPermitidos)
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials();
+    });
+});
+
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.PropertyNamingPolicy =
+            System.Text.Json.JsonNamingPolicy.CamelCase;
+    });
+
+var adminSection = builder.Configuration.GetSection("DefaultAdmin");
+var adminEmail = adminSection["Email"];
+var adminPassword = adminSection["Password"];
+
+// Configuración de autenticación JWT
+
 
 // Para subir archivos. Si son grandes, aumenta el límite:
 builder.Services.Configure<FormOptions>(options =>

@@ -121,3 +121,35 @@
   font-size: 18px;
   padding-right: 5px;
 }
+.usuarios-lista {
+  width: 200px;
+  border-right: 1px solid #ddd;
+  overflow-y: auto;
+}
+
+.usuario-item {
+  padding: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.usuario-item:hover,
+.usuario-item.activo {
+  background: #f0f0f0;
+}
+.estado-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #ccc;
+  margin-left: auto;
+  flex-shrink: 0;
+  transition: background 0.3s;
+}
+
+.estado-dot.conectado {
+  background: #22c55e;
+  box-shadow: 0 0 5px #22c55e;
+}

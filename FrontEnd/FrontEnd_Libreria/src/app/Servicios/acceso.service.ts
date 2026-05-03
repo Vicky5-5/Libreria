@@ -25,12 +25,17 @@ export class AccesoService {
   }
 
   // ✅ Guardar token y actualizar usuario
- setToken(token: string): void {
+setToken(token: string, userId?: string): void {
   localStorage.setItem('token', token);
 
+  // Si el backend devuelve el userId directamente, se usa
+  // Si no, lo extraemos del token decodificado
+  if (userId) {
+    localStorage.setItem('userId', userId);
+  }
+
   const usuario = this.decodeToken(token);
-  console.log('Usuario actualizado:', usuario);
-  this.usuarioSubject.next(usuario); // 🔥 CLAVE
+  this.usuarioSubject.next(usuario);
 }
 
   getToken(): string | null {
@@ -41,23 +46,32 @@ export class AccesoService {
   }
 
   // ✅ Decodificar token (centralizado)
-  private decodeToken(token: string): Partial<Usuario> {
-    try {
-      const decoded: any = jwtDecode(token);
-      console.log('Token decodificado:', decoded);
+private decodeToken(token: string): Partial<Usuario> {
+  try {
+    const decoded: any = jwtDecode(token);
 
-      return {
-        nombre:
-          decoded.unique_name ||
-          decoded.name ||
-          decoded['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'] ||
-          '',
-        Admin: decoded.role === 'Admin'
-      };
-    } catch {
-      return {};
+    // Extraer y guardar el userId del token
+    const userId =
+      decoded['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'] ||
+      decoded.sub ||
+      '';
+
+    if (userId) {
+      localStorage.setItem('userId', userId);
     }
+
+    return {
+      nombre:
+        decoded.unique_name ||
+        decoded.name ||
+        decoded['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'] ||
+        '',
+      Admin: decoded.role === 'Admin'
+    };
+  } catch {
+    return {};
   }
+}
 
   getUsuario(): Partial<Usuario> {
     return this.usuarioSubject.value;
@@ -74,6 +88,8 @@ export class AccesoService {
   logout(): void {
     if (isPlatformBrowser(this.platformId)) {
       localStorage.removeItem('token');
+      localStorage.removeItem('userId');
+
     }
     this.usuarioSubject.next({});
   }

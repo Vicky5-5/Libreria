@@ -1,27 +1,83 @@
-<div class="chat-body">
+<div class="chat-container">
 
-  <div *ngFor="let msg of messages"
-       class="message"
-       [class.self]="msg.userId === usuarioSeleccionado?.id">
-
-    <div class="bubble">
-      <strong>{{msg.nombre}}</strong>
-      <p>{{msg.mensaje}}</p>
-      <small>{{msg.fecha | date:'shortTime'}}</small>
+  <div class="usuarios-lista">
+    <div class="usuarios-header">
+      <mat-icon>group</mat-icon>
+      Usuarios
     </div>
 
+    <div class="usuarios-search">
+      <input
+        [(ngModel)]="filtroUsuario"
+        placeholder="Buscar usuario..."
+        class="search-input" />
+    </div>
+
+    <div
+      *ngFor="let usuario of usuariosFiltrados()"
+      class="usuario-item"
+      [class.activo]="usuarioSeleccionado?.id === usuario.id"
+      (click)="seleccionarUsuario(usuario)">
+      <mat-icon>person</mat-icon>
+      <span>{{ usuario.nombre }}</span>
+      <!-- Punto verde si está conectado -->
+      <span
+        class="estado-dot"
+        [class.conectado]="(conectados$ | async)?.has(usuario.id)">
+      </span>
+    </div>
+
+    <div *ngIf="usuariosFiltrados().length === 0" class="sin-usuarios">
+      Sin usuarios
+    </div>
   </div>
 
-</div>
+  <div class="chat-panel">
 
-<div class="chat-footer">
-  <input
-    [(ngModel)]="newMessage"
-    (keyup.enter)="enviarMensaje()"
-    placeholder="Escribe un mensaje..." />
+    <div *ngIf="!usuarioSeleccionado" class="chat-placeholder">
+      <mat-icon>chat_bubble_outline</mat-icon>
+      <p>Selecciona un usuario para chatear</p>
+    </div>
 
-  <button (click)="enviarMensaje()">
-    <mat-icon>send</mat-icon>
-    Enviar
-  </button>
+    <ng-container *ngIf="usuarioSeleccionado">
+
+      <div class="chat-header">
+        <mat-icon>person</mat-icon>
+        Chateando con: <strong>{{ usuarioSeleccionado.nombre }}</strong>
+        <!-- Punto verde también en el header -->
+        <span
+          class="estado-dot"
+          [class.conectado]="(conectados$ | async)?.has(usuarioSeleccionado.id)">
+        </span>
+      </div>
+
+      <div class="chat-body">
+        <div *ngIf="mensajesFiltrados().length === 0" class="sin-mensajes">
+          Aún no hay mensajes. ¡Di hola!
+        </div>
+
+        <div
+          *ngFor="let msg of mensajesFiltrados()"
+          class="message"
+          [class.self]="msg.emisorId === currentUserId">
+          <div class="bubble">
+            <strong>{{ msg.nombre }}</strong>
+            <p>{{ msg.mensaje }}</p>
+            <small>{{ msg.fecha | date:'shortTime' }}</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="chat-footer">
+        <input
+          [(ngModel)]="newMessage"
+          (keyup.enter)="enviarMensaje()"
+          placeholder="Escribe un mensaje..." />
+        <button (click)="enviarMensaje()" [disabled]="!newMessage.trim()">
+          <mat-icon>send</mat-icon>
+        </button>
+      </div>
+
+    </ng-container>
+  </div>
 </div>

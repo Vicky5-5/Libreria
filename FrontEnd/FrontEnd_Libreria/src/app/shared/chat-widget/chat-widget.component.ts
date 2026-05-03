@@ -31,31 +31,29 @@ export class ChatWidgetComponent implements OnInit, OnDestroy {
     @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
-  ngOnInit(): void {
+ ngOnInit(): void {
+  if (!isPlatformBrowser(this.platformId)) return;
+  if (!this.accesoService.isLoggedIn()) return;
 
-    if (!isPlatformBrowser(this.platformId)) return;
+  this.currentUserId = localStorage.getItem('userId');
 
-    if (!this.accesoService.isLoggedIn()) return;
+  this.chatService.startConnection();
 
-    this.currentUserId = localStorage.getItem('userId');
-
-    this.chatService.mensajes$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(msg => {
-
-        if (!this.isOpen) {
-          this.unreadCount++;
-        }
-
-        this.messages = [...this.messages, msg];
-
-        setTimeout(() => this.scrollToBottom(), 50);
-      });
-  }
+  this.chatService.mensajes$
+    .pipe(takeUntil(this.destroy$))
+    .subscribe(msg => {
+      if (!this.isOpen) {
+        this.unreadCount++;
+      }
+      this.messages = [...this.messages, msg];
+      setTimeout(() => this.scrollToBottom(), 50);
+    });
+}
 
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+    this.chatService.stopConnection();
   }
 
   toggleChat(): void {

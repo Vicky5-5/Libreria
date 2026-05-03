@@ -48,15 +48,13 @@ namespace BackEnd_Libreria.Controllers
             var roles = _userManager.GetRolesAsync(usuario).Result;
 
             var claims = new List<Claim>
-    {
-        new Claim(JwtRegisteredClaimNames.Sub, usuario.Email),
-
-        new Claim(ClaimTypes.Name, usuario.Nombre),
-
-        new Claim(ClaimTypes.Email, usuario.Email),
-
-        new Claim("role", roles.FirstOrDefault() ?? "Usuario")
-    };
+            {
+            new Claim(ClaimTypes.NameIdentifier, usuario.Id),
+            new Claim(JwtRegisteredClaimNames.Sub, usuario.Id),
+            new Claim(ClaimTypes.Name, usuario.Nombre),
+            new Claim(ClaimTypes.Email, usuario.Email),
+            new Claim(ClaimTypes.Role, roles.FirstOrDefault() ?? "Usuario")
+            };
 
             var key = new SymmetricSecurityKey(
                 Encoding.UTF8.GetBytes(_config["Jwt:Key"])
@@ -68,7 +66,7 @@ namespace BackEnd_Libreria.Controllers
                 issuer: _config["Jwt:Issuer"],
                 audience: _config["Jwt:Audience"],
                 claims: claims,
-                expires: DateTime.UtcNow.AddMinutes(15), // ⚠️ también corrige esto
+                expires: DateTime.UtcNow.AddHours(8), // 8 horas para desconexion
                 signingCredentials: creds
             );
 
