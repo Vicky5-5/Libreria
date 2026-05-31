@@ -1,12 +1,14 @@
 ﻿using BackEnd_Libreria.Contexto;
 using BackEnd_Libreria.ExceptionMiddleware;
 using BackEnd_Libreria.Hub;
+using BackEnd_Libreria.Models;
 using BackEnd_Libreria.Models.Libros;
 using BackEnd_Libreria.Models.Usuario;
 using BackEnd_Libreria.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
@@ -136,7 +138,8 @@ Log.Logger = new LoggerConfiguration()
 
 // SE CONECTA SERILOG CON LA APLICACIÓN
 builder.Host.UseSerilog();
-
+builder.Services.AddSingleton<IUserIdProvider, UserIdProvider>();
+builder.Services.AddSignalR();
 // SignalR
 builder.Services.AddSignalR();
 

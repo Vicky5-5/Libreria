@@ -1,4 +1,5 @@
-﻿using BackEnd_Libreria.Models.Libros;
+﻿using BackEnd_Libreria.Models;
+using BackEnd_Libreria.Models.Libros;
 using BackEnd_Libreria.Models.Usuario;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -13,6 +14,7 @@ namespace BackEnd_Libreria.Contexto
         public Conexion(DbContextOptions<Conexion> options) : base(options) { }
 
         public DbSet<Libros> Libros { get; set; }
+        public DbSet<MensajeChat> MensajesChat { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -27,13 +29,45 @@ namespace BackEnd_Libreria.Contexto
         {
             base.OnModelCreating(builder);
 
-            builder.Entity<Usuario>(entity => 
+            builder.Entity<Usuario>(entity =>
             {
                 entity.ToTable("Usuarios");
                 entity.HasKey(u => u.Id);
                 entity.Property(u => u.Id)
                       .HasColumnName("idUsuario")
                       .ValueGeneratedOnAdd();
+            });
+
+            builder.Entity<MensajeChat>(entity =>
+            {
+                entity.ToTable("MensajesChat");
+                entity.HasKey(m => m.Id);
+
+                entity.Property(m => m.Id)
+                      .HasColumnName("idMensaje")
+                      .ValueGeneratedOnAdd();
+
+                entity.Property(m => m.Mensaje)
+                      .HasMaxLength(2000)
+                      .IsRequired();
+
+                entity.Property(m => m.Fecha)
+                      .IsRequired();
+
+                // Índice para buscar conversaciones entre dos usuarios rápido
+                entity.HasIndex(m => new { m.EmisorId, m.DestinatarioId });
+
+                // Relación con el emisor
+                entity.HasOne(m => m.Emisor)
+                      .WithMany()
+                      .HasForeignKey(m => m.EmisorId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                // Relación con el destinatario
+                entity.HasOne(m => m.Destinatario)
+                      .WithMany()
+                      .HasForeignKey(m => m.DestinatarioId)
+                      .OnDelete(DeleteBehavior.Restrict);
             });
         }
 

@@ -50,17 +50,21 @@ export class SignalrService {
       actual.delete(userId);
       this.conectadosSubject.next(actual);
     });
-
+this.hubConnection.on('RecibirMensaje', (data: MensajeChat) => {
+  console.log('>>> RecibirMensaje disparado:', data); // ← añade esto
+  this.mensajeSubject.next(data);
+});
     this.hubConnection.start()
-      .then(async () => {
-        console.log('✅ SignalR conectado');
-        // Pedir al hub quién estaba conectado antes de que yo llegara
-        const conectados = await this.hubConnection.invoke<string[]>('ObtenerConectados');
-        this.conectadosSubject.next(new Set(conectados));
-      })
-      .catch(err => console.error('❌ Error SignalR:', err));
+  .then(async () => {
+    console.log('✅ SignalR conectado, connectionId:', this.hubConnection.connectionId); // ← añade esto
+    const conectados = await this.hubConnection.invoke<string[]>('ObtenerConectados');
+    this.conectadosSubject.next(new Set(conectados));
+  })
+  .catch(err => console.error('❌ Error SignalR:', err));
   }
-
+obtenerHistorial(otroUsuarioId: string): Promise<any[]> {
+  return this.hubConnection.invoke<any[]>('ObtenerHistorial', otroUsuarioId);
+}
   // Dos argumentos separados porque el hub los recibe así
   enviarMensaje(data: { mensaje: string; usuarioDestinoId: string }): void {
     if (!this.hubConnection) return;

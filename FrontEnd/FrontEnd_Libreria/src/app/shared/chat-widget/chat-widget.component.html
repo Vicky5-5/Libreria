@@ -1,19 +1,33 @@
 <!-- Botón flotante -->
 <div class="chat-button" (click)="toggleChat()">
   <mat-icon>chat</mat-icon>
-  <span *ngIf="unreadCount > 0" class="badge">
-    {{ unreadCount }}
-  </span>
+  <span *ngIf="unreadCount > 0" class="badge">{{ unreadCount }}</span>
 </div>
 
-<!-- Ventana -->
-<div class="chat-window" *ngIf="isOpen">
+<!-- Ventana del chat -->
+<div class="chat-window" *ngIf="isOpen" [class.expanded]="isChatExpanded">
 
+  <!-- Botón expandir en el borde -->
+  <button class="expand-corner-btn" (click)="isChatExpanded = !isChatExpanded"
+    [title]="isChatExpanded ? 'Contraer' : 'Expandir'">
+    <mat-icon>{{ isChatExpanded ? 'fullscreen_exit' : 'fullscreen' }}</mat-icon>
+  </button>
+
+  <!-- Header -->
   <div class="chat-header">
-    <span>Chat Librería</span>
+    <!-- Botón volver si hay usuario seleccionado -->
+    <button *ngIf="usuarioActivoNombre" (click)="volverALista()" class="back-btn">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <span>{{ usuarioActivoNombre || 'Chat Librería' }}</span>
     <button (click)="toggleChat()">✖</button>
   </div>
 
-  <app-chat></app-chat>
+  <!-- Contenido -->
+  <app-chat
+  (usuarioSeleccionado)="onUsuarioSeleccionado($event)"
+  [mostrarSoloChat]="!!usuarioActivoNombre"
+  [resetear]="resetearChat">
+</app-chat>
 
 </div>

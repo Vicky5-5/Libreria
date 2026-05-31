@@ -1,10 +1,11 @@
+/* ── Botón flotante ── */
 .chat-button {
   position: fixed;
   bottom: 20px;
   right: 20px;
   width: 60px;
   height: 60px;
-  background: #c06a08;;
+  background: #c06a08;
   color: white;
   border-radius: 50%;
   display: flex;
@@ -14,6 +15,11 @@
   cursor: pointer;
   box-shadow: 0 4px 12px rgba(0,0,0,0.3);
   z-index: 1000;
+  transition: transform 0.2s ease;
+}
+
+.chat-button:hover {
+  transform: scale(1.08);
 }
 
 .badge {
@@ -27,6 +33,7 @@
   border-radius: 50%;
 }
 
+/* ── Ventana pequeña (lista de usuarios) ── */
 .chat-window {
   position: fixed;
   bottom: 90px;
@@ -42,103 +49,128 @@
   z-index: 1000;
 }
 
+/* ── Ventana expandida (pantalla completa) ── */
+.chat-expanded {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  width: 100vw;
+  height: 100vh;
+  background: white;
+  display: flex;
+  flex-direction: column;
+  z-index: 1000;
+  overflow: hidden;
+}
+
+/* ── Header compartido ── */
 .chat-header {
   background: #c06a08;
   color: white;
-  padding: 10px;
+  padding: 10px 14px;
   display: flex;
+  align-items: center;
+  gap: 8px;
   justify-content: space-between;
+  flex-shrink: 0;
 }
+
+.chat-header span {
+  flex: 1;
+}
+
 .chat-header button {
   background: transparent;
   border: none;
   color: white;
   font-size: 18px;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 4px;
+  border-radius: 4px;
+  transition: background 0.2s;
 }
 
 .chat-header button:hover {
-  background-color: #ddd;
-  color: black;
-  border-radius: 4px;
+  background-color: rgba(255,255,255,0.2);
 }
-.chat-body {
+
+.back-btn {
+  margin-right: 4px;
+}
+
+/* ── Contenido del chat (app-chat ocupa todo) ── */
+.chat-window app-chat,
+.chat-expanded app-chat {
   flex: 1;
-  padding: 10px;
-  overflow-y: auto;
-}
-
-.message {
+  overflow: hidden;
   display: flex;
-  margin-bottom: 8px;
+  flex-direction: column;
 }
 
-.message.self {
-  justify-content: flex-end;
-}
-
-.bubble {
-  background: #f1f1f1;
-  padding: 8px 10px;
-  border-radius: 10px;
-  max-width: 75%;
-}
-
-.message.self .bubble {
-  background: #4CAF50;
-  color: white;
-}
-
-.chat-footer {
-  display: flex;
-  padding: 8px;
-  border-top: 1px solid #ddd;
-  transition: transform 0.2s ease, background 0.2s ease;
-
-}
-
-.chat-footer input {
-  flex: 1;
-  padding: 6px;
-}
-
-.chat-footer button {
-  background: #c06a08;
-  color: white;
-  border-radius: 4px;
-  padding: 6px 12px;
-  cursor: pointer;
-  margin-left: 6px;
-
-}
-.chat-footer button:hover {
-  background: #a05a06;
-  transform: scale(1.05);
-
-}
-.chat-footer mat-icon {
-  vertical-align: middle;
-  font-size: 18px;
-  padding-right: 5px;
-}
+/* ── Lista de usuarios ── */
 .usuarios-lista {
   width: 200px;
   border-right: 1px solid #ddd;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+}
+
+.usuarios-header {
+  padding: 10px 12px;
+  font-weight: 600;
+  border-bottom: 1px solid #ddd;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.usuarios-search {
+  padding: 8px;
+  border-bottom: 1px solid #ddd;
+}
+
+.search-input {
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 13px;
+  outline: none;
+  box-sizing: border-box;
+}
+
+/* scroll en lista de usuarios */
+.usuarios-scroll {
+  flex: 1;
   overflow-y: auto;
 }
 
 .usuario-item {
-  padding: 10px;
+  padding: 10px 12px;
   cursor: pointer;
   display: flex;
   align-items: center;
   gap: 8px;
+  font-size: 13px;
+  transition: background 0.15s;
 }
 
 .usuario-item:hover,
 .usuario-item.activo {
   background: #f0f0f0;
 }
+
+.sin-usuarios {
+  padding: 16px;
+  text-align: center;
+  color: #9ca3af;
+  font-size: 13px;
+}
+
+/* ── Punto de conexión ── */
 .estado-dot {
   width: 10px;
   height: 10px;
@@ -152,4 +184,133 @@
 .estado-dot.conectado {
   background: #22c55e;
   box-shadow: 0 0 5px #22c55e;
+}
+
+/* ── Panel de mensajes ── */
+.chat-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.chat-placeholder {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #9ca3af;
+  gap: 8px;
+}
+
+/* scroll en mensajes */
+.chat-body {
+  flex: 1;
+  padding: 10px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sin-mensajes {
+  text-align: center;
+  color: #9ca3af;
+  font-size: 13px;
+  margin-top: 24px;
+}
+
+.message {
+  display: flex;
+  margin-bottom: 4px;
+}
+
+.message.self {
+  justify-content: flex-end;
+}
+
+.bubble {
+  background: #f1f1f1;
+  padding: 8px 10px;
+  border-radius: 10px;
+  max-width: 75%;
+  font-size: 13px;
+}
+
+.message.self .bubble {
+  background: #c06a08;
+  color: white;
+}
+
+.bubble p { margin: 4px 0 0; }
+
+.bubble small {
+  display: block;
+  margin-top: 4px;
+  font-size: 11px;
+  opacity: 0.6;
+}
+
+/* ── Footer ── */
+.chat-footer {
+  display: flex;
+  padding: 8px;
+  border-top: 1px solid #ddd;
+  flex-shrink: 0;
+  background: #c06a08;
+  border-radius: 0 0 12px 12px;
+}
+
+.chat-footer input {
+  flex: 1;
+  padding: 6px 10px;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  outline: none;
+  font-size: 13px;
+}
+
+.chat-footer button {
+  background: #c06a08;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 6px;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.chat-footer button:hover {
+  background: #a05a06;
+  transform: scale(1.05);
+}
+
+.chat-footer button:disabled {
+  background: #ddd;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ── Botón expandir en header del chat ── */
+.expand-btn {
+  margin-left: auto;
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 4px;
+  border-radius: 4px;
+  transition: background 0.15s;
+}
+
+.expand-btn:hover {
+  background: rgba(255,255,255,0.2);
 }
