@@ -1,19 +1,65 @@
 <div class="contacto-container">
-  <h1>Contacto</h1>
-  <p>¿Tienes alguna pregunta? ¡Contáctanos!</p>
 
-  <div class="contacto-info">
-    <p><strong>Email:</strong> <a href="mailto:info@libreriaalejandría.com">info&#64;libreriaalejandría.com</a></p>
-    <p><strong>Teléfono:</strong> +34 121 123 123 123 123 123 123</p>
-    <p><strong>Dirección:</strong> Calle Miguel de Cervantes, 123, Ciudad del Quijote, España</p>
+  <mat-card class="contacto-card">
 
-  </div>
-  <div class="contacto-form">
-    <form>
-      <input type="text" placeholder="Nombre">
-      <input type="email" placeholder="Email">
-      <textarea placeholder="Mensaje"></textarea>
-      <button type="submit">Enviar</button>
-    </form>
-  </div>
+    <mat-card-header>
+      <mat-card-title>Contacto</mat-card-title>
+      <mat-card-subtitle>
+        ¿Tienes alguna pregunta? ¡Contáctanos!
+      </mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+
+      <div class="contacto-info">
+
+        <p>
+          <mat-icon>email</mat-icon>
+          <strong>Email:</strong>
+          <a href="mailto:info@libreriaalejandria.com">
+            info&#64;libreriaalejandria.com
+          </a>
+        </p>
+
+        <p>
+          <mat-icon>phone</mat-icon>
+          <strong>Teléfono:</strong>
+          +34 123 456 789
+        </p>
+
+        <p>
+          <mat-icon>location_on</mat-icon>
+          <strong>Dirección:</strong>
+          Calle Miguel de Cervantes, 123, Ciudad del Quijote, España
+        </p>
+
+      </div>
+
+      <form class="contacto-form">
+
+        <mat-form-field appearance="outline">
+          <mat-label>Nombre</mat-label>
+          <input matInput>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Email</mat-label>
+          <input matInput type="email">
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Mensaje</mat-label>
+          <textarea matInput rows="5"></textarea>
+        </mat-form-field>
+
+        <button id="boton" mat-raised-button type="submit">
+          Enviar
+        </button>
+
+      </form>
+
+    </mat-card-content>
+
+  </mat-card>
+
 </div>
