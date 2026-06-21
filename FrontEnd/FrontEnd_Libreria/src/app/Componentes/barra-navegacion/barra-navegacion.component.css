@@ -25,8 +25,21 @@
 mat-toolbar{
   background-color: #212121;
 }
+
+#user-button {
+  color: white;
+  transition: all 0.3s ease;
+}
+
+#user-button:hover {
+  background-color: #f6d365;
+  color: #965334;
+  transform: scale(1.05);
+}
+
 @media (max-width: 768px) {
   .mobile-only {
     display: inline-flex;
   }
 }
+

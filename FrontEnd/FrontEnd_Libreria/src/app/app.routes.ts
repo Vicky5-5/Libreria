@@ -10,6 +10,7 @@ import { NuevoLibroComponent } from './Pages/administracionLibros/nuevoLibro/nue
 import { IndexUsuarioComponent } from './Pages/indexUsuario/indexUsuario/indexUsuario.component';
 import { EdicionLibro } from './Pages/administracionLibros/editarLibro/edicionLibro/edicionLibro';
 import { ListadoLibrosComponent } from './Pages/listado_libros/listado_libros.component';
+import { Contacto } from './Pages/Contacto/Contacto';
 
 export const routes: Routes = [
   { path: '', component: InicioComponent },
@@ -20,6 +21,7 @@ export const routes: Routes = [
   { path: 'administracion-libros', component: AdministracionLibrosComponent }, // Es es el de los libros
   { path: 'administracion-usuarios', component: AdministracionUsuariosComponent }, // Es el de los usuarios
   { path: 'listado-libros', component: ListadoLibrosComponent},
-  { path: 'registro', component: RegistroComponent}
+  { path: 'registro', component: RegistroComponent},
+  { path: 'contacto', component: Contacto }
 ];
 

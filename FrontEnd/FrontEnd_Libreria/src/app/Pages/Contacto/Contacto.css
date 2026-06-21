@@ -1,0 +1,16 @@
+.contacto-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: linear-gradient(135deg, #965334, #f6d365);
+}
+
+.contacto-info {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.contacto-form {
+  width: 100%;
+  max-width: 500px;
+}

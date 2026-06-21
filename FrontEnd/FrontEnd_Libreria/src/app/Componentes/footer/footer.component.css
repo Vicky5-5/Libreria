@@ -12,3 +12,11 @@
   font-size: 14px;
   color: white;
 }
+#contacto-link {
+  color: white;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+#contacto-link:hover {
+  color: #f6d365;
+}

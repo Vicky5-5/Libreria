@@ -8,7 +8,7 @@
   <span class="example-spacer"></span>
 
   <!-- 🟢 USUARIO -->
-  <button mat-button *ngIf="usuario$ | async as user" [matMenuTriggerFor]="userMenu">
+  <button id="user-button" mat-button *ngIf="usuario$ | async as user" [matMenuTriggerFor]="userMenu">
     <mat-icon>person</mat-icon>
 {{ user.Admin ? '(Admin)' : '' }} {{ user.nombre }}
   </button>

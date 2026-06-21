@@ -1,10 +1,11 @@
 import { Component } from '@angular/core';
 import { MatToolbar } from "@angular/material/toolbar";
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-footer',
   standalone: true,
-  imports: [MatToolbar],
+  imports: [MatToolbar, RouterModule],
   templateUrl: './footer.component.html',
   styleUrls: ['./footer.component.css']
 })

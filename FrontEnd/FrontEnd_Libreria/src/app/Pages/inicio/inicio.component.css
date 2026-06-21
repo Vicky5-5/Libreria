@@ -22,4 +22,19 @@ button[mat-raised-button] {
   margin-top: 20px;
   border-radius: 50px;
   background-color: bisque;
+  transition: transform 0.3s ease, background-color 0.3s ease;
+}
+button[mat-raised-button]:hover {
+  background-color: #f6d365;
+  color: #965334;
+  transform: scale(1.05);
+}
+a {
+  color: #f6d365;
+  text-decoration: none;
+  font-weight: bold;
+  transition: color 0.4s ease-in-out;
+}
+a:hover {
+  color: #965334;
 }
