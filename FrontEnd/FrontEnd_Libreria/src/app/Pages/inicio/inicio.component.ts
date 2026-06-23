@@ -1,5 +1,4 @@
-import { HttpClientModule } from '@angular/common/http';
-import { Component, inject } from '@angular/core';
+import { Component, inject, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 
 @Component({
@@ -7,13 +6,15 @@ import { Router, RouterModule } from '@angular/router';
   standalone: true,
   imports: [RouterModule],
   templateUrl: './inicio.component.html',
-  styleUrls: ['./inicio.component.css']
+  styleUrls: ['./inicio.component.css'],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class InicioComponent {
-    private router = inject(Router);
-  
-listarlibros(){
-      this.router.navigate(['/listado-libros']);
 
-}
+  private router = inject(Router);
+
+  listarlibros() {
+    this.router.navigate(['/listado-libros']);
+  }
+
 }

@@ -38,3 +38,26 @@ a {
 a:hover {
   color: #965334;
 }
+.libro-img img {
+  width: 250px;
+  max-width: 100%;
+  filter: drop-shadow(0 20px 40px rgba(0,0,0,0.3));
+  animation: float 4s ease-in-out infinite;
+}
+
+.libro-img {
+  position: absolute;
+  right: 60px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* efecto flotante */
+@keyframes float {
+  0%   { transform: translateY(0px); }
+  50%  { transform: translateY(-15px); }
+  100% { transform: translateY(0px); }
+}
