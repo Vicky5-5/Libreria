@@ -12,7 +12,9 @@
     [title]="isChatExpanded ? 'Contraer' : 'Expandir'">
     <mat-icon>{{ isChatExpanded ? 'fullscreen_exit' : 'fullscreen' }}</mat-icon>
   </button>
-
+<button class="newGroup" (click)="crearGrupo()" [title]="'Nuevo Grupo'">
+ <mat-icon>group-add</mat-icon>
+</button>
   <!-- Header -->
   <div class="chat-header">
     <!-- Botón volver si hay usuario seleccionado -->

@@ -75,7 +75,9 @@ resetearChat: boolean = false;
 
     this.cdr.markForCheck();
   }
+crearGrupo(): void {
 
+}
   // Botón de volver — regresa a la lista sin cerrar el chat
 volverALista(): void {
   this.usuarioActivoNombre = '';

@@ -2,7 +2,8 @@
 {
     public class ConexionChatGrupal
     {
-        public string? NombreUsuario { get; set; }
-        public string? Grupo { get; set; }
+        public Guid GrupoId { get; set; }
+    
+        
     }
 }

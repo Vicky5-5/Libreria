@@ -1,0 +1,30 @@
+<div class="chat-container">
+<mat-card class="chat-card">
+  <mat-card-title>Nuevo Grupo</mat-card-title>
+  <mat-card-content>
+    <form [formGroup]="formNuevoGrupo" (ngSubmit)="crearGrupoNuevo()">
+
+      <!-- Nombre del grupo -->
+      <mat-form-field appearance="fill" class="full-width">
+        <mat-label>Nombre del Grupo</mat-label>
+        <input matInput formControlName="nombreGrupo" type="text" required>
+        <mat-error *ngIf="formNuevoGrupo.get('nombreGrupo')?.hasError('required')">
+          El nombre del grupo es obligatorio
+        </mat-error>
+        <mat-error *ngIf="formNuevoGrupo.get('nombreGrupo')?.hasError('minlength')">
+          Mínimo 3 caracteres
+        </mat-error>
+      </mat-form-field>
+
+      <!-- Botón de crear grupo -->
+      <div class="button-container">
+        <button mat-raised-button color="primary" type="submit" [disabled]="formNuevoGrupo.invalid">
+          Crear Grupo
+        </button>
+      </div>
+
+    </form>
+  </mat-card-content>
+  
+</mat-card>
+</div>

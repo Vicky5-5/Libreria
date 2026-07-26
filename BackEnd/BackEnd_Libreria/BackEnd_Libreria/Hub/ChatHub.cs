@@ -3,6 +3,7 @@
 using BackEnd_Libreria.Contexto;
 using BackEnd_Libreria.Models;
 using BackEnd_Libreria.Models.Usuario;
+using BackEnd_Libreria.Servicios;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -16,10 +17,9 @@ using System.Security.Claims;
 public class ChatHub : Hub
 {
     private readonly UserManager<Usuario> _userManager;
-
     // Contexto de base de datos para guardar y recuperar mensajes
     private readonly Conexion _context;
-
+    private readonly ChatGrupoService _chatGrupoService;
     // Diccionario estático compartido entre todas las instancias del hub.
     // Clave: userId (string) → Valor: connectionId (string)
     // ConcurrentDictionary porque múltiples usuarios pueden conectarse
@@ -29,10 +29,11 @@ public class ChatHub : Hub
 
     // UserManager nos permite buscar usuarios en la base de datos por su ID
     // Conexion es el DbContext para guardar y recuperar mensajes
-    public ChatHub(UserManager<Usuario> userManager, Conexion context)
+    public ChatHub(UserManager<Usuario> userManager, Conexion context, ChatGrupoService chatGrupoService)
     {
         _userManager = userManager;
         _context = context;
+        _chatGrupoService = chatGrupoService;
     }
 
     // SignalR llama a este método automáticamente cada vez que
@@ -186,4 +187,61 @@ public class ChatHub : Hub
 
         return mensajes;
     }
+    public async Task MarcarComoLeido(string otroUsuarioId)
+    {
+        var userId = Context.User?.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrEmpty(userId))
+            throw new HubException("Usuario no autenticado");
+        // Marcamos como leídos los mensajes que nos enviaron a nosotros
+        // y que aún no habíamos visto.
+        await _context.MensajesChat
+            .Where(m => m.DestinatarioId == userId &&
+                        m.EmisorId == otroUsuarioId &&
+                        !m.Leido)
+            .ExecuteUpdateAsync(m => m.SetProperty(x => x.Leido, true));
+    }
+    public async Task<int> ContarMensajesNoLeidos(string otroUsuarioId)
+    {
+        var userId = Context.User?.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrEmpty(userId))
+            throw new HubException("Usuario no autenticado");
+        // Contamos los mensajes que nos enviaron a nosotros y que aún no habíamos visto.
+        return await _context.MensajesChat
+            .Where(m => m.DestinatarioId == userId &&
+                        m.EmisorId == otroUsuarioId &&
+                        !m.Leido)
+            .CountAsync();
+    }
+    public async Task<int> ContarMensajesNoLeidosTotales()
+    {
+        var userId = Context.User?.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrEmpty(userId))
+            throw new HubException("Usuario no autenticado");
+        // Contamos todos los mensajes que nos enviaron a nosotros y que aún no habíamos visto.
+        return await _context.MensajesChat
+            .Where(m => m.DestinatarioId == userId && !m.Leido)
+            .CountAsync();
+    }
+    public async Task UnirseGrupo(ConexionChatGrupal conexion)
+    {
+        var usuarioId = Context.UserIdentifier;
+
+        if (string.IsNullOrEmpty(usuarioId))
+            throw new HubException("Usuario no autenticado.");
+
+        var pertenece = await _chatGrupoService
+            .PerteneceAlGrupo(conexion.GrupoId, usuarioId);
+
+        if (!pertenece)
+            throw new HubException("No perteneces al grupo.");
+
+        await Groups.AddToGroupAsync(
+            Context.ConnectionId,
+            conexion.GrupoId.ToString());
+
+        await Clients.Caller.SendAsync(
+            "GrupoUnido",
+            conexion.GrupoId);
+    }
+
 }

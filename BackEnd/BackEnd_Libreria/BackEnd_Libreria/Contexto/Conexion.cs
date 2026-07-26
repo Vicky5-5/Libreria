@@ -1,4 +1,5 @@
 ﻿using BackEnd_Libreria.Models;
+using BackEnd_Libreria.Models.ChatGrupal;
 using BackEnd_Libreria.Models.Libros;
 using BackEnd_Libreria.Models.Usuario;
 using Microsoft.AspNetCore.Identity;
@@ -16,6 +17,9 @@ namespace BackEnd_Libreria.Contexto
         public DbSet<Libros> Libros { get; set; }
         public DbSet<MensajeChat> MensajesChat { get; set; }
 
+        public DbSet<ChatGrupo> ChatGrupos { get; set; }
+        public DbSet<ChatGrupoUsuario> ChatGrupoUsuarios { get; set; }
+        public DbSet<MensajeGrupo> MensajesGrupo { get; set; }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
@@ -29,6 +33,8 @@ namespace BackEnd_Libreria.Contexto
         {
             base.OnModelCreating(builder);
 
+            //USUARIOS
+
             builder.Entity<Usuario>(entity =>
             {
                 entity.ToTable("Usuarios");
@@ -38,6 +44,7 @@ namespace BackEnd_Libreria.Contexto
                       .ValueGeneratedOnAdd();
             });
 
+            // USUARIOS - MENSAJES CHAT
             builder.Entity<MensajeChat>(entity =>
             {
                 entity.ToTable("MensajesChat");
@@ -69,7 +76,107 @@ namespace BackEnd_Libreria.Contexto
                       .HasForeignKey(m => m.DestinatarioId)
                       .OnDelete(DeleteBehavior.Restrict);
             });
+
+            // CHAT GRUPAL
+            // Configuración de la relación muchos a muchos entre ChatGrupo y Usuario. Para evitar duplicidad
+
+            builder.Entity<ChatGrupoUsuario>()
+    .HasKey(x => new { x.GrupoId, x.UsuarioId });
+
+            builder.Entity<ChatGrupoUsuario>()
+                .HasOne(x => x.Grupo)
+                .WithMany(x => x.Usuarios)
+                .HasForeignKey(x => x.GrupoId);
+
+            builder.Entity<ChatGrupoUsuario>()
+                .HasOne(x => x.Usuario)
+                .WithMany()
+                .HasForeignKey(x => x.UsuarioId);
+            builder.Entity<ChatGrupo>(entity =>
+            {
+                entity.ToTable("ChatGrupos");
+
+                entity.HasKey(x => x.Id);
+
+                entity.Property(x => x.Nombre)
+                      .HasMaxLength(100)
+                      .IsRequired();
+
+                entity.Property(x => x.FechaCreacion)
+                      .IsRequired();
+
+                entity.HasOne(x => x.Creador)
+                      .WithMany()
+                      .HasForeignKey(x => x.CreadorId)
+                      .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            // USUARIOS DEL GRUPO
+
+            builder.Entity<ChatGrupoUsuario>(entity =>
+            {
+                entity.ToTable("ChatGrupoUsuarios");
+
+                // Clave primaria compuesta
+                entity.HasKey(x => new
+                {
+                    x.GrupoId,
+                    x.UsuarioId
+                });
+
+                entity.HasOne(x => x.Grupo)
+                      .WithMany(x => x.Usuarios)
+                      .HasForeignKey(x => x.GrupoId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(x => x.Usuario)
+                      .WithMany()
+                      .HasForeignKey(x => x.UsuarioId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasIndex(x => x.GrupoId);
+
+                entity.HasIndex(x => x.UsuarioId);
+            });
+
+            // MENSAJES DEL GRUPO
+
+            builder.Entity<MensajeGrupo>(entity =>
+            {
+                entity.ToTable("MensajesGrupo");
+
+                entity.HasKey(x => x.Id);
+
+                entity.Property(x => x.Id)
+                      .ValueGeneratedOnAdd();
+
+                entity.Property(x => x.Mensaje)
+                      .HasMaxLength(2000)
+                      .IsRequired();
+
+                entity.Property(x => x.Fecha)
+                      .IsRequired();
+
+                entity.HasOne(x => x.ChatGrupo)
+                      .WithMany(x => x.Mensajes)
+                      .HasForeignKey(x => x.ChatGrupoId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(x => x.Emisor)
+                      .WithMany()
+                      .HasForeignKey(x => x.EmisorId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasIndex(x => x.ChatGrupoId);
+
+                entity.HasIndex(x => new
+                {
+                    x.ChatGrupoId,
+                    x.Fecha
+                });
+            });
         }
+
 
         // Método para crear el usuario administrador por defecto que se encuentra en appsettings.json
         public static async Task SeedAdminAsync(IServiceProvider services)
