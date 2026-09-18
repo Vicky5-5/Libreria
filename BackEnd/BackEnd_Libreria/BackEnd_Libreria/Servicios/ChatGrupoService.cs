@@ -24,6 +24,7 @@ namespace BackEnd_Libreria.Servicios
                 .Select(x => x.Grupo)
                 .ToListAsync();
         }
+
         public async Task<MensajeGrupo> GuardarMensaje(Guid grupoId, string usuarioId, string mensaje)
         {
             var nuevo = new MensajeGrupo
@@ -50,25 +51,23 @@ namespace BackEnd_Libreria.Servicios
         public async Task<bool> PerteneceAlGrupo(Guid grupoId, string usuarioId)
         {
             return await _context.ChatGrupoUsuarios
-                .AnyAsync(x =>
-                    x.GrupoId == grupoId &&
-                    x.UsuarioId == usuarioId);
+                .AnyAsync(x => x.GrupoId == grupoId && x.UsuarioId == usuarioId && x.Activo);
         }
-        public async Task<Guid> CrearGrupo(string nombre, string creadorId)
+        public async Task<Guid> CrearGrupo(string nombre, string creadorId, string? descripcion = null)
         {
             if (string.IsNullOrWhiteSpace(nombre) || nombre.Length < 3 || nombre.Length > 50)
-            {
                 throw new ArgumentException("El nombre del grupo debe tener entre 3 y 50 caracteres.");
-            }
+
+           
             var grupo = new ChatGrupo
             {
                 Id = Guid.NewGuid(),
                 Nombre = nombre,
-                CreadorId = creadorId
+                CreadorId = creadorId,
+                Descripcion = descripcion
             };
 
             _context.ChatGrupos.Add(grupo);
-
             _context.ChatGrupoUsuarios.Add(new ChatGrupoUsuario
             {
                 GrupoId = grupo.Id,
@@ -77,7 +76,6 @@ namespace BackEnd_Libreria.Servicios
             });
 
             await _context.SaveChangesAsync();
-
             return grupo.Id;
         }
         public async Task<bool> AgregarUsuarioAGrupo(Guid grupoId, string usuarioId, bool esAdmin)
@@ -106,12 +104,11 @@ namespace BackEnd_Libreria.Servicios
         public async Task<bool> EliminarUsuarioDeGrupo(Guid grupoId, string usuarioId)
         {
             var chatGrupoUsuario = await _context.ChatGrupoUsuarios
-                .FirstOrDefaultAsync(x => x.GrupoId == grupoId && x.UsuarioId == usuarioId);
-            if (chatGrupoUsuario == null)
-            {
-                return false; // El usuario no pertenece al grupo
-            }
-            _context.ChatGrupoUsuarios.Remove(chatGrupoUsuario);
+                .FirstOrDefaultAsync(x => x.GrupoId == grupoId && x.UsuarioId == usuarioId && x.Activo);
+            if (chatGrupoUsuario == null) return false;
+
+            chatGrupoUsuario.Activo = false;
+            chatGrupoUsuario.FechaSalida = DateTime.UtcNow;
             await _context.SaveChangesAsync();
             return true;
         }
@@ -172,6 +169,47 @@ namespace BackEnd_Libreria.Servicios
             mensaje.Editado = true;
             await _context.SaveChangesAsync();
             return nuevoMensaje;
+        }
+        public async Task<bool> EliminarMensaje(Guid mensajeId, string usuarioId)
+        {
+            var mensaje = await _context.MensajesGrupo
+                .FirstOrDefaultAsync(m => m.Id == mensajeId);
+
+            if (mensaje == null)
+                return false;
+
+            if (mensaje.EmisorId != usuarioId)
+                return false;
+
+            mensaje.Eliminado = true;
+            mensaje.Mensaje = "Este mensaje fue eliminado.";
+
+            await _context.SaveChangesAsync();
+
+            return true;
+
+        }
+    
+        public async Task<bool> EditarDescripcionGrupo(Guid grupoId, string usuarioId, string nuevaDescripcion)
+        {
+            if (string.IsNullOrWhiteSpace(nuevaDescripcion) || nuevaDescripcion.Length < 3 || nuevaDescripcion.Length > 200)
+                throw new ArgumentException("La descripción del grupo debe tener entre 3 y 200 caracteres.");
+
+            var grupo = await _context.ChatGrupos.FirstOrDefaultAsync(g => g.Id == grupoId);
+            if (grupo == null) return false;
+            if (grupo.CreadorId != usuarioId) return false;
+
+            var regex = new Regex(@"^[a-zA-Z0-9\s.,;:!?()\-]+$");
+            if (!regex.IsMatch(nuevaDescripcion))
+                throw new ArgumentException("La descripción del grupo contiene caracteres no permitidos.");
+
+            var yaExiste = await _context.ChatGrupos.AnyAsync(g => g.Descripcion == nuevaDescripcion);
+            if (yaExiste)
+                throw new ArgumentException("La descripción del grupo ya está en uso.");
+
+            grupo.Descripcion = nuevaDescripcion;
+            await _context.SaveChangesAsync();
+            return true;
         }
     }
 }

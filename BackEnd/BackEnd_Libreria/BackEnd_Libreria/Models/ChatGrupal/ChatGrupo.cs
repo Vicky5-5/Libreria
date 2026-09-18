@@ -8,6 +8,7 @@ namespace BackEnd_Libreria.Models.ChatGrupal
         public string Nombre { get; set; } = string.Empty;
         public string CreadorId { get; set; } = string.Empty;
         public UsuarioModel Creador { get; set; } = null!;
+        public string Descripcion { get; set; } = string.Empty;
         public DateTime FechaCreacion { get; set; } = DateTime.Now;
 
         public ICollection<ChatGrupoUsuario> Usuarios { get; set; } = new List<ChatGrupoUsuario>();

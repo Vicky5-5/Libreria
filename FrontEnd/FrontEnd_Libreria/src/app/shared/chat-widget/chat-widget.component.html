@@ -1,35 +1,51 @@
-<!-- Botón flotante -->
 <div class="chat-button" (click)="toggleChat()">
   <mat-icon>chat</mat-icon>
   <span *ngIf="unreadCount > 0" class="badge">{{ unreadCount }}</span>
 </div>
 
-<!-- Ventana del chat -->
 <div class="chat-window" *ngIf="isOpen" [class.expanded]="isChatExpanded">
 
-  <!-- Botón expandir en el borde -->
   <button class="expand-corner-btn" (click)="isChatExpanded = !isChatExpanded"
     [title]="isChatExpanded ? 'Contraer' : 'Expandir'">
     <mat-icon>{{ isChatExpanded ? 'fullscreen_exit' : 'fullscreen' }}</mat-icon>
   </button>
-<button class="newGroup" (click)="crearGrupo()" [title]="'Nuevo Grupo'">
- <mat-icon>group-add</mat-icon>
-</button>
-  <!-- Header -->
+
+  <button class="newGroup" (click)="crearGrupo()" title="Nuevo Grupo">
+    <mat-icon>group_add</mat-icon>
+  </button>
+
   <div class="chat-header">
-    <!-- Botón volver si hay usuario seleccionado -->
-    <button *ngIf="usuarioActivoNombre" (click)="volverALista()" class="back-btn">
+    <button *ngIf="usuarioActivoNombre || grupoActivoNombre" (click)="volverALista()" class="back-btn">
       <mat-icon>arrow_back</mat-icon>
     </button>
-    <span>{{ usuarioActivoNombre || 'Chat Librería' }}</span>
+    <span>{{ usuarioActivoNombre || grupoActivoNombre || 'Chat Librería' }}</span>
     <button (click)="toggleChat()">✖</button>
   </div>
 
-  <!-- Contenido -->
-  <app-chat
-  (usuarioSeleccionado)="onUsuarioSeleccionado($event)"
-  [mostrarSoloChat]="!!usuarioActivoNombre"
-  [resetear]="resetearChat">
-</app-chat>
+  <!-- Pestañas: solo se muestran cuando no hay chat activo -->
+  <div class="tabs" *ngIf="!usuarioActivoNombre && !grupoActivoNombre">
+    <button class="tab" [class.activo]="modo === 'privado'" (click)="cambiarModo('privado')">
+      Privados <span *ngIf="unreadPrivado > 0" class="badge-tab">{{ unreadPrivado }}</span>
+    </button>
+    <button class="tab" [class.activo]="modo === 'grupal'" (click)="cambiarModo('grupal')">
+      Grupos <span *ngIf="unreadGrupal > 0" class="badge-tab">{{ unreadGrupal }}</span>
+    </button>
+  </div>
 
+  <!-- Ambos montados siempre (display:none) para no perder conexión/membership -->
+  <div [style.display]="modo === 'privado' ? 'flex' : 'none'" style="flex:1; overflow:hidden; flex-direction:column;">
+    <app-chat
+      (usuarioSeleccionado)="onUsuarioSeleccionado($event)"
+      [mostrarSoloChat]="!!usuarioActivoNombre"
+      [resetear]="resetearChat">
+    </app-chat>
+  </div>
+
+  <div [style.display]="modo === 'grupal' ? 'flex' : 'none'" style="flex:1; overflow:hidden; flex-direction:column;">
+    <app-chat-grupo
+      (grupoSeleccionado)="onGrupoSeleccionado($event)"
+      [mostrarSoloChat]="!!grupoActivoNombre"
+      [resetear]="resetearChatGrupal">
+    </app-chat-grupo>
+  </div>
 </div>

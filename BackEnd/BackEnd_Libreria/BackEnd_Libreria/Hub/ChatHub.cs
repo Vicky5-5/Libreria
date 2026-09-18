@@ -2,6 +2,7 @@
 
 using BackEnd_Libreria.Contexto;
 using BackEnd_Libreria.Models;
+using BackEnd_Libreria.Models.ChatGrupal;
 using BackEnd_Libreria.Models.Usuario;
 using BackEnd_Libreria.Servicios;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -222,26 +223,122 @@ public class ChatHub : Hub
             .Where(m => m.DestinatarioId == userId && !m.Leido)
             .CountAsync();
     }
-    public async Task UnirseGrupo(ConexionChatGrupal conexion)
+    public async Task EnviarMensajeGrupo(Guid grupoId, string mensaje)
     {
         var usuarioId = Context.UserIdentifier;
-
         if (string.IsNullOrEmpty(usuarioId))
             throw new HubException("Usuario no autenticado.");
 
-        var pertenece = await _chatGrupoService
-            .PerteneceAlGrupo(conexion.GrupoId, usuarioId);
-
+        var pertenece = await _chatGrupoService.PerteneceAlGrupo(grupoId, usuarioId);
         if (!pertenece)
             throw new HubException("No perteneces al grupo.");
 
-        await Groups.AddToGroupAsync(
-            Context.ConnectionId,
-            conexion.GrupoId.ToString());
+        var nuevoMensaje = await _chatGrupoService.GuardarMensaje(grupoId, usuarioId, mensaje);
+        var emisor = await _userManager.FindByIdAsync(usuarioId);
 
-        await Clients.Caller.SendAsync(
-            "GrupoUnido",
-            conexion.GrupoId);
+        var payload = new
+        {
+            id = nuevoMensaje.Id,
+            grupoId,
+            emisorId = usuarioId,
+            nombre = emisor?.Nombre,
+            mensaje = nuevoMensaje.Mensaje,
+            fecha = nuevoMensaje.Fecha
+        };
+
+        // A diferencia del privado, acá no hace falta mandarle también al Caller:
+        // Clients.Group incluye a todos los conectados al grupo, vos incluido.
+        await Clients.Group(grupoId.ToString()).SendAsync("RecibirMensajeGrupo", payload);
     }
 
+    public async Task<List<object>> ObtenerHistorialGrupo(Guid grupoId)
+    {
+        var usuarioId = Context.UserIdentifier;
+        if (string.IsNullOrEmpty(usuarioId))
+            throw new HubException("Usuario no autenticado.");
+
+        var pertenece = await _chatGrupoService.PerteneceAlGrupo(grupoId, usuarioId);
+        if (!pertenece)
+            throw new HubException("No perteneces al grupo.");
+
+        var mensajes = await _chatGrupoService.ObtenerHistorial(grupoId);
+
+        return mensajes.Select(m => (object)new
+        {
+            id = m.Id,
+            grupoId = m.ChatGrupoId,
+            emisorId = m.EmisorId,
+            nombre = m.Emisor?.Nombre,
+            mensaje = m.Mensaje,
+            fecha = m.Fecha,
+            editado = m.Editado,
+            eliminado = m.Eliminado
+        }).ToList();
+    }
+
+    public async Task SalirGrupo(Guid grupoId)
+    {
+        await Groups.RemoveFromGroupAsync(Context.ConnectionId, grupoId.ToString());
+    }
+    public async Task<List<object>> ObtenerMisGrupos()
+    {
+        var usuarioId = Context.UserIdentifier;
+        if (string.IsNullOrEmpty(usuarioId))
+            throw new HubException("Usuario no autenticado.");
+
+        var grupos = await _chatGrupoService.ObtenerGruposUsuario(usuarioId);
+
+        return grupos.Select(g => (object)new
+        {
+            id = g.Id,
+            nombre = g.Nombre,
+            descripcion = g.Descripcion,
+            creadorId = g.CreadorId
+        }).ToList();
+    }
+
+    public async Task UnirseGrupo(ConexionChatGrupal conexion)
+    {
+        var usuarioId = Context.UserIdentifier;
+        if (string.IsNullOrEmpty(usuarioId))
+            throw new HubException("Usuario no autenticado.");
+
+        var pertenece = await _chatGrupoService.PerteneceAlGrupo(conexion.GrupoId, usuarioId);
+        if (!pertenece)
+            throw new HubException("No perteneces al grupo.");
+
+        await Groups.AddToGroupAsync(Context.ConnectionId, conexion.GrupoId.ToString());
+        await Clients.Caller.SendAsync("GrupoUnido", conexion.GrupoId);
+    }
+
+    public async Task<List<ChatGrupo>> ObtenerGruposUsuario(string usuarioId)
+    {
+        return await _context.ChatGrupoUsuarios
+            .Where(x => x.UsuarioId == usuarioId && x.Activo)
+            .Select(x => x.Grupo)
+            .ToListAsync();
+    }
+
+    public async Task<Guid> CrearGrupo(string nombre, string? descripcion)
+    {
+        var usuarioId = Context.UserIdentifier;
+        if (string.IsNullOrEmpty(usuarioId))
+            throw new HubException("Usuario no autenticado.");
+
+        try
+        {
+            var grupoId = await _chatGrupoService.CrearGrupo(nombre, usuarioId, descripcion);
+
+            // El creador queda unido automáticamente al grupo de SignalR
+            await Groups.AddToGroupAsync(Context.ConnectionId, grupoId.ToString());
+
+            return grupoId;
+        }
+        catch (ArgumentException ex)
+        {
+            // HubException es la única excepción cuyo mensaje llega al cliente.
+            // Cualquier otra se le muestra a Angular como un error genérico.
+            throw new HubException(ex.Message);
+        }
+    }
 }

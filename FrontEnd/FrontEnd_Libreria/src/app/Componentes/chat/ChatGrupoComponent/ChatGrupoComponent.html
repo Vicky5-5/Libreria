@@ -1,0 +1,114 @@
+
+<!-- Lista de grupos -->
+@if (!grupoSeleccionadoInterno) {
+
+  @if (listaGrupos.length === 0) {
+
+    <p class="estado">
+      No pertenecés a ningún grupo todavía.
+    </p>
+
+  } @else {
+
+    <ul class="lista-grupos">
+
+      @for (grupo of gruposFiltrados(); track grupo.id) {
+
+        <li
+          (click)="seleccionarGrupo(grupo)"
+          class="grupo-item"
+        >
+          {{ grupo.nombre }}
+        </li>
+
+      }
+
+    </ul>
+
+  }
+
+} @else {
+
+  <!-- Cabecera del grupo -->
+  <div class="cabecera-grupo">
+
+    <button
+      type="button"
+      (click)="grupoSeleccionadoInterno = null"
+    >
+      ←
+    </button>
+
+    <h3>
+      {{ grupoSeleccionadoInterno.nombre }}
+    </h3>
+
+  </div>
+
+
+  <!-- Mensajes -->
+  <div
+    class="mensajes"
+    #chatBody
+  >
+
+    @if (messages.length === 0) {
+
+      <p class="estado">
+        No hay mensajes todavía.
+      </p>
+
+    } @else {
+
+      @for (msg of messages; track $index) {
+
+        <div
+          class="burbuja"
+          [class.mia]="msg.emisorId === currentUserId"
+        >
+
+          @if (msg.emisorId !== currentUserId) {
+
+            <span class="nombre">
+              {{ msg.nombre }}
+            </span>
+
+          }
+
+          <p>
+            {{ msg.mensaje }}
+          </p>
+
+        </div>
+
+      }
+
+    }
+
+  </div>
+
+
+  <!-- Escribir mensaje -->
+  <form
+    class="input-area"
+    (ngSubmit)="enviarMensaje()"
+  >
+
+    <input
+      [(ngModel)]="newMessage"
+      name="newMessage"
+      placeholder="Escribí un mensaje..."
+      autocomplete="off"
+    />
+
+    <button
+      type="submit"
+      [disabled]="!newMessage.trim()"
+    >
+      Enviar
+    </button>
+
+  </form>
+
+}
+

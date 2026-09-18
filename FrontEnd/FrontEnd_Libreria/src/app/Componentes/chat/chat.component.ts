@@ -60,8 +60,6 @@ export class ChatComponent implements OnInit, OnDestroy, OnChanges {
   ngOnInit(): void {
     if (!isPlatformBrowser(this.platformId)) return;
 
-    this.chat.startConnection();
-
     this.chat.mensajes$
       .pipe(takeUntil(this.destroy$))
       .subscribe(msg => {
@@ -76,7 +74,6 @@ export class ChatComponent implements OnInit, OnDestroy, OnChanges {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
-    this.chat.stopConnection();
   }
 
   toggleExpandir(): void {
