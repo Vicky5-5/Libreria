@@ -5,6 +5,7 @@ using BackEnd_Libreria.Models;
 using BackEnd_Libreria.Models.Libros;
 using BackEnd_Libreria.Models.Usuario;
 using BackEnd_Libreria.Services;
+using BackEnd_Libreria.Servicios;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Identity;
@@ -32,6 +33,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 builder.Services.AddScoped<ILibrosService, LibrosService>();
+builder.Services.AddScoped<ChatGrupoService>();
 
 // Base de datos
 builder.Services.AddDbContext<Conexion>(options =>

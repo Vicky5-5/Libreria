@@ -8,7 +8,7 @@ namespace BackEnd_Libreria.Models
         public ChatGrupo Grupo { get; set; } = null!;
 
         public string UsuarioId { get; set; } = string.Empty;
-        public UsuarioModel Usuario { get; set; } = null!; // Cambiado a UsuarioModel para evitar conflicto de nombres
+        public UsuarioModel Usuario { get; set; } = null!;
 
         public bool Admin { get; set; }
         public DateTime FechaIngreso { get; set; } = DateTime.UtcNow;

@@ -1,6 +1,7 @@
+// signalr.service.ts
 import { Injectable } from '@angular/core';
 import * as signalR from '@microsoft/signalr';
-import { BehaviorSubject, Subject } from 'rxjs';
+import { BehaviorSubject, Subject, Observable, defer, from } from 'rxjs';
 import { ChatGrupal } from '../interface/ChatGrupal';
 import { Grupo } from '../interface/Grupo';
 
@@ -17,7 +18,7 @@ export class SignalrService {
 
   private hubConnection!: signalR.HubConnection;
 
-  // ── Privado: sin cambios ──
+  // ── Chat Privado: sin cambios ──
   private mensajeSubject = new Subject<MensajeChat>();
   mensajes$ = this.mensajeSubject.asObservable();
 
@@ -78,7 +79,7 @@ export class SignalrService {
       .catch(err => console.error('❌ Error SignalR:', err));
   }
 
-  // ── Chat Privado ──
+  // ── Chat Privado: sin cambios ──
   obtenerHistorial(otroUsuarioId: string): Promise<any[]> {
     return this.hubConnection.invoke<any[]>('ObtenerHistorial', otroUsuarioId);
   }
@@ -89,34 +90,40 @@ export class SignalrService {
       .catch(err => console.error(err));
   }
 
-  // ── Grupal ──
-  async unirseGrupo(grupoId: string): Promise<void> {
+  // ── Helper: envuelve invoke() (Promise) de SignalR como Observable frío.
+  // defer() es clave: sin él, el invoke se dispararía al crear el observable,
+  // no al hacer .subscribe(), rompiendo el control que buscamos con Observable.
+  private invoke$<T>(metodo: string, ...args: any[]): Observable<T> {
+    return defer(() => from(this.hubConnection.invoke<T>(metodo, ...args)));
+  }
+
+  // ── Grupal: todo en Observable ──
+  obtenerMisGrupos(): Observable<Grupo[]> {
+    return this.invoke$<Grupo[]>('ObtenerMisGrupos');
+  }
+
+  crearGrupo(nombre: string, descripcion?: string): Observable<string> {
+    return this.invoke$<string>('CrearGrupo', nombre, descripcion ?? null);
+  }
+
+  unirseGrupo(grupoId: string): Observable<void> {
     this.grupoActualId = grupoId;
-    await this.hubConnection.invoke('UnirseGrupo', { grupoId });
+    return this.invoke$<void>('UnirseGrupo', { grupoId });
   }
 
-  async salirGrupo(grupoId: string): Promise<void> {
+  salirGrupo(grupoId: string): Observable<void> {
     if (this.grupoActualId === grupoId) this.grupoActualId = null;
-    await this.hubConnection.invoke('SalirGrupo', grupoId);
+    return this.invoke$<void>('SalirGrupo', grupoId);
   }
 
-  obtenerHistorialGrupo(grupoId: string): Promise<ChatGrupal[]> {
-    return this.hubConnection.invoke<ChatGrupal[]>('ObtenerHistorialGrupo', grupoId);
+  obtenerHistorialGrupo(grupoId: string): Observable<ChatGrupal[]> {
+    return this.invoke$<ChatGrupal[]>('ObtenerHistorialGrupo', grupoId);
   }
 
-  enviarMensajeGrupo(grupoId: string, mensaje: string): void {
-    this.hubConnection.invoke('EnviarMensajeGrupo', grupoId, mensaje).catch(err => console.error(err));
+  enviarMensajeGrupo(grupoId: string, mensaje: string): Observable<void> {
+    return this.invoke$<void>('EnviarMensajeGrupo', grupoId, mensaje);
   }
 
-  obtenerMisGrupos(): Promise<Grupo[]> {
-    return this.hubConnection.invoke<Grupo[]>('ObtenerMisGrupos');
-  }
-
-  crearGrupo(nombre: string, descripcion?: string): Promise<string> {
-    return this.hubConnection.invoke<string>('CrearGrupo', nombre, descripcion ?? null);
-  }
-
-  
   stopConnection(): void {
     this.hubConnection?.stop()
       .then(() => console.log('🔌 SignalR desconectado'))

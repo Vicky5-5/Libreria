@@ -29,7 +29,6 @@ import {
   switchMap,
   tap,
   of,
-  from
 } from 'rxjs';
 
 @Component({
@@ -77,16 +76,10 @@ export class ChatGrupoComponent implements OnInit, OnDestroy, OnChanges {
 
       if (this.grupoSeleccionadoInterno) {
 
-        from(
-          this.chat.salirGrupo(
-            this.grupoSeleccionadoInterno.id
-          )
-        )
-        .pipe(takeUntil(this.destroy$))
-        .subscribe({
-          error: err =>
-            console.error('Error al salir del grupo:', err)
-        });
+        this.chat.salirGrupo(this.grupoSeleccionadoInterno.id)
+  .pipe(takeUntil(this.destroy$))
+  .subscribe({ error: err => console.error('Error al salir del grupo:', err) });
+
       }
 
       this.grupoSeleccionadoInterno = null;
@@ -130,25 +123,15 @@ export class ChatGrupoComponent implements OnInit, OnDestroy, OnChanges {
     this.obtenerGrupos();
   }
 
-  ngOnDestroy(): void {
-
-    if (this.grupoSeleccionadoInterno) {
-
-      this.chat
-        .salirGrupo(
-          this.grupoSeleccionadoInterno.id
-        )
-        .catch(err =>
-          console.error(
-            'Error al salir del grupo:',
-            err
-          )
-        );
-    }
-
-    this.destroy$.next();
-    this.destroy$.complete();
+ ngOnDestroy(): void {
+  if (this.grupoSeleccionadoInterno) {
+    this.chat
+      .salirGrupo(this.grupoSeleccionadoInterno.id)
+      .subscribe({ error: err => console.error('Error al salir del grupo:', err) });
   }
+  this.destroy$.next();
+  this.destroy$.complete();
+}
 
   scrollToBottom(): void {
 
@@ -165,9 +148,9 @@ export class ChatGrupoComponent implements OnInit, OnDestroy, OnChanges {
 
   obtenerGrupos(): void {
 
-    from(
-      this.chat.obtenerMisGrupos()
-    )
+  
+    this.chat.obtenerMisGrupos()
+    
     .pipe(
       takeUntil(this.destroy$)
     )
@@ -208,11 +191,11 @@ export class ChatGrupoComponent implements OnInit, OnDestroy, OnChanges {
       this.grupoSeleccionadoInterno.id !== grupo.id;
 
     const salir$ = debeSalirPrimero
-      ? from(
+      ? 
           this.chat.salirGrupo(
             this.grupoSeleccionadoInterno!.id
           )
-        )
+        
       : of(undefined);
 
     salir$
@@ -230,16 +213,16 @@ export class ChatGrupoComponent implements OnInit, OnDestroy, OnChanges {
         }),
 
         switchMap(() =>
-          from(
+          
             this.chat.unirseGrupo(grupo.id)
-          )
+          
         ),
 
         switchMap(() =>
-          from(
+          
             this.chat.obtenerHistorialGrupo(
               grupo.id
-            )
+            
           )
         ),
 
@@ -266,22 +249,17 @@ export class ChatGrupoComponent implements OnInit, OnDestroy, OnChanges {
       });
   }
 
-  enviarMensaje(): void {
+ enviarMensaje(): void {
+  if (!this.newMessage.trim() || !this.grupoSeleccionadoInterno) return;
 
-    if (
-      !this.newMessage.trim() ||
-      !this.grupoSeleccionadoInterno
-    ) {
-      return;
-    }
+  const texto = this.newMessage;
+  this.newMessage = '';
 
-    const texto = this.newMessage;
-
-    this.newMessage = '';
-
-    this.chat.enviarMensajeGrupo(
-      this.grupoSeleccionadoInterno.id,
-      texto
-    );
-  }
+  this.chat
+    .enviarMensajeGrupo(this.grupoSeleccionadoInterno.id, texto)
+    .pipe(takeUntil(this.destroy$))
+    .subscribe({
+      error: err => console.error('Error al enviar:', err)
+    });
+}
 }

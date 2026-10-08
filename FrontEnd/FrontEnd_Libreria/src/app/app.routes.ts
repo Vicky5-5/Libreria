@@ -11,6 +11,7 @@ import { IndexUsuarioComponent } from './Pages/indexUsuario/indexUsuario/indexUs
 import { EdicionLibro } from './Pages/administracionLibros/editarLibro/edicionLibro/edicionLibro';
 import { ListadoLibrosComponent } from './Pages/listado_libros/listado_libros.component';
 import { Contacto } from './Pages/Contacto/Contacto';
+import { NuevoGrupo } from './Componentes/chat/chatGrupal/nuevoGrupo/nuevoGrupo';
 
 export const routes: Routes = [
   { path: '', component: InicioComponent },
@@ -22,6 +23,7 @@ export const routes: Routes = [
   { path: 'administracion-usuarios', component: AdministracionUsuariosComponent }, // Es el de los usuarios
   { path: 'listado-libros', component: ListadoLibrosComponent},
   { path: 'registro', component: RegistroComponent},
-  { path: 'contacto', component: Contacto }
+  { path: 'contacto', component: Contacto },
+  {path: 'nuevo-grupo', component: NuevoGrupo}, // Crea Grupos
 ];
 

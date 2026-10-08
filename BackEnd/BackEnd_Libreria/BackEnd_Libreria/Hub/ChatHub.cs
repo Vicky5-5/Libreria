@@ -328,17 +328,13 @@ public class ChatHub : Hub
         try
         {
             var grupoId = await _chatGrupoService.CrearGrupo(nombre, usuarioId, descripcion);
-
-            // El creador queda unido automáticamente al grupo de SignalR
             await Groups.AddToGroupAsync(Context.ConnectionId, grupoId.ToString());
-
             return grupoId;
         }
-        catch (ArgumentException ex)
+        catch (Exception ex)
         {
-            // HubException es la única excepción cuyo mensaje llega al cliente.
-            // Cualquier otra se le muestra a Angular como un error genérico.
-            throw new HubException(ex.Message);
+            var mensaje = ex.InnerException?.Message ?? ex.Message;
+            throw new HubException(mensaje);
         }
     }
 }

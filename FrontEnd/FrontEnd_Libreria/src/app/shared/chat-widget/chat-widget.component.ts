@@ -212,9 +212,7 @@ export class ChatWidgetComponent implements OnInit, OnDestroy {
 
   crearGrupo(): void {
 
-    this.router.navigate([
-      '/nuevo-grupo'
-    ]);
+    this.router.navigate(['/nuevo-grupo']);
   }
 }
 
