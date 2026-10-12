@@ -17,8 +17,9 @@ export interface MensajeChat {
 export class SignalrService {
 
   private hubConnection!: signalR.HubConnection;
+  private startPromise: Promise<void> | null = null;
 
-  // ── Chat Privado: sin cambios ──
+  // ── Chat Privado ──
   private mensajeSubject = new Subject<MensajeChat>();
   mensajes$ = this.mensajeSubject.asObservable();
 
@@ -30,9 +31,8 @@ export class SignalrService {
   mensajesGrupo$ = this.mensajeGrupoSubject.asObservable();
   private grupoActualId: string | null = null;
 
-  startConnection(): void {
-    if (this.hubConnection?.state === signalR.HubConnectionState.Connected) return;
-
+  // ── Conexión ──
+  private buildConnection(): void {
     this.hubConnection = new signalR.HubConnectionBuilder()
       .withUrl('https://localhost:7105/chat', {
         accessTokenFactory: () => localStorage.getItem('token') ?? ''
@@ -40,7 +40,7 @@ export class SignalrService {
       .withAutomaticReconnect()
       .build();
 
-    // ── Chat Privado ──
+    // Chat Privado
     this.hubConnection.on('RecibirMensaje', (data: MensajeChat) => {
       this.mensajeSubject.next(data);
     });
@@ -57,11 +57,12 @@ export class SignalrService {
       this.conectadosSubject.next(actual);
     });
 
-    // ── Grupal ──
+    // Grupal
     this.hubConnection.on('RecibirMensajeGrupo', (data: ChatGrupal) => {
       this.mensajeGrupoSubject.next(data);
     });
 
+    // Tras una reconexión cambia el ConnectionId: hay que volver a unirse al grupo
     this.hubConnection.onreconnected(async () => {
       const conectados = await this.hubConnection.invoke<string[]>('ObtenerConectados');
       this.conectadosSubject.next(new Set(conectados));
@@ -70,13 +71,51 @@ export class SignalrService {
         await this.hubConnection.invoke('UnirseGrupo', { grupoId: this.grupoActualId });
       }
     });
+  }
 
-    this.hubConnection.start()
+  startConnection(): Promise<void> {
+    const S = signalR.HubConnectionState;
+    const state = this.hubConnection?.state;
+
+    if (state === S.Connected) return Promise.resolve();
+    if (this.startPromise) return this.startPromise;                  // ya hay un start en curso
+    if (state && state !== S.Disconnected) return Promise.resolve();  // Connecting / Reconnecting
+
+    this.buildConnection();
+
+    this.startPromise = this.hubConnection.start()
       .then(async () => {
+        console.log('✅ SignalR conectado');
         const conectados = await this.hubConnection.invoke<string[]>('ObtenerConectados');
         this.conectadosSubject.next(new Set(conectados));
       })
-      .catch(err => console.error('❌ Error SignalR:', err));
+      .catch(err => console.error('❌ Error SignalR:', err))
+      .finally(() => { this.startPromise = null; });
+
+    return this.startPromise;
+  }
+
+  // Espera a que la conexión esté lista; si está caída, la reabre
+  private async ensureConnected(): Promise<void> {
+    await this.startConnection();
+
+    const S = signalR.HubConnectionState;
+    for (let i = 0; i < 50; i++) { // hasta ~5s
+      const s = this.hubConnection?.state;
+      if (s !== S.Connecting && s !== S.Reconnecting) break;
+      await new Promise(r => setTimeout(r, 100));
+    }
+
+    if (this.hubConnection?.state !== S.Connected) {
+      throw new Error('No se pudo establecer la conexión con el servidor.');
+    }
+  }
+
+  // Observable frío: no hace nada hasta el .subscribe()
+  private invoke$<T>(metodo: string, ...args: any[]): Observable<T> {
+    return defer(() =>
+      from(this.ensureConnected().then(() => this.hubConnection.invoke<T>(metodo, ...args)))
+    );
   }
 
   // ── Chat Privado: sin cambios ──
@@ -90,14 +129,7 @@ export class SignalrService {
       .catch(err => console.error(err));
   }
 
-  // ── Helper: envuelve invoke() (Promise) de SignalR como Observable frío.
-  // defer() es clave: sin él, el invoke se dispararía al crear el observable,
-  // no al hacer .subscribe(), rompiendo el control que buscamos con Observable.
-  private invoke$<T>(metodo: string, ...args: any[]): Observable<T> {
-    return defer(() => from(this.hubConnection.invoke<T>(metodo, ...args)));
-  }
-
-  // ── Grupal: todo en Observable ──
+  // ── Grupal (Observables) ──
   obtenerMisGrupos(): Observable<Grupo[]> {
     return this.invoke$<Grupo[]>('ObtenerMisGrupos');
   }

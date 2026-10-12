@@ -165,10 +165,7 @@ export class ChatGrupoComponent implements OnInit, OnDestroy, OnChanges {
 
       error: err => {
 
-        console.error(
-          'Error al cargar grupos:',
-          err
-        );
+        console.error('Error al cargar grupos:', err);
       }
     });
   }
