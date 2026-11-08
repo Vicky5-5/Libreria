@@ -1,3 +1,413 @@
+/* El host tiene que ocupar todo el alto que le da el widget */
 :host {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.grupos-panel,
+.chat-grupo {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+/* ── Lista de grupos ── */
+.grupos-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 10px;
+  padding: 6px 12px;
+  background: #f4f4f5;
+  border-radius: 20px;
+  flex-shrink: 0;
+}
+
+.grupos-search mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  color: #9ca3af;
+}
+
+.grupos-search input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 13px;
+}
+
+.grupos-scroll {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.lista-grupos {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.grupo-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.grupo-item:hover {
+  background: #fdf3e7;
+}
+
+.avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #c06a08;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.grupo-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.grupo-nombre {
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.grupo-desc {
+  font-size: 12px;
+  color: #9ca3af;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.chevron {
+  color: #d1d5db;
+}
+
+/* ── Estados vacíos ── */
+.estado {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 24px;
+  text-align: center;
+  color: #9ca3af;
+  font-size: 13px;
+}
+
+.estado p {
+  margin: 0;
+}
+
+.estado mat-icon {
+  font-size: 36px;
+  width: 36px;
+  height: 36px;
+}
+
+.mensajes .estado {
+  margin: auto;
+}
+
+/* ── Mensajes ── */
+.mensajes {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: #faf7f2;
+}
+
+.burbuja {
+  align-self: flex-start;
+  max-width: 80%;
+  padding: 8px 12px;
+  border-radius: 14px 14px 14px 4px;
+  background: white;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+  font-size: 13px;
+  word-break: break-word;
+}
+
+.burbuja.mia {
+  align-self: flex-end;
+  background: #c06a08;
+  color: white;
+  border-radius: 14px 14px 4px 14px;
+}
+
+.burbuja .nombre {
   display: block;
+  margin-bottom: 2px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #c06a08;
+}
+
+.burbuja p {
+  margin: 0;
+}
+
+.burbuja p.eliminado {
+  font-style: italic;
+  opacity: 0.7;
+}
+
+.burbuja small {
+  display: block;
+  margin-top: 4px;
+  text-align: right;
+  font-size: 10px;
+  opacity: 0.6;
+}
+
+/* ── Input ── */
+.input-area {
+  display: flex;
+  gap: 8px;
+  padding: 8px 10px;
+  border-top: 1px solid #eee;
+  background: white;
+  flex-shrink: 0;
+}
+
+.input-area input {
+  flex: 1;
+  padding: 8px 14px;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  outline: none;
+  font-size: 13px;
+  transition: border-color 0.15s;
+}
+
+.input-area input:focus {
+  border-color: #c06a08;
+}
+
+.input-area button {
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 50%;
+  background: #c06a08;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.input-area button mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+.input-area button:hover:not(:disabled) {
+  background: #a05a06;
+  transform: scale(1.05);
+}
+
+.input-area button:disabled {
+  background: #ddd;
+  cursor: not-allowed;
+}
+.add_member {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  margin: 10px;
+  background: #c06a08;
+  color: white;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+
+}
+
+.grupo-item.es-admin {
+  border-left: 3px solid #c06a08;
+  background: #fffaf3;
+}
+
+.tag-admin {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: #fdf3e7;
+  color: #c06a08;
+  font-size: 10px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.tag-admin mat-icon {
+  font-size: 12px;
+  width: 12px;
+  height: 12px;
+}
+
+.resumen-grupos {
+  margin: 0 14px 4px;
+  font-size: 11px;
+  color: #9ca3af;
+}
+/* ── Barra de información del grupo ── */
+.info-grupo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 4px 10px;
+  background: #fffaf3;
+  border-bottom: 1px solid #f3e6d5;
+  flex-shrink: 0;
+}
+
+.info-resumen {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  padding: 3px 8px;
+  border: none;
+  border-radius: 12px;
+  background: transparent;
+  font-size: 12px;
+  color: #6b7280;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.info-resumen:hover { background: #fdf3e7; }
+
+.info-resumen .ico,
+.info-resumen .chev {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+}
+
+.info-resumen .ico { color: #c06a08; }
+.info-resumen .chev { color: #9ca3af; }
+
+.sep { color: #d1d5db; }
+
+.en-linea {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ccc;
+  flex-shrink: 0;
+}
+
+.dot.on {
+  background: #22c55e;
+  box-shadow: 0 0 4px #22c55e;
+}
+
+/* Botón de gestionar: discreto, solo se nota al pasar el cursor */
+.btn-gestionar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid transparent;
+  border-radius: 50%;
+  background: transparent;
+  color: #c06a08;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.btn-gestionar mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+.btn-gestionar:hover {
+  background: #fdf3e7;
+  border-color: #f0d4ac;
+}
+
+/* ── Lista desplegable de miembros ── */
+.mini-miembros {
+  list-style: none;
+  margin: 0;
+  padding: 4px 14px 6px;
+  max-height: 110px;
+  overflow-y: auto;
+  background: #fffaf3;
+  border-bottom: 1px solid #f3e6d5;
+  flex-shrink: 0;
+}
+
+.mini-miembros li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 3px 0;
+  font-size: 12px;
+}
+
+.mini-nombre {
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mini-nombre em {
+  color: #9ca3af;
+  font-style: normal;
+}
+
+.mini-tag {
+  padding: 0 6px;
+  border-radius: 8px;
+  background: #fdf3e7;
+  color: #c06a08;
+  font-size: 10px;
+  font-weight: 600;
 }

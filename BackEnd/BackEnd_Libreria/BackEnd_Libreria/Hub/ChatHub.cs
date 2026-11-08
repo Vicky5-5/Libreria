@@ -286,17 +286,51 @@ public class ChatHub : Hub
         if (string.IsNullOrEmpty(usuarioId))
             throw new HubException("Usuario no autenticado.");
 
-        var grupos = await _chatGrupoService.ObtenerGruposUsuario(usuarioId);
+        var membresias = await _chatGrupoService.ObtenerMembresiasUsuario(usuarioId);
 
-        return grupos.Select(g => (object)new
-        {
-            id = g.Id,
-            nombre = g.Nombre,
-            descripcion = g.Descripcion,
-            creadorId = g.CreadorId
-        }).ToList();
+        return membresias
+            .OrderByDescending(m => m.Admin)
+            .ThenBy(m => m.Grupo.Nombre)
+            .Select(m => (object)new
+            {
+                id = m.Grupo.Id,
+                nombre = m.Grupo.Nombre,
+                descripcion = m.Grupo.Descripcion,
+                creadorId = m.Grupo.CreadorId,
+                admin = m.Admin
+            })
+            .ToList();
     }
+    public async Task<List<object>> ObtenerMiembrosGrupo(Guid grupoId)
+    {
+        var usuarioId = Context.UserIdentifier;
+        if (string.IsNullOrEmpty(usuarioId))
+            throw new HubException("Usuario no autenticado.");
 
+        if (!await _chatGrupoService.PerteneceAlGrupo(grupoId, usuarioId))
+            throw new HubException("No perteneces al grupo.");
+
+        var creadorId = await _context.ChatGrupos
+            .Where(g => g.Id == grupoId)
+            .Select(g => g.CreadorId)
+            .FirstOrDefaultAsync();
+
+        var miembros = await _chatGrupoService.ObtenerMiembros(grupoId);
+
+        return miembros
+            .OrderByDescending(m => m.UsuarioId == creadorId)
+            .ThenByDescending(m => m.Admin)
+            .ThenBy(m => m.Usuario.Nombre)
+            .Select(m => (object)new
+            {
+                id = m.UsuarioId,
+                nombre = m.Usuario.Nombre,
+                admin = m.Admin,
+                yo = m.UsuarioId == usuarioId,
+                esCreador = m.UsuarioId == creadorId
+            })
+            .ToList();
+    }
     public async Task UnirseGrupo(ConexionChatGrupal conexion)
     {
         var usuarioId = Context.UserIdentifier;
@@ -329,6 +363,16 @@ public class ChatHub : Hub
         {
             var grupoId = await _chatGrupoService.CrearGrupo(nombre, usuarioId, descripcion);
             await Groups.AddToGroupAsync(Context.ConnectionId, grupoId.ToString());
+
+            await Clients.Caller.SendAsync("AgregadoAGrupo", new
+            {
+                id = grupoId,
+                nombre,
+                descripcion,
+                creadorId = usuarioId,
+                admin = true
+            });
+
             return grupoId;
         }
         catch (Exception ex)
@@ -337,4 +381,102 @@ public class ChatHub : Hub
             throw new HubException(mensaje);
         }
     }
+
+    public async Task<List<string>> AgregarMiembrosGrupo(Guid grupoId, List<string> usuarioIds)
+    {
+        var solicitanteId = Context.UserIdentifier;
+        if (string.IsNullOrEmpty(solicitanteId))
+            throw new HubException("Usuario no autenticado.");
+
+        if (!await _chatGrupoService.EsAdmin(grupoId, solicitanteId))
+            throw new HubException("Solo un administrador puede añadir usuarios.");
+
+        if (usuarioIds == null || usuarioIds.Count == 0)
+            throw new HubException("Selecciona al menos un usuario.");
+
+        var grupo = await _context.ChatGrupos.FirstOrDefaultAsync(g => g.Id == grupoId);
+        if (grupo == null)
+            throw new HubException("El grupo no existe.");
+
+        var agregados = new List<string>();
+
+        foreach (var id in usuarioIds.Distinct())
+        {
+            if (!await _chatGrupoService.AgregarUsuarioAGrupo(grupoId, id, false))
+                continue; // ya era miembro o no existe
+
+            agregados.Add(id);
+
+            await Clients.User(id).SendAsync("AgregadoAGrupo", new
+            {
+                id = grupo.Id,
+                nombre = grupo.Nombre,
+                descripcion = grupo.Descripcion,
+                creadorId = grupo.CreadorId,
+                admin = false
+            });
+        }
+
+        return agregados;
+    }
+    // Elminar a miembros del grupo
+    public async Task QuitarMiembroGrupo(Guid grupoId, string usuarioId)
+    {
+        var solicitanteId = Context.UserIdentifier;
+        if (string.IsNullOrEmpty(solicitanteId))
+            throw new HubException("Usuario no autenticado.");
+
+        if (!await _chatGrupoService.EsAdmin(grupoId, solicitanteId))
+            throw new HubException("Solo un administrador puede quitar miembros.");
+
+        var grupo = await _context.ChatGrupos.FirstOrDefaultAsync(g => g.Id == grupoId);
+        if (grupo == null)
+            throw new HubException("El grupo no existe.");
+
+        if (usuarioId == grupo.CreadorId)
+            throw new HubException("No se puede quitar al creador del grupo.");
+
+        if (usuarioId == solicitanteId)
+            throw new HubException("No puedes quitarte a ti mismo desde aquí.");
+
+        if (await _chatGrupoService.EsAdmin(grupoId, usuarioId) && solicitanteId != grupo.CreadorId)
+            throw new HubException("Solo el creador puede quitar a otro administrador.");
+
+        if (!await _chatGrupoService.EliminarUsuarioDeGrupo(grupoId, usuarioId))
+            throw new HubException("El usuario no es miembro del grupo.");
+
+        // Dejar de enviarle los mensajes del grupo en tiempo real
+        if (_usuariosConectados.TryGetValue(usuarioId, out var connectionId))
+            await Groups.RemoveFromGroupAsync(connectionId, grupoId.ToString());
+
+        await Clients.User(usuarioId).SendAsync("EliminadoDeGrupo", grupoId);
+    }
+
+    //Cambiar admin del grupo
+    public async Task CambiarAdminGrupo(Guid grupoId, string usuarioId, bool esAdmin)
+    {
+        var solicitanteId = Context.UserIdentifier;
+        if (string.IsNullOrEmpty(solicitanteId))
+            throw new HubException("Usuario no autenticado.");
+
+        if (!await _chatGrupoService.EsAdmin(grupoId, solicitanteId))
+            throw new HubException("Solo un administrador puede cambiar roles.");
+
+        var grupo = await _context.ChatGrupos.FirstOrDefaultAsync(g => g.Id == grupoId);
+        if (grupo == null)
+            throw new HubException("El grupo no existe.");
+
+        if (usuarioId == grupo.CreadorId)
+            throw new HubException("No se puede cambiar el rol del creador.");
+
+        if (!esAdmin && solicitanteId != grupo.CreadorId)
+            throw new HubException("Solo el creador puede quitar el rol de administrador.");
+
+        if (!await _chatGrupoService.CambiarAdmin(grupoId, usuarioId, esAdmin))
+            throw new HubException("El usuario no es miembro del grupo.");
+
+        await Clients.User(usuarioId).SendAsync("RolGrupoCambiado", new { grupoId, admin = esAdmin });
+    }
+
+
 }

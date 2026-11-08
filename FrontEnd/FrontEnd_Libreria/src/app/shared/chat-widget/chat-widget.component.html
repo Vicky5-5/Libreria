@@ -10,10 +10,6 @@
     <mat-icon>{{ isChatExpanded ? 'fullscreen_exit' : 'fullscreen' }}</mat-icon>
   </button>
 
-  <button class="newGroup" (click)="crearGrupo()" title="Nuevo Grupo">
-    <mat-icon>group_add</mat-icon>
-  </button>
-
   <div class="chat-header">
     <button *ngIf="usuarioActivoNombre || grupoActivoNombre" (click)="volverALista()" class="back-btn">
       <mat-icon>arrow_back</mat-icon>
@@ -22,15 +18,28 @@
     <button (click)="toggleChat()">✖</button>
   </div>
 
-  <!-- Pestañas: solo se muestran cuando no hay chat activo -->
-  <div class="tabs" *ngIf="!usuarioActivoNombre && !grupoActivoNombre">
+<!-- Pestañas: solo se muestran cuando no hay chat activo -->
+<div class="tabs" *ngIf="!usuarioActivoNombre && !grupoActivoNombre">
+
+  <div class="tab-switch">
     <button class="tab" [class.activo]="modo === 'privado'" (click)="cambiarModo('privado')">
-      Privados <span *ngIf="unreadPrivado > 0" class="badge-tab">{{ unreadPrivado }}</span>
+      <mat-icon>person</mat-icon>
+      Privados
+      <span *ngIf="unreadPrivado > 0" class="badge-tab">{{ unreadPrivado }}</span>
     </button>
     <button class="tab" [class.activo]="modo === 'grupal'" (click)="cambiarModo('grupal')">
-      Grupos <span *ngIf="unreadGrupal > 0" class="badge-tab">{{ unreadGrupal }}</span>
+      <mat-icon>groups</mat-icon>
+      Grupos
+      <span *ngIf="unreadGrupal > 0" class="badge-tab">{{ unreadGrupal }}</span>
     </button>
   </div>
+
+  <button class="newGroup" *ngIf="modo === 'grupal'" (click)="crearGrupo()" title="Crear grupo nuevo">
+    <mat-icon>add</mat-icon>
+    <span>Nuevo</span>
+  </button>
+
+</div>
 
   <!-- Ambos montados siempre (display:none) para no perder conexión/membership -->
   <div [style.display]="modo === 'privado' ? 'flex' : 'none'" style="flex:1; overflow:hidden; flex-direction:column;">
@@ -42,10 +51,24 @@
   </div>
 
   <div [style.display]="modo === 'grupal' ? 'flex' : 'none'" style="flex:1; overflow:hidden; flex-direction:column;">
+
+    <app-add-miembro
+      *ngIf="mostrarAddMiembro && grupoActivoId"
+      [grupoId]="grupoActivoId"
+      (cerrar)="cerrarAddMiembro()">
+    </app-add-miembro>
+
+    <!-- Sigue montado (solo oculto) para no perder el grupo ni los mensajes -->
     <app-chat-grupo
+      [style.display]="mostrarAddMiembro ? 'none' : 'flex'"
       (grupoSeleccionado)="onGrupoSeleccionado($event)"
+      (admin)="onAdminChange($event)"
+      (grupoCerrado)="volverALista()"
+      (gestionarMiembros)="addMiembro()"
       [mostrarSoloChat]="!!grupoActivoNombre"
       [resetear]="resetearChatGrupal">
     </app-chat-grupo>
+
   </div>
+
 </div>

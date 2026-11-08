@@ -1,114 +1,126 @@
-
-<!-- Lista de grupos -->
 @if (!grupoSeleccionadoInterno) {
 
-  @if (listaGrupos.length === 0) {
+  <!-- Lista de grupos -->
+  <div class="grupos-panel">
 
-    <p class="estado">
-      No perteneces a ningún grupo todavía.
-    </p>
+    <div class="grupos-search">
+      <mat-icon>search</mat-icon>
+      <input [(ngModel)]="filtroGrupo" placeholder="Buscar grupo..." />
+    </div>
 
-  } @else {
+    @if (listaGrupos.length > 0) {
+      <p class="resumen-grupos">
+        {{ listaGrupos.length }} grupos · eres admin en {{ gruposAdmin() }}
+      </p>
+    }
 
-    <ul class="lista-grupos">
-
-      @for (grupo of gruposFiltrados(); track grupo.id) {
-
-        <li
-          (click)="seleccionarGrupo(grupo)"
-          class="grupo-item"
-        >
-          {{ grupo.nombre }}
-        </li>
-
+    <div class="grupos-scroll">
+      @if (listaGrupos.length === 0) {
+        <div class="estado">
+          <mat-icon>groups</mat-icon>
+          <p>No perteneces a ningún grupo todavía.</p>
+        </div>
+      } @else if (gruposFiltrados().length === 0) {
+        <div class="estado">
+          <p>Sin resultados</p>
+        </div>
+      } @else {
+        <ul class="lista-grupos">
+          @for (grupo of gruposFiltrados(); track grupo.id) {
+            <li class="grupo-item" [class.es-admin]="grupo.admin" (click)="seleccionarGrupo(grupo)">
+              <span class="avatar">{{ grupo.nombre.charAt(0).toUpperCase() }}</span>
+              <div class="grupo-info">
+                <span class="grupo-nombre">{{ grupo.nombre }}</span>
+                @if (grupo.descripcion) {
+                  <span class="grupo-desc">{{ grupo.descripcion }}</span>
+                }
+              </div>
+              @if (grupo.admin) {
+                <span class="tag-admin" title="Eres administrador de este grupo">
+                  <mat-icon>star</mat-icon> Admin
+                </span>
+              }
+              <mat-icon class="chevron">chevron_right</mat-icon>
+            </li>
+          }
+        </ul>
       }
+    </div>
 
-    </ul>
-
-  }
+  </div>
 
 } @else {
 
-  <!-- Cabecera del grupo -->
-  <div class="cabecera-grupo">
 
-    <button
-      type="button"
-      (click)="grupoSeleccionadoInterno = null"
-    >
-      ←
-    </button>
+  <!-- Conversación -->
+  <div class="chat-grupo">
 
-    <h3>
-      {{ grupoSeleccionadoInterno.nombre }}
-    </h3>
+    @if (miembros.length > 0) {
+      <div class="info-grupo">
+        <button type="button" class="info-resumen" (click)="verMiembros = !verMiembros">
+          <mat-icon class="ico">group</mat-icon>
+          <span>{{ miembros.length }} {{ miembros.length === 1 ? 'miembro' : 'miembros' }}</span>
+          <span class="sep">·</span>
+          <span class="en-linea">
+            <span class="dot on"></span>{{ miembrosEnLinea() }} en línea
+          </span>
+          <mat-icon class="chev">{{ verMiembros ? 'expand_less' : 'expand_more' }}</mat-icon>
+        </button>
 
-  </div>
+        @if (esAdmin) {
+          <button type="button" class="btn-gestionar" title="Gestionar miembros"
+                  (click)="gestionarMiembros.emit()">
+            <mat-icon>person_add</mat-icon>
+          </button>
+        }
+      </div>
 
-
-  <!-- Mensajes -->
-  <div
-    class="mensajes"
-    #chatBody
-  >
-
-    @if (messages.length === 0) {
-
-      <p class="estado">
-        No hay mensajes todavía.
-      </p>
-
-    } @else {
-
-      @for (msg of messages; track $index) {
-
-        <div
-          class="burbuja"
-          [class.mia]="msg.emisorId === currentUserId"
-        >
-
-          @if (msg.emisorId !== currentUserId) {
-
-            <span class="nombre">
-              {{ msg.nombre }}
-            </span>
-
+      @if (verMiembros) {
+        <ul class="mini-miembros">
+          @for (m of miembros; track m.id) {
+            <li>
+              <span class="dot" [class.on]="conectados.has(m.id)"></span>
+              <span class="mini-nombre">
+                {{ m.nombre }}
+                @if (m.yo) { <em>(tú)</em> }
+              </span>
+              @if (m.esCreador) { <span class="mini-tag">Creador</span> }
+              @else if (m.admin) { <span class="mini-tag">Admin</span> }
+            </li>
           }
-
-          <p>
-            {{ msg.mensaje }}
-          </p>
-
-        </div>
-
+        </ul>
       }
-
     }
 
+    <div class="mensajes" #chatBody>
+      @if (messages.length === 0) {
+        <div class="estado">
+          <mat-icon>chat_bubble_outline</mat-icon>
+          <p>Aún no hay mensajes. ¡Di hola!</p>
+        </div>
+      } @else {
+        @for (msg of messages; track msg.id) {
+          <div class="burbuja" [class.mia]="msg.emisorId === currentUserId">
+            @if (msg.emisorId !== currentUserId) {
+              <span class="nombre">{{ msg.nombre }}</span>
+            }
+            <p [class.eliminado]="msg.eliminado">{{ msg.mensaje }}</p>
+            <small>
+              @if (msg.editado && !msg.eliminado) { editado · }
+              {{ msg.fecha | date:'shortTime' }}
+            </small>
+          </div>
+        }
+      }
+    </div>
+
+    <form class="input-area" (ngSubmit)="enviarMensaje()">
+      <input [(ngModel)]="newMessage" name="newMessage" placeholder="Escribe un mensaje..." autocomplete="off" />
+      <button type="submit" [disabled]="!newMessage.trim()">
+        <mat-icon>send</mat-icon>
+      </button>
+    </form>
+
   </div>
 
-
-  <!-- Escribir mensaje -->
-  <form
-    class="input-area"
-    (ngSubmit)="enviarMensaje()"
-  >
-
-    <input
-      [(ngModel)]="newMessage"
-      name="newMessage"
-      placeholder="Escribí un mensaje..."
-      autocomplete="off"
-    />
-
-    <button
-      type="submit"
-      [disabled]="!newMessage.trim()"
-    >
-      Enviar
-    </button>
-
-  </form>
-
 }
-

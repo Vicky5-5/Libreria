@@ -1,4 +1,3 @@
-
 import {
   Component,
   OnInit,
@@ -6,7 +5,8 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Inject,
-  PLATFORM_ID
+  PLATFORM_ID,
+  ViewChild
 } from '@angular/core';
 
 import { CommonModule, isPlatformBrowser } from '@angular/common';
@@ -25,19 +25,14 @@ import { ChatGrupoComponent } from '../../Componentes/chat/ChatGrupoComponent/Ch
 
 import { Usuario } from '../../interface/Usuario';
 import { Grupo } from '../../interface/Grupo';
+import { AddMiembro } from '../../Componentes/chat/addMiembro/addMiembro/addMiembro';
 
 type Modo = 'privado' | 'grupal';
 
 @Component({
   selector: 'app-chat-widget',
   standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    MatIconModule,
-    ChatComponent,
-    ChatGrupoComponent
-  ],
+  imports: [CommonModule, FormsModule, MatIconModule, ChatComponent, ChatGrupoComponent, AddMiembro],
   templateUrl: './chat-widget.component.html',
   styleUrls: ['./chat-widget.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -55,9 +50,14 @@ export class ChatWidgetComponent implements OnInit, OnDestroy {
   usuarioActivoNombre = '';
   grupoActivoNombre = '';
   grupoActivoId = '';
+  grupoActivoEsAdmin = false;
 
   resetearChat = false;
   resetearChatGrupal = false;
+
+  mostrarAddMiembro = false;
+
+  @ViewChild(ChatGrupoComponent) chatGrupo?: ChatGrupoComponent;
 
   private destroy$ = new Subject<void>();
 
@@ -67,21 +67,15 @@ export class ChatWidgetComponent implements OnInit, OnDestroy {
     private router: Router,
     private cdr: ChangeDetectorRef,
     @Inject(PLATFORM_ID) private platformId: object
-  ) {}
+  ) { }
 
   get unreadCount(): number {
     return this.unreadPrivado + this.unreadGrupal;
   }
 
   ngOnInit(): void {
-
-    if (!isPlatformBrowser(this.platformId)) {
-      return;
-    }
-
-    if (!this.accesoService.isLoggedIn()) {
-      return;
-    }
+    if (!isPlatformBrowser(this.platformId)) return;
+    if (!this.accesoService.isLoggedIn()) return;
 
     // Iniciar SignalR
     this.chatService.startConnection();
@@ -90,16 +84,8 @@ export class ChatWidgetComponent implements OnInit, OnDestroy {
     this.chatService.mensajes$
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => {
-
-        if (
-          this.isOpen &&
-          this.modo === 'privado'
-        ) {
-          return;
-        }
-
+        if (this.isOpen && this.modo === 'privado') return;
         this.unreadPrivado++;
-
         this.cdr.markForCheck();
       });
 
@@ -107,31 +93,19 @@ export class ChatWidgetComponent implements OnInit, OnDestroy {
     this.chatService.mensajesGrupo$
       .pipe(takeUntil(this.destroy$))
       .subscribe(msg => {
-
-        if (
-          this.isOpen &&
-          this.modo === 'grupal' &&
-          this.grupoActivoId === msg.grupoId
-        ) {
-          return;
-        }
-
+        if (this.isOpen && this.modo === 'grupal' && this.grupoActivoId === msg.grupoId) return;
         this.unreadGrupal++;
-
         this.cdr.markForCheck();
       });
   }
 
   ngOnDestroy(): void {
-
     this.chatService.stopConnection();
-
     this.destroy$.next();
     this.destroy$.complete();
   }
 
   toggleChat(): void {
-
     this.isOpen = !this.isOpen;
 
     if (!this.isOpen) {
@@ -139,80 +113,74 @@ export class ChatWidgetComponent implements OnInit, OnDestroy {
     }
 
     if (this.isOpen) {
-
-      if (this.modo === 'privado') {
-        this.unreadPrivado = 0;
-      } else {
-        this.unreadGrupal = 0;
-      }
+      if (this.modo === 'privado') this.unreadPrivado = 0;
+      else this.unreadGrupal = 0;
     }
 
     this.cdr.markForCheck();
   }
 
   cambiarModo(modo: Modo): void {
-
-    // No permitir cambiar de pestaña mientras hay
-    // una conversación abierta.
-    if (
-      this.usuarioActivoNombre ||
-      this.grupoActivoNombre
-    ) {
-      return;
-    }
+    // No permitir cambiar de pestaña con una conversación abierta
+    if (this.usuarioActivoNombre || this.grupoActivoNombre) return;
 
     this.modo = modo;
 
-    if (modo === 'privado') {
-      this.unreadPrivado = 0;
-    } else {
-      this.unreadGrupal = 0;
-    }
+    if (modo === 'privado') this.unreadPrivado = 0;
+    else this.unreadGrupal = 0;
 
     this.cdr.markForCheck();
   }
 
   onUsuarioSeleccionado(usuario: Usuario): void {
-
     this.usuarioActivoNombre = usuario.nombre;
-
     this.cdr.markForCheck();
   }
 
   onGrupoSeleccionado(grupo: Grupo): void {
-
     this.grupoActivoId = grupo.id;
     this.grupoActivoNombre = grupo.nombre;
-
     this.unreadGrupal = 0;
+    this.cdr.markForCheck();
+  }
 
+  onAdminChange(esAdmin: boolean): void {
+    this.grupoActivoEsAdmin = esAdmin;
     this.cdr.markForCheck();
   }
 
   volverALista(): void {
-
     this.usuarioActivoNombre = '';
     this.grupoActivoNombre = '';
     this.grupoActivoId = '';
+    this.grupoActivoEsAdmin = false;
 
     this.resetearChat = true;
     this.resetearChatGrupal = true;
 
+    this.mostrarAddMiembro = false;
+
     this.cdr.markForCheck();
 
     setTimeout(() => {
-
       this.resetearChat = false;
       this.resetearChatGrupal = false;
-
       this.cdr.markForCheck();
-
     }, 50);
   }
 
   crearGrupo(): void {
-
     this.router.navigate(['/nuevo-grupo']);
   }
-}
 
+
+  addMiembro(): void {
+    this.mostrarAddMiembro = true;
+    this.cdr.markForCheck();
+  }
+  cerrarAddMiembro(): void {
+    this.mostrarAddMiembro = false;
+    this.chatGrupo?.cargarMiembros();
+    this.cdr.markForCheck();
+  }
+}

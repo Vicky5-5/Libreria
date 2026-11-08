@@ -1,0 +1,276 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.gestion {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  padding: 12px 14px;
+  background: white;
+}
+
+/* ── Cabecera ── */
+.cabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.cabecera h3 {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: #c06a08;
+}
+
+.cabecera h3 mat-icon { font-size: 20px; width: 20px; height: 20px; }
+
+.btn-cerrar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: #6b7280;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.btn-cerrar:hover { background: #f4f4f5; }
+
+/* ── Pestañas ── */
+.tabs {
+  display: flex;
+  border-bottom: 1px solid #eee;
+  margin-bottom: 8px;
+}
+
+.tab {
+  flex: 1;
+  padding: 8px;
+  border: none;
+  background: none;
+  font-size: 13px;
+  color: #6b7280;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+}
+
+.tab.activo {
+  color: #c06a08;
+  font-weight: 600;
+  border-bottom-color: #c06a08;
+}
+
+/* ── Buscador ── */
+.buscador {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  margin-bottom: 8px;
+  background: #f4f4f5;
+  border-radius: 20px;
+  flex-shrink: 0;
+}
+
+.buscador mat-icon { font-size: 18px; width: 18px; height: 18px; color: #9ca3af; }
+
+.buscador input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 13px;
+}
+
+/* ── Selección múltiple ── */
+.barra-seleccion {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.check-todos { display: flex; align-items: center; gap: 6px; cursor: pointer; }
+
+/* ── Lista ── */
+.lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 4px;
+  border-bottom: 1px solid #f1f1f1;
+}
+
+.item.clicable { cursor: pointer; }
+.item.clicable:hover { background: #fdf3e7; }
+
+.avatar {
+  position: relative;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #c06a08;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.dot {
+  position: absolute;
+  right: -1px;
+  bottom: -1px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #ccc;
+  border: 2px solid white;
+}
+
+.dot.on { background: #22c55e; }
+
+.info { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+
+.nombre {
+  flex: 1;
+  min-width: 0;
+  font-size: 13px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.nombre em { color: #9ca3af; font-style: normal; font-size: 11px; }
+
+.roles { display: flex; gap: 4px; }
+
+.tag {
+  padding: 1px 8px;
+  border-radius: 10px;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.tag.admin { background: #fdf3e7; color: #c06a08; }
+.tag.creador { background: #c06a08; color: white; }
+
+/* ── Acciones por miembro ── */
+.acciones { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
+
+.btn-icono {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: 50%;
+  background: #f4f4f5;
+  color: #c06a08;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.btn-icono mat-icon { font-size: 18px; width: 18px; height: 18px; }
+.btn-icono:hover:not(:disabled) { background: #fdf3e7; }
+.btn-icono.peligro { color: #dc2626; }
+.btn-icono.peligro:hover:not(:disabled) { background: #fef2f2; }
+.btn-icono:disabled { color: #ccc; cursor: not-allowed; }
+
+.confirmar { font-size: 12px; color: #6b7280; }
+
+.btn-si, .btn-no {
+  padding: 3px 10px;
+  border: none;
+  border-radius: 12px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.btn-si { background: #dc2626; color: white; }
+.btn-si:disabled { background: #ddd; cursor: not-allowed; }
+.btn-no { background: #f4f4f5; color: #374151; }
+
+/* ── Botón principal (añadir varios) ── */
+.btn-principal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 8px;
+  padding: 9px;
+  border: none;
+  border-radius: 20px;
+  background: #c06a08;
+  color: white;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.2s;
+}
+
+.btn-principal mat-icon { font-size: 18px; width: 18px; height: 18px; }
+.btn-principal:hover:not(:disabled) { background: #a05a06; }
+.btn-principal:disabled { background: #ddd; cursor: not-allowed; }
+
+/* ── Estados y mensajes ── */
+.vacio {
+  padding: 16px;
+  text-align: center;
+  font-size: 13px;
+  color: #9ca3af;
+}
+
+.estado {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin: auto;
+  padding: 24px;
+  text-align: center;
+  color: #9ca3af;
+  font-size: 13px;
+}
+
+.estado p { margin: 0; }
+.estado mat-icon { font-size: 36px; width: 36px; height: 36px; }
+
+.msg {
+  margin: 8px 0 0;
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  flex-shrink: 0;
+}
+
+.msg.ok { background: #ecfdf5; color: #047857; }
+.msg.error { background: #fef2f2; color: #dc2626; }

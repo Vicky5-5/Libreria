@@ -80,26 +80,69 @@ namespace BackEnd_Libreria.Servicios
         }
         public async Task<bool> AgregarUsuarioAGrupo(Guid grupoId, string usuarioId, bool esAdmin)
         {
-            if (await PerteneceAlGrupo(grupoId, usuarioId))
-            {
-                return false; // El usuario ya pertenece al grupo
-            }
-            // Usando el Identity, para llamar a la tabla de Usuario hay que pner Users
-            var usuarioExistente = await _context.Users.AnyAsync(u => u.Id == usuarioId);
-            if (!usuarioExistente)
-            {
+            if (!await _context.ChatGrupos.AnyAsync(g => g.Id == grupoId))
+                return false; // El grupo no existe
+
+            if (!await _context.Users.AnyAsync(u => u.Id == usuarioId))
                 return false; // El usuario no existe
+
+            var existente = await _context.ChatGrupoUsuarios
+                .FirstOrDefaultAsync(x => x.GrupoId == grupoId && x.UsuarioId == usuarioId);
+
+            if (existente != null)
+            {
+                if (existente.Activo) return false; // Ya pertenece
+
+                // Había salido del grupo: se reactiva la fila en vez de insertar otra
+                existente.Activo = true;
+                existente.FechaSalida = null;
+                existente.FechaIngreso = DateTime.UtcNow;
+                existente.Admin = esAdmin;
+            }
+            else
+            {
+                _context.ChatGrupoUsuarios.Add(new ChatGrupoUsuario
+                {
+                    GrupoId = grupoId,
+                    UsuarioId = usuarioId,
+                    Admin = esAdmin
+                });
             }
 
-            var chatGrupoUsuario = new ChatGrupoUsuario
-            {
-                GrupoId = grupoId,
-                UsuarioId = usuarioId,
-                Admin = esAdmin
-            };
-            _context.ChatGrupoUsuarios.Add(chatGrupoUsuario);
             await _context.SaveChangesAsync();
             return true;
+        }
+
+        public async Task<bool> EsAdmin(Guid grupoId, string usuarioId)
+        {
+            return await _context.ChatGrupoUsuarios
+                .AnyAsync(x => x.GrupoId == grupoId && x.UsuarioId == usuarioId && x.Activo && x.Admin);
+        }
+
+        public async Task<bool> CambiarAdmin(Guid grupoId, string usuarioId, bool esAdmin)
+        {
+            var membresia = await _context.ChatGrupoUsuarios
+                .FirstOrDefaultAsync(x => x.GrupoId == grupoId && x.UsuarioId == usuarioId && x.Activo);
+
+            if (membresia == null) return false;
+
+            membresia.Admin = esAdmin;
+            await _context.SaveChangesAsync();
+            return true;
+        }
+        public async Task<List<ChatGrupoUsuario>> ObtenerMiembros(Guid grupoId)
+        {
+            return await _context.ChatGrupoUsuarios
+                .Include(x => x.Usuario)
+                .Where(x => x.GrupoId == grupoId && x.Activo)
+                .ToListAsync();
+        }
+        public async Task<List<ChatGrupoUsuario>> ObtenerMembresiasUsuario(string usuarioId)
+        {
+            return await _context.ChatGrupoUsuarios
+                .Include(x => x.Grupo)
+                .Where(x => x.UsuarioId == usuarioId && x.Activo)
+                .ToListAsync();
         }
         public async Task<bool> EliminarUsuarioDeGrupo(Guid grupoId, string usuarioId)
         {

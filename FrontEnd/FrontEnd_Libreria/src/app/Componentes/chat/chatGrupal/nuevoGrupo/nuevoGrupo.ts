@@ -58,5 +58,8 @@ export class NuevoGrupo {
           this.cdr.markForCheck();
         }
       });
+      alert('Grupo creado con éxito');
+      this.router.navigate(['/chat']);
+
   }
 }

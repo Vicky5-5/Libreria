@@ -4,6 +4,7 @@ import * as signalR from '@microsoft/signalr';
 import { BehaviorSubject, Subject, Observable, defer, from } from 'rxjs';
 import { ChatGrupal } from '../interface/ChatGrupal';
 import { Grupo } from '../interface/Grupo';
+import { MiembroGrupo } from '../interface/MiembroGrupo';
 
 export interface MensajeChat {
   emisorId: string;
@@ -31,6 +32,15 @@ export class SignalrService {
   mensajesGrupo$ = this.mensajeGrupoSubject.asObservable();
   private grupoActualId: string | null = null;
 
+  private agregadoAGrupoSubject = new Subject<Grupo>();
+  agregadoAGrupo$ = this.agregadoAGrupoSubject.asObservable();
+
+  private eliminadoDeGrupoSubject = new Subject<string>();
+  eliminadoDeGrupo$ = this.eliminadoDeGrupoSubject.asObservable();
+
+  private rolGrupoCambiadoSubject = new Subject<{ grupoId: string; admin: boolean }>();
+  rolGrupoCambiado$ = this.rolGrupoCambiadoSubject.asObservable();
+
   // ── Conexión ──
   private buildConnection(): void {
     this.hubConnection = new signalR.HubConnectionBuilder()
@@ -44,7 +54,10 @@ export class SignalrService {
     this.hubConnection.on('RecibirMensaje', (data: MensajeChat) => {
       this.mensajeSubject.next(data);
     });
-
+    // Agregado a un grupo
+    this.hubConnection.on('AgregadoAGrupo', (grupo: Grupo) => {
+      this.agregadoAGrupoSubject.next(grupo);
+    });
     this.hubConnection.on('UsuarioConectado', (userId: string) => {
       const actual = new Set(this.conectadosSubject.value);
       actual.add(userId);
@@ -61,6 +74,8 @@ export class SignalrService {
     this.hubConnection.on('RecibirMensajeGrupo', (data: ChatGrupal) => {
       this.mensajeGrupoSubject.next(data);
     });
+
+
 
     // Tras una reconexión cambia el ConnectionId: hay que volver a unirse al grupo
     this.hubConnection.onreconnected(async () => {
@@ -142,7 +157,19 @@ export class SignalrService {
     this.grupoActualId = grupoId;
     return this.invoke$<void>('UnirseGrupo', { grupoId });
   }
+  obtenerMiembrosGrupo(grupoId: string): Observable<MiembroGrupo[]> {
+    return this.invoke$<MiembroGrupo[]>('ObtenerMiembrosGrupo', grupoId);
+  }
 
+  agregarMiembrosGrupo(grupoId: string, usuarioIds: string[]): Observable<string[]> {
+    return this.invoke$<string[]>('AgregarMiembrosGrupo', grupoId, usuarioIds);
+  }
+  quitarMiembroGrupo(grupoId: string, usuarioId: string): Observable<void> {
+    return this.invoke$<void>('QuitarMiembroGrupo', grupoId, usuarioId);
+  }
+  cambiarAdminGrupo(grupoId: string, usuarioId: string, esAdmin: boolean): Observable<void> {
+    return this.invoke$<void>('CambiarAdminGrupo', grupoId, usuarioId, esAdmin);
+  }
   salirGrupo(grupoId: string): Observable<void> {
     if (this.grupoActualId === grupoId) this.grupoActualId = null;
     return this.invoke$<void>('SalirGrupo', grupoId);

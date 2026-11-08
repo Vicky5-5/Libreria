@@ -129,3 +129,105 @@
 }
 
 .back-btn { margin-right: 4px; }
+
+/* ── Botón "Nuevo grupo": discreto, se rellena al pasar el cursor ── */
+.newGroup {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  align-self: center;
+  flex-shrink: 0;
+  margin: 0 8px;
+  padding: 3px 10px 3px 6px;
+  border: 1px solid #f0d4ac;
+  border-radius: 14px;
+  background: transparent;
+  color: #c06a08;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.newGroup mat-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+}
+
+.newGroup:hover {
+  background: #c06a08;
+  border-color: #c06a08;
+  color: white;
+}
+
+/* ── Barra de pestañas ── */
+.tabs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  background: white;
+  border-bottom: 1px solid #eee;
+  flex-shrink: 0;
+}
+
+/* Contenedor tipo "interruptor" */
+.tab-switch {
+  display: flex;
+  flex: 1;
+  gap: 2px;
+  padding: 3px;
+  background: #f4f4f5;
+  border-radius: 20px;
+}
+
+.tab {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 6px 10px;
+  border: none;
+  border-radius: 16px;
+  background: transparent;
+  color: #6b7280;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+}
+
+.tab mat-icon {
+  font-size: 17px;
+  width: 17px;
+  height: 17px;
+}
+
+.tab:hover:not(.activo) {
+  color: #c06a08;
+}
+
+.tab.activo {
+  background: white;
+  color: #c06a08;
+  font-weight: 600;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+}
+
+/* Contador de no leídos */
+.badge-tab {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 5px;
+  border-radius: 8px;
+  background: #ef4444;
+  color: white;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1;
+}

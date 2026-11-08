@@ -56,7 +56,7 @@ export class DarAlta {
   confirmarAlta() {
     this.usuarioService.darDeAltaAdmin(this.data.id).subscribe({
       next: () => {
-        this.dialogRef.close(true); // devolvemos que se realizó la baja
+        this.dialogRef.close(true); // devolvemos que se realizó la alta
       }
     });
   }

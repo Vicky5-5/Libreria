@@ -12,6 +12,7 @@ import { EdicionLibro } from './Pages/administracionLibros/editarLibro/edicionLi
 import { ListadoLibrosComponent } from './Pages/listado_libros/listado_libros.component';
 import { Contacto } from './Pages/Contacto/Contacto';
 import { NuevoGrupo } from './Componentes/chat/chatGrupal/nuevoGrupo/nuevoGrupo';
+import { AddMiembro } from './Componentes/chat/addMiembro/addMiembro/addMiembro';
 
 export const routes: Routes = [
   { path: '', component: InicioComponent },
@@ -25,5 +26,6 @@ export const routes: Routes = [
   { path: 'registro', component: RegistroComponent},
   { path: 'contacto', component: Contacto },
   {path: 'nuevo-grupo', component: NuevoGrupo}, // Crea Grupos
+  {path: 'agregar-miembro', component: AddMiembro} // Añade miembros a un grupo
 ];
 

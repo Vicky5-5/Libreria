@@ -1,0 +1,136 @@
+<div class="gestion">
+
+  <div class="cabecera">
+    <h3><mat-icon>groups</mat-icon> Miembros del grupo</h3>
+    <button type="button" class="btn-cerrar" title="Cerrar" (click)="cerrar.emit()">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  @if (cargando) {
+
+    <div class="estado">
+      <mat-icon>hourglass_empty</mat-icon>
+      <p>Cargando…</p>
+    </div>
+
+  } @else if (!esAdmin) {
+
+    <div class="estado">
+      <mat-icon>lock</mat-icon>
+      <p>Solo los administradores del grupo pueden gestionar miembros.</p>
+    </div>
+
+  } @else {
+
+    <div class="tabs">
+      <button type="button" class="tab" [class.activo]="pestana === 'miembros'"
+              (click)="cambiarPestana('miembros')">
+        Miembros ({{ miembros.length }})
+      </button>
+      <button type="button" class="tab" [class.activo]="pestana === 'anadir'"
+              (click)="cambiarPestana('anadir')">
+        Añadir
+      </button>
+    </div>
+
+    <div class="buscador">
+      <mat-icon>search</mat-icon>
+      <input [(ngModel)]="filtro" name="filtro" placeholder="Buscar por nombre..." autocomplete="off" />
+    </div>
+
+    @if (pestana === 'miembros') {
+
+      <ul class="lista">
+        @for (m of miembrosFiltrados(); track m.id) {
+          <li class="item">
+            <span class="avatar">
+              {{ m.nombre.charAt(0).toUpperCase() }}
+              <span class="dot" [class.on]="(conectados$ | async)?.has(m.id)"></span>
+            </span>
+
+            <div class="info">
+              <span class="nombre">
+                {{ m.nombre }}
+                @if (m.yo) { <em>(tú)</em> }
+              </span>
+              <span class="roles">
+                @if (m.esCreador) { <span class="tag creador">Creador</span> }
+                @else if (m.admin) { <span class="tag admin">Admin</span> }
+              </span>
+            </div>
+
+            <div class="acciones">
+              @if (confirmandoId === m.id) {
+                <span class="confirmar">¿Quitar?</span>
+                <button type="button" class="btn-si" [disabled]="procesando" (click)="confirmarQuitar(m)">Sí</button>
+                <button type="button" class="btn-no" (click)="confirmandoId = null">No</button>
+              } @else {
+                @if (puedeCambiarRol(m)) {
+                  <button type="button" class="btn-icono"
+                          [title]="m.admin ? 'Quitar rol de administrador' : 'Hacer administrador'"
+                          [disabled]="procesando" (click)="cambiarRol(m)">
+                    <mat-icon>{{ m.admin ? 'remove_moderator' : 'admin_panel_settings' }}</mat-icon>
+                  </button>
+                }
+                @if (puedeQuitar(m)) {
+                  <button type="button" class="btn-icono peligro" title="Quitar del grupo"
+                          [disabled]="procesando" (click)="confirmandoId = m.id">
+                    <mat-icon>person_remove</mat-icon>
+                  </button>
+                }
+              }
+            </div>
+          </li>
+        } @empty {
+          <li class="vacio">Sin resultados</li>
+        }
+      </ul>
+
+    } @else {
+
+      <div class="barra-seleccion">
+        <label class="check-todos">
+          <input type="checkbox" [checked]="todosSeleccionados()" (change)="seleccionarTodos()" />
+          Seleccionar todos
+        </label>
+        <span>{{ seleccionados.size }} seleccionados</span>
+      </div>
+
+      <ul class="lista">
+        @for (u of disponibles(); track u.id) {
+          <li class="item clicable" (click)="toggle(u.id)">
+            <input type="checkbox" [checked]="seleccionados.has(u.id)"
+                   (click)="$event.stopPropagation()" (change)="toggle(u.id)" />
+            <span class="avatar">
+              {{ u.nombre.charAt(0).toUpperCase() }}
+              <span class="dot" [class.on]="(conectados$ | async)?.has(u.id)"></span>
+            </span>
+            <span class="nombre">{{ u.nombre }}</span>
+          </li>
+        } @empty {
+          <li class="vacio">
+            {{ filtro ? 'Sin resultados' : 'No hay más usuarios para añadir' }}
+          </li>
+        }
+      </ul>
+
+      <button type="button" class="btn-principal"
+              [disabled]="seleccionados.size === 0 || procesando"
+              (click)="agregarSeleccionados()">
+        <mat-icon>person_add</mat-icon>
+        Añadir {{ seleccionados.size > 0 ? seleccionados.size : '' }}
+      </button>
+
+    }
+
+    @if (okMsg) { <p class="msg ok">{{ okMsg }}</p> }
+    @if (errorMsg) { <p class="msg error">{{ errorMsg }}</p> }
+
+  }
+
+  @if (!cargando && !esAdmin && errorMsg) {
+    <p class="msg error">{{ errorMsg }}</p>
+  }
+
+</div>
