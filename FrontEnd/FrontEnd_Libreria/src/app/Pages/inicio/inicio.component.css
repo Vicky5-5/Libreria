@@ -1,5 +1,6 @@
 .inicio-fondo {
-  background-image: url('/assets/inicio-img.png'); /*Para que la imagen sea el fondo en la pantalla de inicio*/
+  background-image: url('/assets/inicio-img.png');
+  /*Para que la imagen sea el fondo en la pantalla de inicio*/
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -12,10 +13,12 @@
 }
 
 .contenido-inicio {
-  background-color: rgba(0, 0, 0, 0.5); /*Para mejor contraste*/
+  background-color: rgba(0, 0, 0, 0.5);
+  /*Para mejor contraste*/
   padding: 40px;
   border-radius: 8px;
 }
+
 button[mat-raised-button] {
   font-size: 16px;
   padding: 12px 24px;
@@ -24,24 +27,28 @@ button[mat-raised-button] {
   background-color: bisque;
   transition: transform 0.3s ease, background-color 0.3s ease;
 }
+
 button[mat-raised-button]:hover {
   background-color: #f6d365;
   color: #965334;
   transform: scale(1.05);
 }
+
 a {
   color: #f6d365;
   text-decoration: none;
   font-weight: bold;
   transition: color 0.4s ease-in-out;
 }
+
 a:hover {
   color: #965334;
 }
+
 .libro-img img {
   width: 250px;
   max-width: 100%;
-  filter: drop-shadow(0 20px 40px rgba(0,0,0,0.3));
+  filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.3));
   animation: float 4s ease-in-out infinite;
 }
 
@@ -57,7 +64,30 @@ a:hover {
 
 /* efecto flotante */
 @keyframes float {
-  0%   { transform: translateY(0px); }
-  50%  { transform: translateY(-15px); }
-  100% { transform: translateY(0px); }
+  0% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-15px);
+  }
+
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+@media (max-width: 768px) {
+  .libro-img {
+    display: none;
+    /* Ocultar la imagen del libro en pantallas pequeñas */
+  }
+
+  h1 {
+    font-size: 24px;
+  }
+
+  .contenido-inicio {
+    padding: 20px;
+  }
 }

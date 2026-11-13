@@ -38,8 +38,12 @@ mat-toolbar{
 }
 
 @media (max-width: 768px) {
-  .mobile-only {
-    display: inline-flex;
+  .brand-text {
+    display: none;
+  }
+
+  #login-container {
+    margin-left: auto; 
   }
 }
 

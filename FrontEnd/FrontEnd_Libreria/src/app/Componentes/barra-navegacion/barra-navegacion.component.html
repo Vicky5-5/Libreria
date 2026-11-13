@@ -1,13 +1,14 @@
 <mat-toolbar color="primary">
   <a routerLink="/" class="nav-brand">
     <img src="/assets/icono-libro.png" alt="Logo Librería">
-    <span>Librería Alejandría</span>
+    <span class="brand-text">Librería Alejandría</span>
   </a>
 
 
   <span class="example-spacer"></span>
 
   <!-- 🟢 USUARIO -->
+   <div id="login-container">
   <button id="user-button" mat-button *ngIf="usuario$ | async as user" [matMenuTriggerFor]="userMenu">
     <mat-icon>person</mat-icon>
 {{ user.Admin ? '(Admin)' : '' }} {{ user.nombre }}
@@ -23,4 +24,5 @@
   <mat-icon>logout</mat-icon> Logout
 </button>
   </mat-menu>
+  </div>
 </mat-toolbar>
