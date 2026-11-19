@@ -55,6 +55,19 @@ p{
   margin-top: 0;
 }
 
+@media only screen and (min-width: 768px) and (max-width: 1024px) {
+  form {
+    width: 90vw;
+    height: auto;
+  }
+  mat-card-title {
+  text-align: center;
+  font-size: 24px;
+  margin-bottom: 16px;
+  margin-top: 25px;
+}
+}
+
 @media (max-width: 600px) {
   form {
     width: 80vw;
